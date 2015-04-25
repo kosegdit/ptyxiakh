@@ -8,6 +8,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 
@@ -21,11 +22,13 @@ public class MainFrame extends JFrame{
     JSplitPane LeftSplitPane;
     JSplitPane RightSplitPane;
     JPanel previewPanel;
-    JPanel resultsPanel;
+    //JPanel resultsPanel;
     JPanel infoPanel;
-    JPanel historyPanel;
+    //JPanel historyPanel;
     JPanel toolsPanel;
     JPanel mapPanel;
+    JScrollPane historyScrollPane;
+    JScrollPane resultsScrollPane;
     JTabbedPane bottomRightTabbedPane;
     JLayeredPane toolsMapLayeredPane;
         
@@ -46,11 +49,13 @@ public class MainFrame extends JFrame{
         LeftSplitPane = new JSplitPane();
         RightSplitPane = new JSplitPane();
         previewPanel = new JPanel();
-        resultsPanel = new JPanel();
+        //resultsPanel = new JPanel();
         infoPanel = new JPanel();
-        historyPanel = new JPanel();
+        //historyPanel = new JPanel();
         toolsPanel = new JPanel();
         mapPanel = new JPanel();
+        historyScrollPane = new JScrollPane();
+        resultsScrollPane = new JScrollPane();
         bottomRightTabbedPane = new JTabbedPane();
         toolsMapLayeredPane = new JLayeredPane();
 
@@ -74,7 +79,8 @@ public class MainFrame extends JFrame{
         RightSplitPane.setDividerLocation(350);
         
         // Creates and sets the previewPanel
-        previewPanel.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        previewPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.
+                createBevelBorder(javax.swing.border.BevelBorder.RAISED), "Preview"));
         
         javax.swing.GroupLayout previewPanelLayout = new javax.swing.GroupLayout(previewPanel);
         previewPanel.setLayout(previewPanelLayout);
@@ -128,28 +134,33 @@ public class MainFrame extends JFrame{
         );
         toolsMapLayeredPaneLayout.setVerticalGroup(
             toolsMapLayeredPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addComponent(mapPanel, 200, 200, 200)
-                .addComponent(toolsPanel, 200, 200, 200)
+                .addComponent(mapPanel, 180, 200, 200)
+                .addComponent(toolsPanel, 180, 200, 200)
         );
         toolsMapLayeredPane.setLayer(toolsPanel, javax.swing.JLayeredPane.DEFAULT_LAYER);
         toolsMapLayeredPane.setLayer(mapPanel, javax.swing.JLayeredPane.DEFAULT_LAYER);
 
         LeftSplitPane.setRightComponent(toolsMapLayeredPane);
         
-        // Creates and sets the resultsPanel
-        resultsPanel.setBorder(javax.swing.BorderFactory.
-                createTitledBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED), "Results"));
+        //Otan to resultsPanel htan apla Panel prin dokimasw na to kanw se JScrollPane
+//        // Creates and sets the resultsPanel
+//        resultsPanel.setBorder(javax.swing.BorderFactory.
+//                createTitledBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED), "Results"));
+//        
+//        javax.swing.GroupLayout resultsPanelLayout = new javax.swing.GroupLayout(resultsPanel);
+//        resultsPanel.setLayout(resultsPanelLayout);
+//        resultsPanelLayout.setHorizontalGroup(
+//            resultsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+//        );
+//        resultsPanelLayout.setVerticalGroup(
+//            resultsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+//        );
+//
+//        RightSplitPane.setTopComponent(resultsPanel);
         
-        javax.swing.GroupLayout resultsPanelLayout = new javax.swing.GroupLayout(resultsPanel);
-        resultsPanel.setLayout(resultsPanelLayout);
-        resultsPanelLayout.setHorizontalGroup(
-            resultsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-        );
-        resultsPanelLayout.setVerticalGroup(
-            resultsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-        );
-
-        RightSplitPane.setTopComponent(resultsPanel);
+        // Creates and sets the resultsScrollPane
+        resultsScrollPane.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED), "Resutls")); 
+        RightSplitPane.setTopComponent(resultsScrollPane);
         
         // Creates and sets the infoPanel
         infoPanel.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
@@ -165,19 +176,24 @@ public class MainFrame extends JFrame{
 
         bottomRightTabbedPane.addTab("Info", infoPanel);
         
-        // Creates and sets the historyPanel
-        historyPanel.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
-
-        javax.swing.GroupLayout historyPanelLayout = new javax.swing.GroupLayout(historyPanel);
-        historyPanel.setLayout(historyPanelLayout);
-        historyPanelLayout.setHorizontalGroup(
-            historyPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-        );
-        historyPanelLayout.setVerticalGroup(
-            historyPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-        );
-
-        bottomRightTabbedPane.addTab("History", historyPanel);
+        //Otan to historyPanel htan apla Panel prin dokimasw na to kanw se JScrollPane
+//        // Creates and sets the historyPanel
+//        historyPanel.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+//
+//        javax.swing.GroupLayout historyPanelLayout = new javax.swing.GroupLayout(historyPanel);
+//        historyPanel.setLayout(historyPanelLayout);
+//        historyPanelLayout.setHorizontalGroup(
+//            historyPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+//        );
+//        historyPanelLayout.setVerticalGroup(
+//            historyPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+//        );
+//
+//        bottomRightTabbedPane.addTab("History", historyPanel);
+        
+        // Creates and sets the historyScrollPane
+        historyScrollPane.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        bottomRightTabbedPane.addTab("History", historyScrollPane);
 
         RightSplitPane.setRightComponent(bottomRightTabbedPane);
 
