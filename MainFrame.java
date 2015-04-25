@@ -2,11 +2,13 @@ package ptyxiakh;
 
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
+//import java.awt.event.ActionListener;
 import javax.swing.JFrame;
 import javax.swing.JLayeredPane;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -159,7 +161,8 @@ public class MainFrame extends JFrame{
 //        RightSplitPane.setTopComponent(resultsPanel);
         
         // Creates and sets the resultsScrollPane
-        resultsScrollPane.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED), "Resutls")); 
+        resultsScrollPane.setBorder(javax.swing.BorderFactory.
+                createTitledBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED), "Resutls")); 
         RightSplitPane.setTopComponent(resultsScrollPane);
         
         // Creates and sets the infoPanel
@@ -222,30 +225,74 @@ public class MainFrame extends JFrame{
         JMenu about = new JMenu("About");
         JMenu generate = new JMenu("Generate Graph");
         
+        JMenuItem aboutItem = new JMenuItem("About...");
         JMenuItem load = new JMenuItem("Load Graph");
         JMenuItem save = new JMenuItem("Save");
         JMenuItem saveAs = new JMenuItem("Save As...");
         JMenuItem exit = new JMenuItem("Exit");
+        JMenuItem degree = new JMenuItem("Node");
+        JMenuItem closeness = new JMenuItem("Closeness");
+        JMenuItem betweenness = new JMenuItem("Betweenness");
+        JMenuItem edgeBetweenness = new JMenuItem("Edge Betweenness");
+        JMenuItem μpci = new JMenuItem("μ-Pci");
+        JMenuItem kShell = new JMenuItem("k-Shell");
+        JMenuItem pageRank = new JMenuItem("Page Rank");
+        JMenuItem randomGraph = new JMenuItem("Random graph");
+            randomGraph.setToolTipText("Creates a random graph using the Erdős–Rényi model");
+        JMenuItem smallWorldGraph = new JMenuItem("Small world graph");
+        JMenuItem scaleFreeGraph = new JMenuItem("Scale free graph");
+            scaleFreeGraph.setToolTipText("Creates a random graph using the Albert-Barabasi model");
+        JMenuItem cpm = new JMenuItem("CPM");
+            cpm.setToolTipText("Clique Percolation Method");
+        JMenuItem ebc = new JMenuItem("EBC");
+            ebc.setToolTipText("Newmann & Girvan using the Edge Betweenness Centrality");
+        JMenuItem cibc = new JMenuItem("CiBC");
+            cibc.setToolTipText("Communities identification with Betweenness Centrality");
         
         
         MainMenuBar.add(file);
-        
             file.add(generate);
+                generate.add(randomGraph);
+                generate.add(smallWorldGraph);
+                generate.add(scaleFreeGraph);
             file.addSeparator();
             file.add(load);
             file.addSeparator();
             file.add(save);
             file.add(saveAs);
             file.addSeparator();
+            
                 exit.addActionListener((ActionEvent e) -> {
                     System.exit(0);
                 });
             file.add(exit);
 
         MainMenuBar.add(centralities);
+            centralities.add(degree);
+            centralities.add(closeness);
+            centralities.add(betweenness);
+            centralities.add(edgeBetweenness);
+            centralities.add(μpci);
+            centralities.add(kShell);
+            centralities.add(pageRank);
+            
         MainMenuBar.add(communities);
+            communities.add(cpm);
+            communities.add(ebc);
+            communities.add(cibc);
+            
         MainMenuBar.add(epidemics);
+          
         MainMenuBar.add(about);
+            aboutItem.addActionListener((ActionEvent e) -> {
+                JOptionPane.showMessageDialog(null, "----------------------------------------\n\n" + 
+                        "Created by Segditsas Konstantinos\n" + "ksegditsas@yahoo.gr\n\n" +
+                        "Advisor Professor: Katsaros Dimitrios\n" + "dkatsar@inf.uth.gr\n\n" + "ver 1.0\n\n" + 
+                        "----------------------------------------\n"
+                        , "About MyProgram", JOptionPane.INFORMATION_MESSAGE);
+            });
+            about.add(aboutItem);
+            
     
         return MainMenuBar;
     }
