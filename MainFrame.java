@@ -1,9 +1,15 @@
 package ptyxiakh;
 
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFormattedTextField;
 //import java.awt.event.ActionListener;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -11,14 +17,23 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSlider;
+import javax.swing.JSpinner;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.text.NumberFormatter;
 
 /**
  *
  * @author kostas
  */
 public class MainFrame extends JFrame{
+    
+    private boolean graphInUse = false;
 
     JSplitPane BaseSplitPane;
     JSplitPane LeftSplitPane;
@@ -252,7 +267,11 @@ public class MainFrame extends JFrame{
         
         MainMenuBar.add(file);
             file.add(generate);
+                randomGraph.addActionListener((ActionEvent e) -> {
+                    NewRandomGraph();
+                });
                 generate.add(randomGraph);
+                
                 generate.add(smallWorldGraph);
                 generate.add(scaleFreeGraph);
             file.addSeparator();
@@ -296,4 +315,59 @@ public class MainFrame extends JFrame{
     
         return MainMenuBar;
     }
+    
+    private void NewRandomGraph(){
+        
+        // If there is already a graph in use, asks the user to save his progress
+        if(graphInUse){
+            int dialogResult = JOptionPane.showConfirmDialog(null, "Would you like to save the current Graph?", "MyProgram",
+                                                            JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+
+            if(dialogResult == JOptionPane.YES_OPTION) {
+                SaveGraph();
+                graphInUse = false;
+            }
+            else if(dialogResult == JOptionPane.CANCEL_OPTION){
+                return;
+            }
+        }
+        
+        // Creates the Spinner for the number of Nodes with a downlimit of 2, and a spinner filter
+        // for integers, to prevent wrong user input
+        SpinnerNumberModel limits = new SpinnerNumberModel(2, 2, Short.MAX_VALUE, 1);
+        JSpinner numOfNodesSpinner = new JSpinner(limits);
+        
+        JFormattedTextField spinnerFilter = ((JSpinner.NumberEditor) numOfNodesSpinner.getEditor()).getTextField();
+        ((NumberFormatter) spinnerFilter.getFormatter()).setAllowsInvalid(false);
+        
+        int startValue = 50;
+        final JLabel densitySliderLabel = new JLabel("Choose Graph density: " + startValue + "%");
+        
+        // Creates the Density Slider, right above is the laber for the Slider
+        JSlider densitySlider = new JSlider(JSlider.HORIZONTAL, 0, 100, startValue);
+        densitySlider.setMajorTickSpacing(20);
+        densitySlider.setMinorTickSpacing(5);
+        densitySlider.setPaintTicks(true);
+        densitySlider.setPaintLabels(true);
+        
+        // Change listener for the Density Slider to catch the real time changes
+        densitySlider.addChangeListener((ChangeEvent e) -> {
+            densitySliderLabel.setText("Choose Graph density: " + densitySlider.getValue() + "%");
+        });
+        
+        // An array of objects is created to carry all the information for the displayed window
+        Object[] fullMessage = {"Enter number of nodes:", numOfNodesSpinner, "\n\n", densitySliderLabel, densitySlider};
+
+        JOptionPane optionPane = new JOptionPane();
+        optionPane.setMessage(fullMessage);
+        optionPane.setMessageType(JOptionPane.PLAIN_MESSAGE);
+        
+        JDialog dialog = optionPane.createDialog(null, "Random Graph Properties");
+        dialog.setVisible(true);
+        
+        int density = densitySlider.getValue();
+        int numberOfNodes = (int)numOfNodesSpinner.getValue();
+        }
+    
+    private void SaveGraph(){}
 }
