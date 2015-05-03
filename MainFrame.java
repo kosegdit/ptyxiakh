@@ -1,9 +1,12 @@
 package ptyxiakh;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Iterator;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFormattedTextField;
@@ -34,6 +37,7 @@ import javax.swing.text.NumberFormatter;
 public class MainFrame extends JFrame{
     
     private boolean graphInUse = false;
+    //private Point mousePt = new Point(WIDTH / 2, HEIGHT / 2);
 
     JSplitPane BaseSplitPane;
     JSplitPane LeftSplitPane;
@@ -57,7 +61,6 @@ public class MainFrame extends JFrame{
         setLocation(300, 300);
         setResizable(true);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        
     }
     
     private void initComponents() {
@@ -317,7 +320,7 @@ public class MainFrame extends JFrame{
     }
     
     private void NewRandomGraph(){
-        
+
         // If there is already a graph in use, asks the user to save his progress
         if(graphInUse){
             int dialogResult = JOptionPane.showConfirmDialog(null, "Would you like to save the current Graph?", "MyProgram",
@@ -334,7 +337,7 @@ public class MainFrame extends JFrame{
         
         // Creates the Spinner for the number of Nodes with a downlimit of 2, and a spinner filter
         // for integers, to prevent wrong user input
-        SpinnerNumberModel limits = new SpinnerNumberModel(2, 2, Short.MAX_VALUE, 1);
+        SpinnerNumberModel limits = new SpinnerNumberModel(20, 1, Short.MAX_VALUE, 1);
         JSpinner numOfNodesSpinner = new JSpinner(limits);
         
         JFormattedTextField spinnerFilter = ((JSpinner.NumberEditor) numOfNodesSpinner.getEditor()).getTextField();
@@ -367,7 +370,15 @@ public class MainFrame extends JFrame{
         
         int density = densitySlider.getValue();
         int numberOfNodes = (int)numOfNodesSpinner.getValue();
+        
+        Graph.createRandomGraph(density, numberOfNodes, previewPanel.getSize());
+        
+        for (int i = 0; i < numberOfNodes; i++) {
+            previewPanel.add(Graph.getNode(i));
         }
+        
+        previewPanel.repaint();
+    }
     
     private void SaveGraph(){}
 }
