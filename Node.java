@@ -50,15 +50,16 @@ public class Node extends JComponent {
         
         setLocation(p);
         setSize(new Dimension(10, 10));
+        
         setVisible(true);
         repaint();
     }
     
+    @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
         g2.setColor(Color.BLUE);
         g2.fillOval(0, 0, getWidth(), getHeight());
-        g2.setColor(getForeground());
     }
 }

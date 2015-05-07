@@ -37,7 +37,6 @@ import javax.swing.text.NumberFormatter;
 public class MainFrame extends JFrame{
     
     private boolean graphInUse = false;
-    //private Point mousePt = new Point(WIDTH / 2, HEIGHT / 2);
 
     JSplitPane BaseSplitPane;
     JSplitPane LeftSplitPane;
@@ -78,8 +77,6 @@ public class MainFrame extends JFrame{
         resultsScrollPane = new JScrollPane();
         bottomRightTabbedPane = new JTabbedPane();
         toolsMapLayeredPane = new JLayeredPane();
-
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
 
         setJMenuBar(createMainMenu());
         
@@ -321,16 +318,25 @@ public class MainFrame extends JFrame{
     
     private void NewRandomGraph(){
 
+        Graph randomGraph;
+        
         // If there is already a graph in use, asks the user to save his progress
         if(graphInUse){
-            int dialogResult = JOptionPane.showConfirmDialog(null, "Would you like to save the current Graph?", "MyProgram",
+            int graphInUseDialogResult = JOptionPane.showConfirmDialog(null, "Would you like to save the current Graph?", "MyProgram",
                                                             JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
-
-            if(dialogResult == JOptionPane.YES_OPTION) {
+            
+            if(graphInUseDialogResult == JOptionPane.YES_OPTION) {
                 SaveGraph();
                 graphInUse = false;
             }
-            else if(dialogResult == JOptionPane.CANCEL_OPTION){
+            else if(graphInUseDialogResult == JOptionPane.NO_OPTION){
+                previewPanel.removeAll();
+                previewPanel.updateUI();
+                //randomGraph = null;
+                graphInUse = false;
+                
+            }
+            else {
                 return;
             }
         }
@@ -361,23 +367,29 @@ public class MainFrame extends JFrame{
         // An array of objects is created to carry all the information for the displayed window
         Object[] fullMessage = {"Enter number of nodes:", numOfNodesSpinner, "\n\n", densitySliderLabel, densitySlider};
 
-        JOptionPane optionPane = new JOptionPane();
-        optionPane.setMessage(fullMessage);
-        optionPane.setMessageType(JOptionPane.PLAIN_MESSAGE);
+        int result = JOptionPane.showOptionDialog(null, fullMessage, "Random Graph Properties",
+							JOptionPane.OK_OPTION, JOptionPane.PLAIN_MESSAGE,
+							null, null, null);
         
-        JDialog dialog = optionPane.createDialog(null, "Random Graph Properties");
-        dialog.setVisible(true);
+        if(result != JOptionPane.OK_OPTION) {
+            return;
+        }
         
+        graphInUse = true;
         int density = densitySlider.getValue();
         int numberOfNodes = (int)numOfNodesSpinner.getValue();
         
-        Graph.createRandomGraph(density, numberOfNodes, previewPanel.getSize());
+        randomGraph = new Graph();
+        randomGraph.createRandomGraph(density, numberOfNodes, previewPanel.getSize());
         
         for (int i = 0; i < numberOfNodes; i++) {
-            previewPanel.add(Graph.getNode(i));
+            previewPanel.add(randomGraph.nodes.get(i));
         }
-        
-        previewPanel.repaint();
+        for(int i = 0; i < randomGraph.edges.size(); i++ ){
+            Edge e = randomGraph.edges.get(i);
+            previewPanel.add(e);
+            e.repaint();
+        }
     }
     
     private void SaveGraph(){}
