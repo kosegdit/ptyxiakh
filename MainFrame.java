@@ -110,6 +110,7 @@ public class MainFrame extends JFrame{
 
         LeftSplitPane.setTopComponent(previewPanel);
         
+        
         // Creates and sets the toolsPanel
         toolsPanel.setPreferredSize(new Dimension(0, 200));
                 
@@ -125,6 +126,7 @@ public class MainFrame extends JFrame{
             toolsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
         );
         
+        
         // Creates and sets the mapPanel
         mapPanel.setPreferredSize(new Dimension(260, 200));
         
@@ -139,6 +141,7 @@ public class MainFrame extends JFrame{
         mapPanelLayout.setVerticalGroup(
             mapPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
         );
+        
         
         // Creates and sets the toolsMapLayeredPane
         javax.swing.GroupLayout toolsMapLayeredPaneLayout = new javax.swing.GroupLayout(toolsMapLayeredPane);
@@ -159,21 +162,6 @@ public class MainFrame extends JFrame{
 
         LeftSplitPane.setRightComponent(toolsMapLayeredPane);
         
-        //Otan to resultsPanel htan apla Panel prin dokimasw na to kanw se JScrollPane
-//        // Creates and sets the resultsPanel
-//        resultsPanel.setBorder(javax.swing.BorderFactory.
-//                createTitledBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED), "Results"));
-//        
-//        javax.swing.GroupLayout resultsPanelLayout = new javax.swing.GroupLayout(resultsPanel);
-//        resultsPanel.setLayout(resultsPanelLayout);
-//        resultsPanelLayout.setHorizontalGroup(
-//            resultsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-//        );
-//        resultsPanelLayout.setVerticalGroup(
-//            resultsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-//        );
-//
-//        RightSplitPane.setTopComponent(resultsPanel);
         
         // Creates and sets the resultsScrollPane
         resultsScrollPane.setBorder(javax.swing.BorderFactory.
@@ -194,20 +182,6 @@ public class MainFrame extends JFrame{
 
         bottomRightTabbedPane.addTab("Info", infoPanel);
         
-        //Otan to historyPanel htan apla Panel prin dokimasw na to kanw se JScrollPane
-//        // Creates and sets the historyPanel
-//        historyPanel.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
-//
-//        javax.swing.GroupLayout historyPanelLayout = new javax.swing.GroupLayout(historyPanel);
-//        historyPanel.setLayout(historyPanelLayout);
-//        historyPanelLayout.setHorizontalGroup(
-//            historyPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-//        );
-//        historyPanelLayout.setVerticalGroup(
-//            historyPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-//        );
-//
-//        bottomRightTabbedPane.addTab("History", historyPanel);
         
         // Creates and sets the historyScrollPane
         historyScrollPane.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
@@ -245,7 +219,7 @@ public class MainFrame extends JFrame{
         JMenuItem save = new JMenuItem("Save");
         JMenuItem saveAs = new JMenuItem("Save As...");
         JMenuItem exit = new JMenuItem("Exit");
-        JMenuItem degree = new JMenuItem("Node");
+        JMenuItem degree = new JMenuItem("Degree");
         JMenuItem closeness = new JMenuItem("Closeness");
         JMenuItem betweenness = new JMenuItem("Betweenness");
         JMenuItem edgeBetweenness = new JMenuItem("Edge Betweenness");
@@ -255,6 +229,7 @@ public class MainFrame extends JFrame{
         JMenuItem randomGraph = new JMenuItem("Random graph");
             randomGraph.setToolTipText("Creates a random graph using the Erdős–Rényi model");
         JMenuItem smallWorldGraph = new JMenuItem("Small world graph");
+            smallWorldGraph.setToolTipText("Six degrees of seperation");
         JMenuItem scaleFreeGraph = new JMenuItem("Scale free graph");
             scaleFreeGraph.setToolTipText("Creates a random graph using the Albert-Barabasi model");
         JMenuItem cpm = new JMenuItem("CPM");
@@ -305,7 +280,7 @@ public class MainFrame extends JFrame{
         MainMenuBar.add(about);
             aboutItem.addActionListener((ActionEvent e) -> {
                 JOptionPane.showMessageDialog(null, "----------------------------------------\n\n" + 
-                        "Created by Segditsas Konstantinos\n" + "ksegditsas@yahoo.gr\n\n" +
+                        "Created by: Segditsas Konstantinos\n" + "ksegditsas@yahoo.gr\n\n" +
                         "Advisor Professor: Katsaros Dimitrios\n" + "dkatsar@inf.uth.gr\n\n" + "ver 1.0\n\n" + 
                         "----------------------------------------\n"
                         , "About MyProgram", JOptionPane.INFORMATION_MESSAGE);
@@ -390,6 +365,7 @@ public class MainFrame extends JFrame{
             previewPanel.add(e);
             e.repaint();
         }
+        previewPanel.repaint();
     }
     
     private void SaveGraph(){}

@@ -34,7 +34,7 @@ public class Edge extends JComponent{
             this.weight = weight;
         }
         
-        setSize(size);
+        setSize(2000,2000);
 
         setVisible(true);
         repaint();
@@ -46,10 +46,10 @@ public class Edge extends JComponent{
         
         Graphics g2 = (Graphics) g;
 
-        Random rand = new Random();
-        float r = rand.nextFloat();
-        float gg = rand.nextFloat();
-        float b = rand.nextFloat();
+//        Random rand = new Random();
+//        float r = rand.nextFloat();
+//        float gg = rand.nextFloat();
+//        float b = rand.nextFloat();
 
         g2.setColor(Color.RED);
         

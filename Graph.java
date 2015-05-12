@@ -1,5 +1,6 @@
 package ptyxiakh;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.util.ArrayList;
@@ -25,13 +26,14 @@ public class Graph {
         
         for(int i=0; i<numOfNodes; i++){
             nodes.add(new Node(""+i, coords[i]));
+            nodes.get(i).setNodeColor(Color.BLUE);
         }
         
         // Run through every possible pair of nodes in the Graph
         for(int i=0; i<nodes.size(); i++){
             for(int j=i+1; j<nodes.size(); j++){
                 // Creates a random nuber [0, 100] to become the connection possibility of two nodes
-                int connectivity = (int)(Math.random() * (101));
+                int connectivity = (int)(Math.random() * (101)) + 1;
                 
                 if(connectivity <= density){
                     edges.add(new Edge(nodes.get(i), nodes.get(j), false, false, 0, size));
@@ -45,11 +47,6 @@ public class Graph {
         }
     }
     
-//    public Node getNode(int i) {
-//        
-//        return nodes.get(i);
-//    }
-    
     public void printListNodes(){
         
         for(int i=0; i<nodes.size(); i++){
@@ -57,18 +54,6 @@ public class Graph {
             //System.out.println("Node: " + nodes.get(i).label + " width: " + nodes.get(i).getWidth() + " heigth: " + nodes.get(i).getHeight());
         }
     }
-    
-    public void deleteNode(int index){
-        
-        nodes.remove(index);
-    }
-    
-//    public void deleteGraph(){
-//        
-//        nodes.clear();
-//        nodes = null;
-//        //System.gc();
-//    }
     
     private static Point[] getCircleCoords(int n, Dimension size) {
         
