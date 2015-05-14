@@ -1,33 +1,27 @@
 package ptyxiakh;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
+
 import java.awt.Point;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.Iterator;
-import javax.swing.JButton;
-import javax.swing.JDialog;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 import javax.swing.JFormattedTextField;
-//import java.awt.event.ActionListener;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JLayeredPane;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
-import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.text.NumberFormatter;
 
 /**
@@ -36,21 +30,15 @@ import javax.swing.text.NumberFormatter;
  */
 public class MainFrame extends JFrame{
     
-    private boolean graphInUse = false;
-
+    
     JSplitPane BaseSplitPane;
-    JSplitPane LeftSplitPane;
     JSplitPane RightSplitPane;
-    JPanel previewPanel;
-    //JPanel resultsPanel;
     JPanel infoPanel;
-    //JPanel historyPanel;
-    JPanel toolsPanel;
-    JPanel mapPanel;
+    Graph previewPanel = new Graph();
     JScrollPane historyScrollPane;
     JScrollPane resultsScrollPane;
     JTabbedPane bottomRightTabbedPane;
-    JLayeredPane toolsMapLayeredPane;
+    
         
     public MainFrame() {
         initComponents();
@@ -62,105 +50,31 @@ public class MainFrame extends JFrame{
         setDefaultCloseOperation(EXIT_ON_CLOSE);
     }
     
+    
     private void initComponents() {
 
         BaseSplitPane = new JSplitPane();
-        LeftSplitPane = new JSplitPane();
         RightSplitPane = new JSplitPane();
-        previewPanel = new JPanel();
-        //resultsPanel = new JPanel();
+        previewPanel = new Graph();
         infoPanel = new JPanel();
-        //historyPanel = new JPanel();
-        toolsPanel = new JPanel();
-        mapPanel = new JPanel();
         historyScrollPane = new JScrollPane();
         resultsScrollPane = new JScrollPane();
         bottomRightTabbedPane = new JTabbedPane();
-        toolsMapLayeredPane = new JLayeredPane();
-
+        
+        
         setJMenuBar(createMainMenu());
         
         BaseSplitPane.setOrientation(javax.swing.JSplitPane.HORIZONTAL_SPLIT);
         BaseSplitPane.setDividerLocation(510);
         BaseSplitPane.setResizeWeight(0.5);
-        BaseSplitPane.setLeftComponent(LeftSplitPane);
+        BaseSplitPane.setLeftComponent(previewPanel);
         BaseSplitPane.setRightComponent(RightSplitPane);
-        
-        LeftSplitPane.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
-        LeftSplitPane.setResizeWeight(1);
-        LeftSplitPane.setDividerLocation(Short.MAX_VALUE);
-        LeftSplitPane.setDividerSize(0);
         
         RightSplitPane.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
         RightSplitPane.setResizeWeight(0.5);
         RightSplitPane.setDividerLocation(350);
         
-        // Creates and sets the previewPanel
-        previewPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.
-                createBevelBorder(javax.swing.border.BevelBorder.RAISED), "Preview"));
         
-        javax.swing.GroupLayout previewPanelLayout = new javax.swing.GroupLayout(previewPanel);
-        previewPanel.setLayout(previewPanelLayout);
-        previewPanelLayout.setHorizontalGroup(
-            previewPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-        );
-        previewPanelLayout.setVerticalGroup(
-            previewPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-        );
-
-        LeftSplitPane.setTopComponent(previewPanel);
-        
-        
-        // Creates and sets the toolsPanel
-        toolsPanel.setPreferredSize(new Dimension(0, 200));
-                
-        toolsPanel.setBorder(javax.swing.BorderFactory.
-                createTitledBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED), "Tools"));
-        
-        javax.swing.GroupLayout toolsPanelLayout = new javax.swing.GroupLayout(toolsPanel);
-        toolsPanel.setLayout(toolsPanelLayout);
-        toolsPanelLayout.setHorizontalGroup(
-            toolsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-        );
-        toolsPanelLayout.setVerticalGroup(
-            toolsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-        );
-        
-        
-        // Creates and sets the mapPanel
-        mapPanel.setPreferredSize(new Dimension(260, 200));
-        
-        mapPanel.setBorder(javax.swing.BorderFactory.
-                createTitledBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED), "Map"));
-
-        javax.swing.GroupLayout mapPanelLayout = new javax.swing.GroupLayout(mapPanel);
-        mapPanel.setLayout(mapPanelLayout);
-        mapPanelLayout.setHorizontalGroup(
-            mapPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-        );
-        mapPanelLayout.setVerticalGroup(
-            mapPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-        );
-        
-        
-        // Creates and sets the toolsMapLayeredPane
-        javax.swing.GroupLayout toolsMapLayeredPaneLayout = new javax.swing.GroupLayout(toolsMapLayeredPane);
-        toolsMapLayeredPane.setLayout(toolsMapLayeredPaneLayout);
-        toolsMapLayeredPaneLayout.setHorizontalGroup(
-            toolsMapLayeredPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(toolsMapLayeredPaneLayout.createSequentialGroup()
-                .addComponent(toolsPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 343, Short.MAX_VALUE)
-                .addComponent(mapPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-        );
-        toolsMapLayeredPaneLayout.setVerticalGroup(
-            toolsMapLayeredPaneLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addComponent(mapPanel, 180, 200, 200)
-                .addComponent(toolsPanel, 180, 200, 200)
-        );
-        toolsMapLayeredPane.setLayer(toolsPanel, javax.swing.JLayeredPane.DEFAULT_LAYER);
-        toolsMapLayeredPane.setLayer(mapPanel, javax.swing.JLayeredPane.DEFAULT_LAYER);
-
-        LeftSplitPane.setRightComponent(toolsMapLayeredPane);
         
         
         // Creates and sets the resultsScrollPane
@@ -290,31 +204,11 @@ public class MainFrame extends JFrame{
     
         return MainMenuBar;
     }
-    
+  
     private void NewRandomGraph(){
 
-        Graph randomGraph;
-        
         // If there is already a graph in use, asks the user to save his progress
-        if(graphInUse){
-            int graphInUseDialogResult = JOptionPane.showConfirmDialog(null, "Would you like to save the current Graph?", "MyProgram",
-                                                            JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
-            
-            if(graphInUseDialogResult == JOptionPane.YES_OPTION) {
-                SaveGraph();
-                graphInUse = false;
-            }
-            else if(graphInUseDialogResult == JOptionPane.NO_OPTION){
-                previewPanel.removeAll();
-                previewPanel.updateUI();
-                //randomGraph = null;
-                graphInUse = false;
-                
-            }
-            else {
-                return;
-            }
-        }
+        previewPanel.ClearGraphIfInUse();
         
         // Creates the Spinner for the number of Nodes with a downlimit of 2, and a spinner filter
         // for integers, to prevent wrong user input
@@ -350,23 +244,9 @@ public class MainFrame extends JFrame{
             return;
         }
         
-        graphInUse = true;
         int density = densitySlider.getValue();
         int numberOfNodes = (int)numOfNodesSpinner.getValue();
         
-        randomGraph = new Graph();
-        randomGraph.createRandomGraph(density, numberOfNodes, previewPanel.getSize());
-        
-        for (int i = 0; i < numberOfNodes; i++) {
-            previewPanel.add(randomGraph.nodes.get(i));
-        }
-        for(int i = 0; i < randomGraph.edges.size(); i++ ){
-            Edge e = randomGraph.edges.get(i);
-            previewPanel.add(e);
-            e.repaint();
-        }
-        previewPanel.repaint();
+        previewPanel.RandomGraph(density, numberOfNodes);
     }
-    
-    private void SaveGraph(){}
 }

@@ -3,30 +3,181 @@ package ptyxiakh;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.SwingUtilities;
 
 /**
  *
  * @author kostas
  */
 
-public class Graph {
+public class Graph extends JPanel {
     
-    public List<Node> nodes = new ArrayList<>();;
-    public List<Node> selectedNodes = new ArrayList<>();
-    public List<Edge> edges = new ArrayList<>();
+    public List<Node> nodes;
+    public List<Node> selectedNodes;
+    public List<Edge> edges;
+    JPopupMenu previewPanelPopup;
+    JMenuItem clear;
+    private Point mousePt;
+    private boolean graphInUse;
+    private int nodesCounter;
+
     
     public Graph(){
+        
+        init();
+        
+        previewPanelPopup = new JPopupMenu();
+        clear = new JMenuItem("Clear Graph");
+        clear.setEnabled(false);
+        
+        // Creates and sets the previewPanel and the previewPanel Pop up Menu
+        setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.
+                createBevelBorder(javax.swing.border.BevelBorder.RAISED), "Preview"));
+        
+        javax.swing.GroupLayout previewPanelLayout = new javax.swing.GroupLayout(this);
+        setLayout(previewPanelLayout);
+        previewPanelLayout.setHorizontalGroup(
+            previewPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        );
+        previewPanelLayout.setVerticalGroup(
+            previewPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        );
+        
+        // previewPanel Pop up Menu to create a new node and clear the current Graph
+
+        JMenuItem newNode = new JMenuItem("New node");
+        newNode.addActionListener((ActionEvent e) -> {
+                    this.userNewNode(mousePt);
+                    add(this.nodes.get(nodes.size()-1));
+                    repaint();
+                    graphInUse = true;
+                    clear.setEnabled(true);
+                });
+        previewPanelPopup.add(newNode);
+        clear.addActionListener((ActionEvent e) -> {
+                    ClearGraph();
+                    this.repaint();
+                });
+        previewPanelPopup.add(clear);
+        
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (SwingUtilities.isRightMouseButton(e)){
+                    mousePt = e.getPoint();
+                    previewPanelPopup.show(e.getComponent(), e.getX(), e.getY());
+                }     
+            }
+        });
     }
     
-    public void createRandomGraph(double density, int numOfNodes, Dimension size){
+    private void init() {
+        nodes = new ArrayList<>();;
+        selectedNodes = new ArrayList<>();
+        edges = new ArrayList<>();
+        graphInUse = false;
+        nodesCounter = 0;
+    }
+    
+    private void reset() {
+        init();
+        clear.setEnabled(false);
+        this.removeAll();
+    }
+
+    public void ClearGraphIfInUse() {
+        if(graphInUse) ClearGraph();
+    }
+    
+    public void ClearGraph() {
         
-        Point[] coords = getCircleCoords(numOfNodes, size);
+        int clearDialogResult = JOptionPane.showConfirmDialog(null, "Would you like to save the current Graph?", "MyProgram",
+                                                            JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+        
+        switch(clearDialogResult) {
+            case JOptionPane.YES_OPTION:
+                SaveGraph();
+            case JOptionPane.NO_OPTION:
+                reset();
+        }
+    }
+    
+    private void SaveGraph(){}
+
+    // Adds a new node after user request
+    public void userNewNode(Point location){
+        
+        Point nodeLocation  = new Point();
+        nodeLocation.x = location.x -10;
+        nodeLocation.y = location.y -10;
+        
+        nodes.add(new Node(nodesCounter++, nodeLocation, this));
+    }
+    
+    // Adds a new edge after user request
+    public void userNewEdge(){
+        
+        
+    }
+    
+    // Deletes a node and all his edges after user request
+    public void userDeleteNode(Node node){
+        
+        System.out.println("middle:" + nodes.size());
+        
+        int i = 0;
+        Edge e;
+        while (i < edges.size()) {
+            e = edges.get(i);
+            
+            if(e.node1.equals(node)){
+                e.node1.otherNeighbor(e).resize(-1);
+                this.remove(e);
+                edges.remove(e);
+                
+                continue;
+            }
+            else if(e.node2.equals(node)){
+                e.node2.otherNeighbor(e).resize(-1);
+                this.remove(e);
+                edges.remove(e);
+                
+                continue;
+            }
+            
+            i++;
+        }
+        
+        this.remove(node);
+        this.repaint();
+        nodes.remove(node);
+        if(nodes.size() == 0) clear.setEnabled(false);
+        
+        System.out.println("last:" + nodes.size());
+    }
+    
+    // Creates the random Graph
+    public void RandomGraph(double density, int numOfNodes){
+        
+        graphInUse = true;
+        clear.setEnabled(true);
+        
+        Point[] coords = getCircleCoords(numOfNodes, this.getSize());
         
         for(int i=0; i<numOfNodes; i++){
-            nodes.add(new Node(""+i, coords[i]));
-            nodes.get(i).setNodeColor(Color.BLUE);
+            nodes.add(new Node(nodesCounter++, coords[i], this));
+            this.add(nodes.get(i));
         }
         
         // Run through every possible pair of nodes in the Graph
@@ -36,15 +187,18 @@ public class Graph {
                 int connectivity = (int)(Math.random() * (101)) + 1;
                 
                 if(connectivity <= density){
-                    edges.add(new Edge(nodes.get(i), nodes.get(j), false, false, 0, size));
+                    edges.add(new Edge(nodes.get(i), nodes.get(j), false, false, 0, this.getSize()));
+                    this.add(edges.get(edges.size()-1));
                     
                     // Resize nodes i, j for every new (i,j) edge
-                    nodes.get(i).setSize(nodes.get(i).getWidth() + 1, nodes.get(i).getHeight()+ 1);
-                    nodes.get(j).setSize(nodes.get(j).getWidth() + 1, nodes.get(j).getHeight()+ 1);
+                    nodes.get(i).resize(1);
+                    nodes.get(j).resize(1);
                     
                 }
             }
         }
+
+        this.repaint();
     }
     
     public void printListNodes(){
@@ -55,6 +209,7 @@ public class Graph {
         }
     }
     
+    // Returns the Circle coordinates for the nodes
     private static Point[] getCircleCoords(int n, Dimension size) {
         
         Point[] p = new Point[n];
