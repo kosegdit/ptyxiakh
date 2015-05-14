@@ -35,6 +35,7 @@ public class MainFrame extends JFrame{
     JSplitPane RightSplitPane;
     JPanel infoPanel;
     Graph previewPanel = new Graph();
+    boolean discard;
     JScrollPane historyScrollPane;
     JScrollPane resultsScrollPane;
     JTabbedPane bottomRightTabbedPane;
@@ -208,7 +209,8 @@ public class MainFrame extends JFrame{
     private void NewRandomGraph(){
 
         // If there is already a graph in use, asks the user to save his progress
-        previewPanel.ClearGraphIfInUse();
+        discard = previewPanel.ClearGraphIfInUse();
+        if(discard) return;
         
         // Creates the Spinner for the number of Nodes with a downlimit of 2, and a spinner filter
         // for integers, to prevent wrong user input

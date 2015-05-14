@@ -31,6 +31,7 @@ public class Graph extends JPanel {
     private Point mousePt;
     private boolean graphInUse;
     private int nodesCounter;
+    public boolean noAction;
 
     
     public Graph(){
@@ -66,7 +67,7 @@ public class Graph extends JPanel {
                 });
         previewPanelPopup.add(newNode);
         clear.addActionListener((ActionEvent e) -> {
-                    ClearGraph();
+                    ClearGraphIfInUse();
                     this.repaint();
                 });
         previewPanelPopup.add(clear);
@@ -88,6 +89,7 @@ public class Graph extends JPanel {
         edges = new ArrayList<>();
         graphInUse = false;
         nodesCounter = 0;
+        boolean noAction = false;
     }
     
     private void reset() {
@@ -96,11 +98,15 @@ public class Graph extends JPanel {
         this.removeAll();
     }
 
-    public void ClearGraphIfInUse() {
-        if(graphInUse) ClearGraph();
+    public boolean ClearGraphIfInUse() {
+        
+        if(graphInUse){
+            return(noAction = ClearGraph());
+        }
+        return noAction;
     }
     
-    public void ClearGraph() {
+    public boolean ClearGraph() {
         
         int clearDialogResult = JOptionPane.showConfirmDialog(null, "Would you like to save the current Graph?", "MyProgram",
                                                             JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
@@ -108,8 +114,13 @@ public class Graph extends JPanel {
         switch(clearDialogResult) {
             case JOptionPane.YES_OPTION:
                 SaveGraph();
+                reset();
+                return false;
             case JOptionPane.NO_OPTION:
                 reset();
+                return false;
+            default:
+                return true;
         }
     }
     
