@@ -66,7 +66,7 @@ public class MainFrame extends JFrame{
         setJMenuBar(createMainMenu());
         
         BaseSplitPane.setOrientation(javax.swing.JSplitPane.HORIZONTAL_SPLIT);
-        BaseSplitPane.setDividerLocation(510);
+        BaseSplitPane.setDividerLocation(480);
         BaseSplitPane.setResizeWeight(0.5);
         BaseSplitPane.setLeftComponent(previewPanel);
         BaseSplitPane.setRightComponent(RightSplitPane);

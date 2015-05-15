@@ -10,6 +10,7 @@ import java.awt.event.MouseMotionAdapter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -26,12 +27,16 @@ public class Graph extends JPanel {
     public List<Node> nodes;
     public List<Node> selectedNodes;
     public List<Edge> edges;
-    JPopupMenu previewPanelPopup;
-    JMenuItem clear;
     private Point mousePt;
     private boolean graphInUse;
     private int nodesCounter;
     public boolean noAction;
+    public Node readyToConnect;
+    
+    JPopupMenu previewPanelPopup;
+    JMenuItem clearMenuItem;
+    JMenuItem newNodeMenuItem;
+    
 
     
     public Graph(){
@@ -39,8 +44,10 @@ public class Graph extends JPanel {
         init();
         
         previewPanelPopup = new JPopupMenu();
-        clear = new JMenuItem("Clear Graph");
-        clear.setEnabled(false);
+        clearMenuItem = new JMenuItem("Clear Graph");
+        newNodeMenuItem = new JMenuItem("New node");
+        
+        clearMenuItem.setEnabled(false);
         
         // Creates and sets the previewPanel and the previewPanel Pop up Menu
         setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.
@@ -57,20 +64,19 @@ public class Graph extends JPanel {
         
         // previewPanel Pop up Menu to create a new node and clear the current Graph
 
-        JMenuItem newNode = new JMenuItem("New node");
-        newNode.addActionListener((ActionEvent e) -> {
+        newNodeMenuItem.addActionListener((ActionEvent e) -> {
                     this.userNewNode(mousePt);
                     add(this.nodes.get(nodes.size()-1));
                     repaint();
                     graphInUse = true;
-                    clear.setEnabled(true);
+                    clearMenuItem.setEnabled(true);
                 });
-        previewPanelPopup.add(newNode);
-        clear.addActionListener((ActionEvent e) -> {
+        previewPanelPopup.add(newNodeMenuItem);
+        clearMenuItem.addActionListener((ActionEvent e) -> {
                     ClearGraphIfInUse();
-                    this.repaint();
+                    repaint();
                 });
-        previewPanelPopup.add(clear);
+        previewPanelPopup.add(clearMenuItem);
         
         addMouseListener(new MouseAdapter() {
             @Override
@@ -80,24 +86,33 @@ public class Graph extends JPanel {
                     previewPanelPopup.show(e.getComponent(), e.getX(), e.getY());
                 }     
             }
+            
+            @Override
+            public void mousePressed(MouseEvent e) {
+                readyToConnect = null;
+            }
         });
     }
+    
     
     private void init() {
         nodes = new ArrayList<>();;
         selectedNodes = new ArrayList<>();
         edges = new ArrayList<>();
         graphInUse = false;
+        readyToConnect = null;
         nodesCounter = 0;
         boolean noAction = false;
     }
     
+    
     private void reset() {
         init();
-        clear.setEnabled(false);
+        clearMenuItem.setEnabled(false);
         this.removeAll();
     }
 
+    
     public boolean ClearGraphIfInUse() {
         
         if(graphInUse){
@@ -105,6 +120,7 @@ public class Graph extends JPanel {
         }
         return noAction;
     }
+    
     
     public boolean ClearGraph() {
         
@@ -124,8 +140,10 @@ public class Graph extends JPanel {
         }
     }
     
+    
     private void SaveGraph(){}
 
+    
     // Adds a new node after user request
     public void userNewNode(Point location){
         
@@ -136,11 +154,25 @@ public class Graph extends JPanel {
         nodes.add(new Node(nodesCounter++, nodeLocation, this));
     }
     
+    
     // Adds a new edge after user request
-    public void userNewEdge(){
+    public void userConnectNodes(Node n2, boolean directed, int weight){
         
+        boolean weighted = false;
+        if(weight>0){
+            weighted = true;
+        }
+        Edge e = new Edge(readyToConnect, n2, directed, weighted, weight, this.getSize());
+        edges.add(e);
+        this.add(e);
+        readyToConnect.resize(1);
+        n2.resize(1);
+        e.node1.otherNeighbor(e).resize(1);
+        this.repaint();
         
+        readyToConnect = null;
     }
+    
     
     // Deletes a node and all his edges after user request
     public void userDeleteNode(Node node){
@@ -173,16 +205,17 @@ public class Graph extends JPanel {
         this.remove(node);
         this.repaint();
         nodes.remove(node);
-        if(nodes.size() == 0) clear.setEnabled(false);
+        if(nodes.size() == 0) clearMenuItem.setEnabled(false);
         
         System.out.println("last:" + nodes.size());
     }
+    
     
     // Creates the random Graph
     public void RandomGraph(double density, int numOfNodes){
         
         graphInUse = true;
-        clear.setEnabled(true);
+        clearMenuItem.setEnabled(true);
         
         Point[] coords = getCircleCoords(numOfNodes, this.getSize());
         
@@ -212,6 +245,7 @@ public class Graph extends JPanel {
         this.repaint();
     }
     
+    
     public void printListNodes(){
         
         for(int i=0; i<nodes.size(); i++){
@@ -219,6 +253,7 @@ public class Graph extends JPanel {
             //System.out.println("Node: " + nodes.get(i).label + " width: " + nodes.get(i).getWidth() + " heigth: " + nodes.get(i).getHeight());
         }
     }
+    
     
     // Returns the Circle coordinates for the nodes
     private static Point[] getCircleCoords(int n, Dimension size) {

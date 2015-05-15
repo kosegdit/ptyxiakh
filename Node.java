@@ -7,11 +7,13 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 //import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import javax.swing.JComponent;
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -29,10 +31,18 @@ public class Node extends JComponent  {
     public int radius;
     public Color color;
     public boolean selected;
+    
     public Rectangle b = new Rectangle();
+    
+    Node firstNode;
+    Node secondNode;
     
     JPopupMenu NodePopup = new JPopupMenu();
     JMenuItem deleteNode = new JMenuItem("Delete");
+    JMenu newEdgeMenu = new JMenu("Connect with..");
+    JMenuItem directedEdgeMenuItem = new JMenuItem("Directed edge");
+        
+    JMenuItem unDirectedEdgeMenuItem = new JMenuItem("Undirected edge");
     
     // Default Constructor
     public Node(){
@@ -41,6 +51,9 @@ public class Node extends JComponent  {
     
     public Node(int label, Point p, Graph currentGraph) {
     
+        
+        newEdgeMenu.setToolTipText("Choose Edge type and then the node you want to connect");
+        
         this.label = label;
         
         deleteNode.addActionListener((ActionEvent e) -> {
@@ -49,12 +62,33 @@ public class Node extends JComponent  {
                 });
         NodePopup.add(deleteNode);
         
+        unDirectedEdgeMenuItem.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ((Graph) Node.this.getParent()).readyToConnect = Node.this;
+            }
+        });
+        
+        newEdgeMenu.add(unDirectedEdgeMenuItem);
+        newEdgeMenu.add(directedEdgeMenuItem);
+        NodePopup.add(newEdgeMenu);
+        
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
+                if (SwingUtilities.isLeftMouseButton(e)){
+                    Graph g = (Graph) Node.this.getParent();
+                    if (g.readyToConnect != null) {
+                        g.userConnectNodes(Node.this, false, 0);
+                    }
+                }
+                
                 mousePt = e.getPoint();
+                
                 if (SwingUtilities.isRightMouseButton(e)){
                     NodePopup.show(e.getComponent(), e.getX(), e.getY());
+                    newEdgeMenu.setEnabled(currentGraph.nodes.size() > 1);
                 }
             }
         });

@@ -46,11 +46,6 @@ public class Edge extends JComponent{
         
         Graphics g2 = (Graphics) g;
 
-//        Random rand = new Random();
-//        float r = rand.nextFloat();
-//        float gg = rand.nextFloat();
-//        float b = rand.nextFloat();
-
         g2.setColor(Color.RED);
         
         Point point1 = node1.getLocation();
