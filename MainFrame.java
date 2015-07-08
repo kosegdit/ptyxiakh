@@ -34,7 +34,7 @@ public class MainFrame extends JFrame{
     JSplitPane BaseSplitPane;
     JSplitPane RightSplitPane;
     JPanel infoPanel;
-    Graph previewPanel = new Graph();
+    Graph previewPanel;
     boolean discard;
     JScrollPane historyScrollPane;
     JScrollPane resultsScrollPane;
@@ -212,7 +212,7 @@ public class MainFrame extends JFrame{
         discard = previewPanel.ClearGraphIfInUse();
         if(discard) return;
         
-        // Creates the Spinner for the number of Nodes with a downlimit of 2, and a spinner filter
+        // Creates the Spinner for the number of Nodes with a downlimit of 1, and a spinner filter
         // for integers, to prevent wrong user input
         SpinnerNumberModel limits = new SpinnerNumberModel(20, 1, Short.MAX_VALUE, 1);
         JSpinner numOfNodesSpinner = new JSpinner(limits);
@@ -239,7 +239,7 @@ public class MainFrame extends JFrame{
         Object[] fullMessage = {"Enter number of nodes:", numOfNodesSpinner, "\n\n", densitySliderLabel, densitySlider};
 
         int result = JOptionPane.showOptionDialog(null, fullMessage, "Random Graph Properties",
-							JOptionPane.OK_OPTION, JOptionPane.PLAIN_MESSAGE,
+							JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE,
 							null, null, null);
         
         if(result != JOptionPane.OK_OPTION) {

@@ -13,11 +13,16 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import javax.swing.JComponent;
+import javax.swing.JFormattedTextField;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
+import javax.swing.text.NumberFormatter;
 
 /**
  *
@@ -38,23 +43,39 @@ public class Node extends JComponent  {
     Node secondNode;
     
     JPopupMenu NodePopup = new JPopupMenu();
+    JMenuItem newEdgeMenuItem = new JMenuItem("Connect with..");
+    JMenuItem deleteEdgeMenuItem = new JMenuItem("Disconnect from..");
     JMenuItem deleteNode = new JMenuItem("Delete");
-    JMenu newEdgeMenu = new JMenu("Connect with..");
-    JMenuItem directedEdgeMenuItem = new JMenuItem("Directed edge");
-        
-    JMenuItem unDirectedEdgeMenuItem = new JMenuItem("Undirected edge");
-    
+
+
     // Default Constructor
     public Node(){
     }
 
-    
+
     public Node(int label, Point p, Graph currentGraph) {
     
-        
-        newEdgeMenu.setToolTipText("Choose Edge type and then the node you want to connect");
-        
         this.label = label;
+        
+        newEdgeMenuItem.setToolTipText("Choose the node you want to connect");
+        newEdgeMenuItem.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ((Graph) Node.this.getParent()).readyToConnect = Node.this;
+            }
+        });
+        NodePopup.add(newEdgeMenuItem);
+        
+        deleteEdgeMenuItem.setToolTipText("Choose the node you want to connect");
+        deleteEdgeMenuItem.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ((Graph) Node.this.getParent()).readyToDisconnect = Node.this;
+            }
+        });
+        NodePopup.add(deleteEdgeMenuItem);
         
         deleteNode.addActionListener((ActionEvent e) -> {
                     System.out.println("first: " + currentGraph.nodes.size());
@@ -62,17 +83,7 @@ public class Node extends JComponent  {
                 });
         NodePopup.add(deleteNode);
         
-        unDirectedEdgeMenuItem.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ((Graph) Node.this.getParent()).readyToConnect = Node.this;
-            }
-        });
         
-        newEdgeMenu.add(unDirectedEdgeMenuItem);
-        newEdgeMenu.add(directedEdgeMenuItem);
-        NodePopup.add(newEdgeMenu);
         
         addMouseListener(new MouseAdapter() {
             @Override
@@ -80,7 +91,36 @@ public class Node extends JComponent  {
                 if (SwingUtilities.isLeftMouseButton(e)){
                     Graph g = (Graph) Node.this.getParent();
                     if (g.readyToConnect != null) {
-                        g.userConnectNodes(Node.this, false, 0);
+                        boolean directed = ((Graph) Node.this.getParent()).graphIsDirected();
+                        boolean weighted = ((Graph) Node.this.getParent()).graphIsWeighted();
+                        int weight = 0;
+                        
+                        if(weighted){
+                            SpinnerNumberModel edgeWeight = new SpinnerNumberModel();
+                            JSpinner edgeWeightSpinner = new JSpinner(edgeWeight);
+                            
+                            JFormattedTextField spinnerFilter = ((JSpinner.NumberEditor) edgeWeightSpinner.getEditor()).getTextField();
+                            ((NumberFormatter) spinnerFilter.getFormatter()).setAllowsInvalid(false);
+                            
+                            // An array of objects is created to carry all the information for the displayed window
+                            Object[] fullMessage = {"Enter desired weight:", edgeWeightSpinner, "\n\n"};
+
+                            int result = JOptionPane.showOptionDialog(null, fullMessage, "Current Edge Weight",
+                                                                            JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE,
+                                                                            null, null, null);
+
+                            if(result != JOptionPane.OK_OPTION) {
+                                return;
+                            }
+
+                            weight = (int)edgeWeightSpinner.getValue();
+                            System.out.println(weight);
+                        }
+                        
+                        g.userConnectNodes(Node.this, directed, weighted, weight);
+                    }
+                    if(g.readyToDisconnect != null){
+                        g.userDisconnectNodes(Node.this);
                     }
                 }
                 
@@ -88,7 +128,8 @@ public class Node extends JComponent  {
                 
                 if (SwingUtilities.isRightMouseButton(e)){
                     NodePopup.show(e.getComponent(), e.getX(), e.getY());
-                    newEdgeMenu.setEnabled(currentGraph.nodes.size() > 1);
+                    newEdgeMenuItem.setEnabled(currentGraph.nodes.size() > 1);
+                    deleteEdgeMenuItem.setEnabled(hasNeighbor());
                 }
             }
         });
@@ -113,6 +154,26 @@ public class Node extends JComponent  {
         repaint();
     }
     
+    public boolean hasNeighbor(){
+    
+        Graph g = (Graph) Node.this.getParent();
+        
+        for(int i=0; i<g.edges.size(); i++){
+            if(this.equals(g.edges.get(i).node1)){
+                return true;
+            }
+        }
+        
+        if(!g.graphIsDirected()){
+            for(int i=0; i<g.edges.size(); i++){
+                if(this.equals(g.edges.get(i).node2)){
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+    }
     
     public Node otherNeighbor(Edge edge){
         

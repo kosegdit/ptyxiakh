@@ -3,7 +3,9 @@ package ptyxiakh;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
 import java.util.Random;
 import javax.swing.JComponent;
@@ -13,6 +15,7 @@ import javax.swing.JComponent;
  * @author kostas
  */
 public class Edge extends JComponent{
+    
     
     public Node node1;
     public Node node2;
@@ -46,7 +49,7 @@ public class Edge extends JComponent{
         
         Graphics g2 = (Graphics) g;
 
-        g2.setColor(Color.RED);
+        g2.setColor(Color.BLACK);
         
         Point point1 = node1.getLocation();
         Point point2 = node2.getLocation();
@@ -78,7 +81,46 @@ public class Edge extends JComponent{
         }
         
         g2.drawLine(x + x1, y + y1, x + x2, y + y2);
+        
+        if(weighted){
+            if(directed){
+                if(node1.label < node2.label){
+                    g2.setColor(Color.decode("0x439351"));
+                    g2.drawString(String.valueOf(weight), (2*x+x1+x2)/2, ((2*y+y1+y2)/2)-5);
+                }
+                else{
+                    g2.setColor(Color.RED);
+                    g2.drawString(String.valueOf(weight), (2*x+x1+x2)/2, ((2*y+y1+y2)/2)+15);
+                }
+            }
+            else{
+                g2.setColor(Color.BLACK);
+                g2.drawString(String.valueOf(weight), (2*x+x1+x2)/2, ((2*y+y1+y2)/2)-5);
+            }
+        }
+        
+        if(directed) {
+            drawArrow(g, x + x1, y + y1, x + x2, y + y2);
+        }
+
         setVisible(false);
         setVisible(true);
+    }
+    
+    // Draws the arrow for the directed edges
+    private void drawArrow(Graphics g1, int x1, int y1, int x2, int y2) {
+        Graphics2D g = (Graphics2D) g1.create();
+
+        final int ARR_SIZE = 10;
+
+        double dx = x2 - x1, dy = y2 - y1;
+        double angle = Math.atan2(dy, dx);
+        int len = (int) Math.sqrt(dx*dx + dy*dy) - node2.getWidth()/2 + 11;
+        AffineTransform at = AffineTransform.getTranslateInstance(x1, y1);
+        at.concatenate(AffineTransform.getRotateInstance(angle));
+        g.transform(at);
+
+        g.fillPolygon(new int[] {len, len-ARR_SIZE, len-ARR_SIZE, len},
+                      new int[] {0, -ARR_SIZE/2, ARR_SIZE/2, 0}, 4);
     }
 }

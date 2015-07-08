@@ -10,6 +10,7 @@ import java.awt.event.MouseMotionAdapter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -32,10 +33,14 @@ public class Graph extends JPanel {
     private int nodesCounter;
     public boolean noAction;
     public Node readyToConnect;
+    public Node readyToDisconnect;
     
     JPopupMenu previewPanelPopup;
     JMenuItem clearMenuItem;
     JMenuItem newNodeMenuItem;
+    JMenu propertiesMenu;
+    JCheckBoxMenuItem directedGraphMenuItem;
+    JCheckBoxMenuItem weightedGraphMenuItem;
     
 
     
@@ -44,6 +49,11 @@ public class Graph extends JPanel {
         init();
         
         previewPanelPopup = new JPopupMenu();
+        
+        propertiesMenu = new JMenu("Graph Properties");
+        directedGraphMenuItem = new JCheckBoxMenuItem("Directed");
+        weightedGraphMenuItem = new JCheckBoxMenuItem("Weighted");
+        
         clearMenuItem = new JMenuItem("Clear Graph");
         newNodeMenuItem = new JMenuItem("New node");
         
@@ -62,8 +72,11 @@ public class Graph extends JPanel {
             previewPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
         );
         
-        // previewPanel Pop up Menu to create a new node and clear the current Graph
-
+        // previewPanel Pop up Menu to decide Graph properties and to create a new node and clear the current Graph
+        propertiesMenu.add(directedGraphMenuItem);
+        propertiesMenu.add(weightedGraphMenuItem);
+        previewPanelPopup.add(propertiesMenu);
+        
         newNodeMenuItem.addActionListener((ActionEvent e) -> {
                     this.userNewNode(mousePt);
                     add(this.nodes.get(nodes.size()-1));
@@ -90,6 +103,7 @@ public class Graph extends JPanel {
             @Override
             public void mousePressed(MouseEvent e) {
                 readyToConnect = null;
+                readyToDisconnect = null;
             }
         });
     }
@@ -101,6 +115,7 @@ public class Graph extends JPanel {
         edges = new ArrayList<>();
         graphInUse = false;
         readyToConnect = null;
+        readyToDisconnect = null;
         nodesCounter = 0;
         boolean noAction = false;
     }
@@ -109,6 +124,7 @@ public class Graph extends JPanel {
     private void reset() {
         init();
         clearMenuItem.setEnabled(false);
+        propertiesMenu.setEnabled(true);
         this.removeAll();
     }
 
@@ -121,6 +137,16 @@ public class Graph extends JPanel {
         return noAction;
     }
     
+    
+    public boolean graphIsDirected(){
+        //System.out.println(directedGraph.getState());
+        return(directedGraphMenuItem.getState());
+    }
+    
+    public boolean graphIsWeighted(){
+        
+        return(weightedGraphMenuItem.getState());
+    }
     
     public boolean ClearGraph() {
         
@@ -156,21 +182,81 @@ public class Graph extends JPanel {
     
     
     // Adds a new edge after user request
-    public void userConnectNodes(Node n2, boolean directed, int weight){
+    public void userConnectNodes(Node n2, boolean directed, boolean weighted, int weight){
         
-        boolean weighted = false;
-        if(weight>0){
-            weighted = true;
+        if(readyToConnect.equals(n2)){
+            readyToConnect = null;
+            return;
         }
+        
         Edge e = new Edge(readyToConnect, n2, directed, weighted, weight, this.getSize());
+        
+        if(edgeExists(e)){
+            readyToConnect = null;
+            return;
+        }
+        
+        if(!graphIsDirected()){
+            e = new Edge(n2, readyToConnect, directed, weighted, weight, this.getSize());
+            if(edgeExists(e)){
+                readyToConnect = null;
+                return;
+            }
+        }
+        
         edges.add(e);
         this.add(e);
+        
         readyToConnect.resize(1);
         n2.resize(1);
-        e.node1.otherNeighbor(e).resize(1);
+
         this.repaint();
         
         readyToConnect = null;
+        
+        propertiesMenu.setEnabled(false);
+    }
+    
+    // Disconnects 2 nodes, deleting the edge that is between them
+    public void userDisconnectNodes(Node n2){
+        
+        for(int i=0; i<edges.size(); i++){
+            if(readyToDisconnect.equals(edges.get(i).node1) && n2.equals(edges.get(i).node2)){
+                this.remove(edges.get(i));
+                edges.remove(edges.get(i));
+                readyToDisconnect.resize(-1);
+                n2.resize(-1);
+                this.repaint();
+            }
+        }
+        
+        if(!graphIsDirected()){
+            for(int i=0; i<edges.size(); i++){
+                if(readyToDisconnect.equals(edges.get(i).node2) && n2.equals(edges.get(i).node1)){
+                    this.remove(edges.get(i));
+                    edges.remove(edges.get(i));
+                    readyToDisconnect.resize(-1);
+                    n2.resize(-1);
+                    this.repaint();
+                }
+            }
+        }
+        
+        readyToDisconnect = null;
+        
+        if(edges.size()==0) propertiesMenu.setEnabled(true);
+    }
+    
+    // Checks if the desired edge exists already in the Graph
+    public boolean edgeExists(Edge e){
+        for(int i=0; i<edges.size(); i++){
+            System.out.println("edge: " + i + "(" + edges.get(i).node1.label + "," + edges.get(i).node2.label + ")");
+            if(e.node1.equals(edges.get(i).node1) && e.node2.equals(edges.get(i).node2)){
+                System.out.println("edge already exists");
+                return true;
+            }
+        }
+        return false;
     }
     
     
@@ -205,7 +291,16 @@ public class Graph extends JPanel {
         this.remove(node);
         this.repaint();
         nodes.remove(node);
-        if(nodes.size() == 0) clearMenuItem.setEnabled(false);
+        
+        if(nodes.size() == 0) {
+            clearMenuItem.setEnabled(false);
+        }
+        
+        if(edges.size()>0) {
+            propertiesMenu.setEnabled(false);
+        }
+        else
+            propertiesMenu.setEnabled(true);
         
         System.out.println("last:" + nodes.size());
     }
@@ -240,6 +335,9 @@ public class Graph extends JPanel {
                     
                 }
             }
+        }
+        if(edges.size()>0){
+            propertiesMenu.setEnabled(false);
         }
 
         this.repaint();
