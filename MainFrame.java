@@ -131,9 +131,15 @@ public class MainFrame extends JFrame{
                 if(previewPanel.directedGraphMenuItem.getState()){
                     directedCheckLabel.setText("\u2713");
                 }
+                else{
+                    directedCheckLabel.setText("\u00D7");
+                }
                 
                 if(previewPanel.weightedGraphMenuItem.getState()){
                     weightedCheckLabel.setText("\u2713");
+                }
+                else{
+                    weightedCheckLabel.setText("\u00D7");
                 }
                 
                 //Execute when button is pressed
