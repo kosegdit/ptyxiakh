@@ -3,10 +3,14 @@ package ptyxiakh;
 
 import java.awt.Point;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.io.File;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
 import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
@@ -43,6 +47,16 @@ public class MainFrame extends JFrame{
     JScrollPane resultsScrollPane;
     JTabbedPane bottomRightTabbedPane;
     static String lastLoadedFile;
+    JLabel graphTitle;
+    JLabel directedLabel;
+    JLabel weightedLabel;
+    JLabel nodesLabel;
+    JLabel edgesLabel;
+    JLabel nodesCounter;
+    JLabel edgesCounter;
+    JButton updateButton;
+    JLabel directedCheckLabel;
+    JLabel weightedCheckLabel;
     
         
     public MainFrame() {
@@ -65,6 +79,16 @@ public class MainFrame extends JFrame{
         historyScrollPane = new JScrollPane();
         resultsScrollPane = new JScrollPane();
         bottomRightTabbedPane = new JTabbedPane();
+        graphTitle = new JLabel("Graph:");
+        updateButton = new JButton("Update");
+        directedLabel = new JLabel("Directed:");
+        directedCheckLabel = new JLabel("\u00D7");
+        weightedLabel = new JLabel("Weighted:");
+        weightedCheckLabel = new JLabel("\u00D7");
+        nodesLabel = new JLabel("Nodes:");
+        edgesLabel = new JLabel("Edges:");
+        nodesCounter = new JLabel("0");
+        edgesCounter = new JLabel("0");
         
         
         setJMenuBar(createMainMenu());
@@ -90,13 +114,92 @@ public class MainFrame extends JFrame{
         // Creates and sets the infoPanel
         infoPanel.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
         
+        
+        updateButton.addActionListener(new ActionListener() {
+ 
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                String graphName;
+                if(lastLoadedFile == null){
+                    graphName = "User Graph";
+                }
+                else{
+                    graphName = lastLoadedFile;
+                }
+                
+                if(previewPanel.directedGraphMenuItem.getState()){
+                    directedCheckLabel.setText("\u2713");
+                }
+                
+                if(previewPanel.weightedGraphMenuItem.getState()){
+                    weightedCheckLabel.setText("\u2713");
+                }
+                
+                //Execute when button is pressed
+                graphTitle.setText("Graph:   " + graphName);
+                nodesCounter.setText("" + previewPanel.nodes.size());
+                edgesCounter.setText("" + previewPanel.edges.size());
+            }
+        });
+        
         javax.swing.GroupLayout infoPanelLayout = new javax.swing.GroupLayout(infoPanel);
         infoPanel.setLayout(infoPanelLayout);
         infoPanelLayout.setHorizontalGroup(
             infoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(infoPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(infoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, infoPanelLayout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(updateButton))
+                    .addGroup(infoPanelLayout.createSequentialGroup()
+                        .addGroup(infoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(graphTitle)
+                            .addGroup(infoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, infoPanelLayout.createSequentialGroup()
+                                    .addComponent(edgesLabel)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(edgesCounter))
+                                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, infoPanelLayout.createSequentialGroup()
+                                    .addComponent(nodesLabel)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(nodesCounter))
+                                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, infoPanelLayout.createSequentialGroup()
+                                    .addComponent(weightedLabel)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(weightedCheckLabel))
+                                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, infoPanelLayout.createSequentialGroup()
+                                    .addComponent(directedLabel)
+                                    .addGap(18, 18, 18)
+                                    .addComponent(directedCheckLabel))))
+                        .addGap(0, 399, Short.MAX_VALUE)))
+                .addContainerGap())
         );
         infoPanelLayout.setVerticalGroup(
             infoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(infoPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(graphTitle)
+                .addGap(18, 18, 18)
+                .addGroup(infoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(directedLabel)
+                    .addComponent(directedCheckLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(infoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(weightedLabel)
+                    .addComponent(weightedCheckLabel))
+                .addGap(18, 18, 18)
+                .addGroup(infoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(nodesLabel)
+                    .addComponent(nodesCounter))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(infoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(edgesLabel)
+                    .addComponent(edgesCounter))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 207, Short.MAX_VALUE)
+                .addComponent(updateButton)
+                .addContainerGap())
         );
 
         bottomRightTabbedPane.addTab("Info", infoPanel);
