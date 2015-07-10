@@ -6,6 +6,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.io.File;
+import javax.swing.JFileChooser;
 import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -22,6 +24,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.NumberFormatter;
 
 /**
@@ -39,6 +42,7 @@ public class MainFrame extends JFrame{
     JScrollPane historyScrollPane;
     JScrollPane resultsScrollPane;
     JTabbedPane bottomRightTabbedPane;
+    static String lastLoadedFile;
     
         
     public MainFrame() {
@@ -80,7 +84,7 @@ public class MainFrame extends JFrame{
         
         // Creates and sets the resultsScrollPane
         resultsScrollPane.setBorder(javax.swing.BorderFactory.
-                createTitledBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED), "Resutls")); 
+                createTitledBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED), "Results")); 
         RightSplitPane.setTopComponent(resultsScrollPane);
         
         // Creates and sets the infoPanel
@@ -141,8 +145,8 @@ public class MainFrame extends JFrame{
         JMenuItem μpci = new JMenuItem("μ-Pci");
         JMenuItem kShell = new JMenuItem("k-Shell");
         JMenuItem pageRank = new JMenuItem("Page Rank");
-        JMenuItem randomGraph = new JMenuItem("Random graph");
-            randomGraph.setToolTipText("Creates a random graph using the Erdős–Rényi model");
+        JMenuItem randomGraphMenuItem = new JMenuItem("Random graph");
+            randomGraphMenuItem.setToolTipText("Creates a random graph using the Erdős–Rényi model");
         JMenuItem smallWorldGraph = new JMenuItem("Small world graph");
             smallWorldGraph.setToolTipText("Six degrees of seperation");
         JMenuItem scaleFreeGraph = new JMenuItem("Scale free graph");
@@ -157,17 +161,46 @@ public class MainFrame extends JFrame{
         
         MainMenuBar.add(file);
             file.add(generate);
-                randomGraph.addActionListener((ActionEvent e) -> {
+                randomGraphMenuItem.addActionListener((ActionEvent e) -> {
                     NewRandomGraph();
                 });
-                generate.add(randomGraph);
+                generate.add(randomGraphMenuItem);
                 
                 generate.add(smallWorldGraph);
                 generate.add(scaleFreeGraph);
             file.addSeparator();
+            
+            load.addActionListener((ActionEvent e) -> {
+                discard = previewPanel.ClearGraphIfInUse();
+                if(discard) return;
+                
+                final JFileChooser fc = new JFileChooser();
+                fc.setAcceptAllFileFilterUsed(false);
+                fc.setFileFilter(new FileNameExtensionFilter("MyProgram files", "cnt"));
+                int returnVal = fc.showOpenDialog(MainFrame.this);
+                
+                
+                if (returnVal == JFileChooser.APPROVE_OPTION){
+                    lastLoadedFile = fc.getSelectedFile().toString();
+                    previewPanel.LoadGraph(lastLoadedFile);
+                }
+            });
             file.add(load);
             file.addSeparator();
+            
+            save.addActionListener((ActionEvent e) -> {
+                if(lastLoadedFile == null){
+                    previewPanel.ShowSaveDialog();
+                }
+                else{
+                    previewPanel.SaveGraph(lastLoadedFile);
+                }
+            });
             file.add(save);
+            
+            saveAs.addActionListener((ActionEvent e) -> {
+                previewPanel.ShowSaveDialog();
+            });
             file.add(saveAs);
             file.addSeparator();
             
@@ -205,7 +238,8 @@ public class MainFrame extends JFrame{
     
         return MainMenuBar;
     }
-  
+    
+    
     private void NewRandomGraph(){
 
         // If there is already a graph in use, asks the user to save his progress

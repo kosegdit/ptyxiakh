@@ -7,16 +7,30 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Scanner;
+import java.util.StringTokenizer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import static ptyxiakh.MainFrame.lastLoadedFile;
 
 /**
  *
@@ -29,7 +43,8 @@ public class Graph extends JPanel {
     public List<Node> selectedNodes;
     public List<Edge> edges;
     private Point mousePt;
-    private boolean graphInUse;
+    public boolean graphInUse;
+    public boolean draft;
     private int nodesCounter;
     public boolean noAction;
     public Node readyToConnect;
@@ -110,24 +125,74 @@ public class Graph extends JPanel {
     
     
     private void init() {
-        nodes = new ArrayList<>();;
+        nodes = new ArrayList<>();
         selectedNodes = new ArrayList<>();
         edges = new ArrayList<>();
         graphInUse = false;
+        draft = false;
         readyToConnect = null;
         readyToDisconnect = null;
         nodesCounter = 0;
         boolean noAction = false;
     }
     
-    
     private void reset() {
         init();
         clearMenuItem.setEnabled(false);
         propertiesMenu.setEnabled(true);
+        directedGraphMenuItem.setState(false);
+        weightedGraphMenuItem.setState(false);
+        MainFrame.lastLoadedFile = null;
         this.removeAll();
     }
+    
+    public boolean ShowSaveDialog(){
+        
+        final JFileChooser fc = new JFileChooser();
+        fc.setAcceptAllFileFilterUsed(false);
+        fc.setFileFilter(new FileNameExtensionFilter("MyProgram files", "cnt"));
+        int returnVal = fc.showSaveDialog(Graph.this);
+        
+        if (returnVal == JFileChooser.APPROVE_OPTION){
+            MainFrame.lastLoadedFile = fc.getSelectedFile().toString();
+            SaveGraph(MainFrame.lastLoadedFile);
+        }
+        return returnVal == JFileChooser.APPROVE_OPTION;
+    }
 
+    public boolean ClearGraph() {
+        
+        int clearDialogResult;
+                
+        if(draft){
+            clearDialogResult = JOptionPane.showConfirmDialog(null, "Would you like to save the current Graph?", "MyProgram",
+                                                                JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+        }
+        else{
+            clearDialogResult = JOptionPane.NO_OPTION;
+        }
+        switch(clearDialogResult) {
+            case JOptionPane.YES_OPTION:
+                if(MainFrame.lastLoadedFile == null){
+                    if(ShowSaveDialog()){
+                        reset();
+                        return false;
+                    }
+                    return true;
+                }
+                else{
+                    SaveGraph(MainFrame.lastLoadedFile);
+                    reset();
+                    return false;
+                }
+                
+            case JOptionPane.NO_OPTION:
+                reset();
+                return false;
+            default:
+                return true;
+        }
+    }
     
     public boolean ClearGraphIfInUse() {
         
@@ -137,9 +202,8 @@ public class Graph extends JPanel {
         return noAction;
     }
     
-    
     public boolean graphIsDirected(){
-        //System.out.println(directedGraph.getState());
+        
         return(directedGraphMenuItem.getState());
     }
     
@@ -148,26 +212,166 @@ public class Graph extends JPanel {
         return(weightedGraphMenuItem.getState());
     }
     
-    public boolean ClearGraph() {
+    public void LoadGraph(String file){
         
-        int clearDialogResult = JOptionPane.showConfirmDialog(null, "Would you like to save the current Graph?", "MyProgram",
-                                                            JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+        Scanner inputFile;
+        StringTokenizer current_line;
+        Point nodeLocation;
+        List<String> labels = new ArrayList<>();
+        List<String> locations = new ArrayList<>();
+        List<List<String>> neighbors = new ArrayList<>();
+        List<List<String>> weights = new ArrayList<>();
         
-        switch(clearDialogResult) {
-            case JOptionPane.YES_OPTION:
-                SaveGraph();
-                reset();
-                return false;
-            case JOptionPane.NO_OPTION:
-                reset();
-                return false;
-            default:
-                return true;
+        try {
+            inputFile = new Scanner(new FileReader(file));
+        } 
+        catch (FileNotFoundException ex) {
+            System.err.println(ex);
+            return;
+        }
+        
+        graphInUse = true;
+        clearMenuItem.setEnabled(graphInUse);
+        
+        while(inputFile.hasNextLine()){
+            current_line = new StringTokenizer(inputFile.nextLine());
+            
+            if(current_line.hasMoreTokens()){
+                String s = current_line.nextToken();
+                String nextToken;
+                
+                if(s.startsWith("#")) {
+                    continue;
+                }
+                else if(s.equals("directed")){
+                    directedGraphMenuItem.setState(Boolean.parseBoolean(current_line.nextToken()));
+                }
+                else if(s.equals("weighted")){
+                    weightedGraphMenuItem.setState(Boolean.parseBoolean(current_line.nextToken()));
+                }
+                else{
+                    labels.add(s);
+                    List<String> nodeNeighbors = new ArrayList<>();
+                    List<String> edgesWeights = new ArrayList<>();
+                    nodesCounter++;
+                    locations.add(current_line.nextToken());
+                    
+                    while(current_line.hasMoreTokens()){
+                        nextToken = current_line.nextToken();
+                        
+                        if(graphIsWeighted()){
+                            String[] result = nextToken.split(",");
+                            nodeNeighbors.add(result[0]);
+                            edgesWeights.add(result[1]);
+                        }
+                        else{
+                            nodeNeighbors.add(nextToken);
+                            edgesWeights.add("0");
+                        }
+                    }
+                    
+                    neighbors.add(nodeNeighbors);
+                    weights.add(edgesWeights);
+                }
+            }
+        }
+        
+        if(nodesCounter>0){
+            LoadGraphNodes(nodesCounter, labels, locations);
+            for(int i=0; i<labels.size(); i++){
+                for(int j=0; j<neighbors.get(i).size(); j++){
+                    LoadgraphEdges(labels.get(i), neighbors.get(i).get(j), graphIsDirected(), graphIsWeighted(), Integer.valueOf(weights.get(i).get(j)));
+                }
+            }
+
+            propertiesMenu.setEnabled(false);
+            this.repaint();
+        }
+
+        inputFile.close();
+    }
+    
+    public void SaveGraph(String file){
+        
+        PrintStream myOutput = null;
+        try {
+            myOutput = new PrintStream(new FileOutputStream(file));
+        }
+        catch (Exception ex) {
+                System.out.println("No output file written");
+                return;
+        }
+        
+        myOutput.print("#Graph Properties\n\n");
+        
+        myOutput.print("directed\t");
+        myOutput.print(directedGraphMenuItem.getState() + "\n");
+        
+        myOutput.print("weighted\t");
+        myOutput.print(weightedGraphMenuItem.getState() + "\n\n\n");
+        
+        myOutput.print("#List of Nodes, with their Locations and their Edges\n\n");
+        
+        for(int i=0; i<nodes.size(); i++){
+            myOutput.print(nodes.get(i).label + "\t");
+            myOutput.print("@" + nodes.get(i).getX() + "," + nodes.get(i).getY() + "\t");
+            
+            for(int j=0; j<edges.size(); j++){
+                if(edges.get(j).node1.label == nodes.get(i).label){
+                    myOutput.print(edges.get(j).node2.label);
+                    if(graphIsWeighted()){
+                        myOutput.print("," + edges.get(j).weight);
+                    }
+                    myOutput.print("\t");
+                }
+            }
+            myOutput.print("\n");
+        }
+        draft = false;
+        myOutput.close();
+    }
+    
+    private void LoadGraphNodes(int numOfNodes, List<String> labels, List<String> locations){
+        
+        Point[] coords = new Point[numOfNodes];
+                
+        if(locations.get(0).endsWith("@")){
+            coords = getCircleCoords(numOfNodes, this.getSize());
+        }
+        else{
+            for(int i=0; i<locations.size(); i++){
+                
+                String[] result = locations.get(i).substring(1).split(",");
+                coords[i] = new Point(Integer.valueOf(result[0]), Integer.valueOf(result[1]));
+            }
+        }
+        
+        for(int i=0; i<numOfNodes; i++){
+            nodes.add(new Node(Integer.valueOf(labels.get(i)), coords[i], this));
+            this.add(nodes.get(i));
         }
     }
     
-    
-    private void SaveGraph(){}
+    private void LoadgraphEdges(String node1, String node2, boolean directed, boolean weighted, int weight){
+        
+        Node n1 = null, n2 = null;
+        
+        for(int i=0; i<nodes.size(); i++){
+            if(nodes.get(i).label == Integer.valueOf(node1)){
+                n1=nodes.get(i);
+            }
+            if(nodes.get(i).label == Integer.valueOf(node2)){
+                n2=nodes.get(i);
+            }
+        }
+        
+        Edge e = new Edge(n1, n2, directed, weighted, weight, this.getSize());
+        edges.add(e);
+        this.add(e);
+        
+        n1.resize(1);
+        n2.resize(1);
+    }
 
     
     // Adds a new node after user request
@@ -178,6 +382,8 @@ public class Graph extends JPanel {
         nodeLocation.y = location.y -10;
         
         nodes.add(new Node(nodesCounter++, nodeLocation, this));
+        
+        draft = true;
     }
     
     
@@ -215,6 +421,7 @@ public class Graph extends JPanel {
         readyToConnect = null;
         
         propertiesMenu.setEnabled(false);
+        draft = true;
     }
     
     // Disconnects 2 nodes, deleting the edge that is between them
@@ -224,6 +431,7 @@ public class Graph extends JPanel {
             if(readyToDisconnect.equals(edges.get(i).node1) && n2.equals(edges.get(i).node2)){
                 this.remove(edges.get(i));
                 edges.remove(edges.get(i));
+                draft = true;
                 readyToDisconnect.resize(-1);
                 n2.resize(-1);
                 this.repaint();
@@ -235,6 +443,7 @@ public class Graph extends JPanel {
                 if(readyToDisconnect.equals(edges.get(i).node2) && n2.equals(edges.get(i).node1)){
                     this.remove(edges.get(i));
                     edges.remove(edges.get(i));
+                    draft = true;
                     readyToDisconnect.resize(-1);
                     n2.resize(-1);
                     this.repaint();
@@ -292,6 +501,8 @@ public class Graph extends JPanel {
         this.repaint();
         nodes.remove(node);
         
+        draft = nodes.size()>0;
+        
         if(nodes.size() == 0) {
             clearMenuItem.setEnabled(false);
         }
@@ -301,8 +512,7 @@ public class Graph extends JPanel {
         }
         else
             propertiesMenu.setEnabled(true);
-        
-        System.out.println("last:" + nodes.size());
+
     }
     
     
