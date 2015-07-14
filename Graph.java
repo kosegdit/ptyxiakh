@@ -154,7 +154,10 @@ public class Graph extends JPanel {
         weightedGraphMenuItem.setState(false);
         MainFrame.lastLoadedFile = null;
         this.removeAll();
+        
+        parent.resultsScrollPane.getViewport().remove(0);
         parent.UpdateInfoPanel();
+        parent.resultsScrollPane.repaint();
     }
     
     public boolean ShowSaveDialog(){

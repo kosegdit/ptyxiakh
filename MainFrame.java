@@ -204,7 +204,7 @@ public class MainFrame extends JFrame{
         JMenuItem save = new JMenuItem("Save");
         JMenuItem saveAs = new JMenuItem("Save As...");
         JMenuItem exit = new JMenuItem("Exit");
-        JMenuItem degree = new JMenuItem("Degree");
+        JMenuItem degreeMenuItem = new JMenuItem("Degree");
         JMenuItem closeness = new JMenuItem("Closeness");
         JMenuItem betweenness = new JMenuItem("Betweenness");
         JMenuItem edgeBetweenness = new JMenuItem("Edge Betweenness");
@@ -276,7 +276,15 @@ public class MainFrame extends JFrame{
             file.add(exit);
 
         MainMenuBar.add(centralities);
-            centralities.add(degree);
+            degreeMenuItem.addActionListener((ActionEvent e) -> {
+                if(previewPanel.graphInUse){
+                    boolean currentGraphDirected = previewPanel.graphIsDirected();
+                    
+                    DegreeCentrality degree = new DegreeCentrality(this, currentGraphDirected);
+                    degree.CalculateDegree(previewPanel.nodes, previewPanel.edges);
+                }
+            });
+            centralities.add(degreeMenuItem);
             centralities.add(closeness);
             centralities.add(betweenness);
             centralities.add(edgeBetweenness);
