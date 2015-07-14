@@ -54,7 +54,6 @@ public class MainFrame extends JFrame{
     JLabel edgesLabel;
     JLabel nodesCounter;
     JLabel edgesCounter;
-    JButton updateButton;
     JLabel directedCheckLabel;
     JLabel weightedCheckLabel;
     
@@ -74,13 +73,12 @@ public class MainFrame extends JFrame{
 
         BaseSplitPane = new JSplitPane();
         RightSplitPane = new JSplitPane();
-        previewPanel = new Graph();
+        previewPanel = new Graph(this);
         infoPanel = new JPanel();
         historyScrollPane = new JScrollPane();
         resultsScrollPane = new JScrollPane();
         bottomRightTabbedPane = new JTabbedPane();
         graphTitle = new JLabel("Graph:");
-        updateButton = new JButton("Update");
         directedLabel = new JLabel("Directed:");
         directedCheckLabel = new JLabel("\u00D7");
         weightedLabel = new JLabel("Weighted:");
@@ -115,39 +113,6 @@ public class MainFrame extends JFrame{
         infoPanel.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
         
         
-        updateButton.addActionListener(new ActionListener() {
- 
-            @Override
-            public void actionPerformed(ActionEvent e)
-            {
-                String graphName;
-                if(lastLoadedFile == null){
-                    graphName = "User Graph";
-                }
-                else{
-                    graphName = lastLoadedFile;
-                }
-                
-                if(previewPanel.directedGraphMenuItem.getState()){
-                    directedCheckLabel.setText("\u2713");
-                }
-                else{
-                    directedCheckLabel.setText("\u00D7");
-                }
-                
-                if(previewPanel.weightedGraphMenuItem.getState()){
-                    weightedCheckLabel.setText("\u2713");
-                }
-                else{
-                    weightedCheckLabel.setText("\u00D7");
-                }
-                
-                //Execute when button is pressed
-                graphTitle.setText("Graph:   " + graphName);
-                nodesCounter.setText("" + previewPanel.nodes.size());
-                edgesCounter.setText("" + previewPanel.edges.size());
-            }
-        });
         
         javax.swing.GroupLayout infoPanelLayout = new javax.swing.GroupLayout(infoPanel);
         infoPanel.setLayout(infoPanelLayout);
@@ -156,31 +121,25 @@ public class MainFrame extends JFrame{
             .addGroup(infoPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(infoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, infoPanelLayout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(updateButton))
-                    .addGroup(infoPanelLayout.createSequentialGroup()
-                        .addGroup(infoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(graphTitle)
-                            .addGroup(infoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, infoPanelLayout.createSequentialGroup()
-                                    .addComponent(edgesLabel)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(edgesCounter))
-                                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, infoPanelLayout.createSequentialGroup()
-                                    .addComponent(nodesLabel)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(nodesCounter))
-                                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, infoPanelLayout.createSequentialGroup()
-                                    .addComponent(weightedLabel)
-                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(weightedCheckLabel))
-                                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, infoPanelLayout.createSequentialGroup()
-                                    .addComponent(directedLabel)
-                                    .addGap(18, 18, 18)
-                                    .addComponent(directedCheckLabel))))
-                        .addGap(0, 399, Short.MAX_VALUE)))
-                .addContainerGap())
+                    .addComponent(graphTitle)
+                    .addGroup(infoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, infoPanelLayout.createSequentialGroup()
+                            .addComponent(edgesLabel)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(edgesCounter))
+                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, infoPanelLayout.createSequentialGroup()
+                            .addComponent(nodesLabel)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(nodesCounter))
+                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, infoPanelLayout.createSequentialGroup()
+                            .addComponent(weightedLabel)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(weightedCheckLabel))
+                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, infoPanelLayout.createSequentialGroup()
+                            .addComponent(directedLabel)
+                            .addGap(18, 18, 18)
+                            .addComponent(directedCheckLabel))))
+                .addContainerGap(409, Short.MAX_VALUE))
         );
         infoPanelLayout.setVerticalGroup(
             infoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -203,9 +162,7 @@ public class MainFrame extends JFrame{
                 .addGroup(infoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(edgesLabel)
                     .addComponent(edgesCounter))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 207, Short.MAX_VALUE)
-                .addComponent(updateButton)
-                .addContainerGap())
+                .addContainerGap(32, Short.MAX_VALUE))
         );
 
         bottomRightTabbedPane.addTab("Info", infoPanel);
@@ -346,6 +303,41 @@ public class MainFrame extends JFrame{
             
     
         return MainMenuBar;
+    }
+    
+    public void UpdateInfoPanel(){
+        
+        String graphName;
+        
+        if(previewPanel.nodes.isEmpty()){
+            graphName = "";
+        }
+        else{
+            if(lastLoadedFile == null){
+            graphName = "User Graph";
+        }
+            else{
+                graphName = lastLoadedFile;
+            }
+        }
+
+        if(previewPanel.directedGraphMenuItem.getState()){
+            directedCheckLabel.setText("\u2713");
+        }
+        else{
+            directedCheckLabel.setText("\u00D7");
+        }
+
+        if(previewPanel.weightedGraphMenuItem.getState()){
+            weightedCheckLabel.setText("\u2713");
+        }
+        else{
+            weightedCheckLabel.setText("\u00D7");
+        }
+
+        graphTitle.setText("Graph:   " + graphName);
+        nodesCounter.setText("" + previewPanel.nodes.size());
+        edgesCounter.setText("" + previewPanel.edges.size());
     }
     
     

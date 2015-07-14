@@ -50,6 +50,8 @@ public class Graph extends JPanel {
     public Node readyToConnect;
     public Node readyToDisconnect;
     
+    MainFrame parent;
+    
     JPopupMenu previewPanelPopup;
     JMenuItem clearMenuItem;
     JMenuItem newNodeMenuItem;
@@ -59,9 +61,10 @@ public class Graph extends JPanel {
     
 
     
-    public Graph(){
+    public Graph(MainFrame frame){
         
         init();
+        parent = frame;
         
         previewPanelPopup = new JPopupMenu();
         
@@ -88,7 +91,14 @@ public class Graph extends JPanel {
         );
         
         // previewPanel Pop up Menu to decide Graph properties and to create a new node and clear the current Graph
+        directedGraphMenuItem.addActionListener((ActionEvent e) -> {
+                    parent.UpdateInfoPanel();
+                });
         propertiesMenu.add(directedGraphMenuItem);
+        
+        weightedGraphMenuItem.addActionListener((ActionEvent e) -> {
+                    parent.UpdateInfoPanel();
+                });
         propertiesMenu.add(weightedGraphMenuItem);
         previewPanelPopup.add(propertiesMenu);
         
@@ -144,6 +154,7 @@ public class Graph extends JPanel {
         weightedGraphMenuItem.setState(false);
         MainFrame.lastLoadedFile = null;
         this.removeAll();
+        parent.UpdateInfoPanel();
     }
     
     public boolean ShowSaveDialog(){
@@ -285,6 +296,7 @@ public class Graph extends JPanel {
             }
 
             propertiesMenu.setEnabled(false);
+            parent.UpdateInfoPanel();
             this.repaint();
         }
 
@@ -384,6 +396,8 @@ public class Graph extends JPanel {
         nodes.add(new Node(nodesCounter++, nodeLocation, this));
         
         draft = true;
+        
+        parent.UpdateInfoPanel();
     }
     
     
@@ -422,6 +436,8 @@ public class Graph extends JPanel {
         
         propertiesMenu.setEnabled(false);
         draft = true;
+        
+        parent.UpdateInfoPanel();
     }
     
     // Disconnects 2 nodes, deleting the edge that is between them
@@ -454,6 +470,8 @@ public class Graph extends JPanel {
         readyToDisconnect = null;
         
         if(edges.size()==0) propertiesMenu.setEnabled(true);
+        
+        parent.UpdateInfoPanel();
     }
     
     // Checks if the desired edge exists already in the Graph
@@ -510,9 +528,11 @@ public class Graph extends JPanel {
         if(edges.size()>0) {
             propertiesMenu.setEnabled(false);
         }
-        else
+        else{
             propertiesMenu.setEnabled(true);
+        }
 
+        parent.UpdateInfoPanel();
     }
     
     
@@ -551,6 +571,7 @@ public class Graph extends JPanel {
         }
 
         this.repaint();
+        parent.UpdateInfoPanel();
     }
     
     
