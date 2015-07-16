@@ -43,6 +43,8 @@ public class MainFrame extends JFrame{
     JPanel infoPanel;
     Graph previewPanel;
     boolean discard;
+    boolean normalized;
+    boolean resultsPaneUse;
     JScrollPane historyScrollPane;
     JScrollPane resultsScrollPane;
     JTabbedPane bottomRightTabbedPane;
@@ -278,10 +280,26 @@ public class MainFrame extends JFrame{
         MainMenuBar.add(centralities);
             degreeMenuItem.addActionListener((ActionEvent e) -> {
                 if(previewPanel.graphInUse){
-                    boolean currentGraphDirected = previewPanel.graphIsDirected();
+                    int result = JOptionPane.showOptionDialog(null, "Normalize Results?", "Degree Normalization",
+							JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
+							null, null, null);
+                    if(result == JOptionPane.YES_OPTION){
+                        normalized = true;
+                        
+                    }
+                    else if(result == JOptionPane.NO_OPTION){
+                        normalized = false;
+                    }
+                    else{
+                        return;
+                    }
                     
-                    DegreeCentrality degree = new DegreeCentrality(this, currentGraphDirected);
+                    boolean currentGraphDirected = previewPanel.graphIsDirected();
+                    boolean currentGraphWeighted = previewPanel.graphIsWeighted();
+                    
+                    DegreeCentrality degree = new DegreeCentrality(this, currentGraphDirected, currentGraphWeighted, normalized);
                     degree.CalculateDegree(previewPanel.nodes, previewPanel.edges);
+                    resultsPaneUse = true;
                 }
             });
             centralities.add(degreeMenuItem);

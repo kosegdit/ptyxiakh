@@ -155,9 +155,12 @@ public class Graph extends JPanel {
         MainFrame.lastLoadedFile = null;
         this.removeAll();
         
-        parent.resultsScrollPane.getViewport().remove(0);
+        if(parent.resultsPaneUse) {
+            parent.resultsScrollPane.getViewport().remove(0);
+            parent.resultsScrollPane.repaint();
+        }
+        
         parent.UpdateInfoPanel();
-        parent.resultsScrollPane.repaint();
     }
     
     public boolean ShowSaveDialog(){
@@ -543,6 +546,7 @@ public class Graph extends JPanel {
     public void RandomGraph(double density, int numOfNodes){
         
         graphInUse = true;
+        draft = true;
         clearMenuItem.setEnabled(true);
         
         Point[] coords = getCircleCoords(numOfNodes, this.getSize());

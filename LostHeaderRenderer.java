@@ -17,7 +17,7 @@ import javax.swing.table.TableCellRenderer;
 public class LostHeaderRenderer extends JLabel implements TableCellRenderer {
 
 	public LostHeaderRenderer() {
-		setFont(new Font("Consolas", Font.BOLD, 14));
+		setFont(new Font("Consolas", Font.BOLD, 12));
 		setOpaque(true);
 		setForeground(Color.WHITE);
 		setBackground(Color.GRAY);
