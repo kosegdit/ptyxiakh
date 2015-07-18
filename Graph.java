@@ -1,26 +1,18 @@
 package ptyxiakh;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Scanner;
 import java.util.StringTokenizer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
 import javax.swing.JMenu;
@@ -30,7 +22,6 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import static ptyxiakh.MainFrame.lastLoadedFile;
 
 /**
  *
@@ -158,6 +149,7 @@ public class Graph extends JPanel {
         if(parent.resultsPaneUse) {
             parent.resultsScrollPane.getViewport().remove(0);
             parent.resultsScrollPane.repaint();
+            parent.resultsPaneUse = false;
         }
         
         parent.UpdateInfoPanel();
@@ -283,7 +275,7 @@ public class Graph extends JPanel {
                         }
                         else{
                             nodeNeighbors.add(nextToken);
-                            edgesWeights.add("0");
+                            edgesWeights.add("1");
                         }
                     }
                     
@@ -390,6 +382,33 @@ public class Graph extends JPanel {
         n1.resize(1);
         n2.resize(1);
     }
+    
+    
+    //Creates the Adjacency Array for the current Graph
+    public double[][] adjacencyArray(){
+        
+        int numOfNodes = nodes.size();
+        double[][] adjMatrix = new double[numOfNodes][numOfNodes];
+        
+        for(int i=0; i<numOfNodes; i++){
+            for(int j=0; j<numOfNodes; j++){
+                if(i!=j){
+                    adjMatrix[i][j] = Double.POSITIVE_INFINITY;
+                }
+            }
+        }
+        
+        for(int i=0; i<edges.size(); i++){
+            adjMatrix[edges.get(i).node1.myListPosition()][edges.get(i).node2.myListPosition()] = edges.get(i).weight;
+            
+            if(!graphIsDirected()){
+                adjMatrix[edges.get(i).node2.myListPosition()][edges.get(i).node1.myListPosition()] = edges.get(i).weight;
+            }
+
+        }
+        
+        return adjMatrix;
+    }
 
     
     // Adds a new node after user request
@@ -483,7 +502,6 @@ public class Graph extends JPanel {
     // Checks if the desired edge exists already in the Graph
     public boolean edgeExists(Edge e){
         for(int i=0; i<edges.size(); i++){
-            System.out.println("edge: " + i + "(" + edges.get(i).node1.label + "," + edges.get(i).node2.label + ")");
             if(e.node1.equals(edges.get(i).node1) && e.node2.equals(edges.get(i).node2)){
                 System.out.println("edge already exists");
                 return true;
@@ -495,8 +513,6 @@ public class Graph extends JPanel {
     
     // Deletes a node and all his edges after user request
     public void userDeleteNode(Node node){
-        
-        System.out.println("middle:" + nodes.size());
         
         int i = 0;
         Edge e;

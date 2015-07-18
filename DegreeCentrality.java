@@ -71,6 +71,7 @@ public class DegreeCentrality {
             for(int i=0; i< undirectedUnweightedDegree.size(); i++){
                 undirectedUnweightedDegree.set(i, (undirectedUnweightedDegree.get(i)/(numOfNodes-1)));
             }
+            
             Object[] normColumn = {"Node", "Normalized Degree"};
             resultsTable = new JTable(results, normColumn);
         }
@@ -120,28 +121,24 @@ public class DegreeCentrality {
         }
         
         if(normalized){
-            for(int i=0; i<undirectedWeightedDegree.size(); i++){
-                Object[] normColumn = {"Node", "Normalized Degree"};
-                Object[][] results = new Object[numOfNodes][2];
-                resultsTable = new JTable(results, normColumn);
+            Object[] normColumn = {"Node", "Normalized Degree"};
+            Object[][] results = new Object[numOfNodes][2];
+            resultsTable = new JTable(results, normColumn);
 
-                for(int j=0; j<numOfNodes; j++){
-                    results[j][0] = nodes.get(j).label;
-                    results[j][1] = (double) Math.round(edgeNormalizedDegree.get(j)/(numOfNodes-1)*1000)/1000;
-                }
+            for(int j=0; j<numOfNodes; j++){
+                results[j][0] = nodes.get(j).label;
+                results[j][1] = (double) Math.round(edgeNormalizedDegree.get(j)/(numOfNodes-1)*1000)/1000;
             }
         }
         else{
-            for(int i=0; i<undirectedWeightedDegree.size(); i++){
-                Object[] column = {"Node", "Degree", "Edge Normalized Degree"};
-                Object[][] results = new Object[numOfNodes][3];
-                resultsTable = new JTable(results, column);
+            Object[] column = {"Node", "Degree", "Edge Normalized Degree"};
+            Object[][] results = new Object[numOfNodes][3];
+            resultsTable = new JTable(results, column);
 
-                for(int j=0; j<numOfNodes; j++){
-                    results[j][0] = nodes.get(j).label;
-                    results[j][1] = (double) Math.round(undirectedWeightedDegree.get(j)*1000)/1000;
-                    results[j][2] = (double) Math.round(edgeNormalizedDegree.get(j)*1000)/1000;
-                }
+            for(int j=0; j<numOfNodes; j++){
+                results[j][0] = nodes.get(j).label;
+                results[j][1] = (double) Math.round(undirectedWeightedDegree.get(j)*1000)/1000;
+                results[j][2] = (double) Math.round(edgeNormalizedDegree.get(j)*1000)/1000;
             }
         }
         
@@ -180,6 +177,7 @@ public class DegreeCentrality {
                 inDegree.set(i, (inDegree.get(i)/(numOfNodes-1)));
                 outDegree.set(i, (outDegree.get(i)/(numOfNodes-1)));
             }
+            
             Object[] normColumn = {"Node", "Normalized In Degree", "Normalized Out Degree"};
             resultsTable = new JTable(results, normColumn);
         }

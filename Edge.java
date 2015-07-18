@@ -6,8 +6,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Line2D;
-import java.util.Random;
 import javax.swing.JComponent;
 
 /**
@@ -34,8 +32,8 @@ public class Edge extends JComponent{
         
         if(weighted){
             this.weighted = true;
-            this.weight = weight;
         }
+        this.weight = weight;
         
         setSize(2000,2000);
 

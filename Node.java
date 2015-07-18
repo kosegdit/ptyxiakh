@@ -8,16 +8,13 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-//import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import javax.swing.JComponent;
 import javax.swing.JFormattedTextField;
-import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
@@ -78,7 +75,6 @@ public class Node extends JComponent  {
         NodePopup.add(deleteEdgeMenuItem);
         
         deleteNode.addActionListener((ActionEvent e) -> {
-                    System.out.println("first: " + currentGraph.nodes.size());
                     currentGraph.userDeleteNode(this);
                 });
         NodePopup.add(deleteNode);
@@ -93,7 +89,7 @@ public class Node extends JComponent  {
                     if (g.readyToConnect != null) {
                         boolean directed = ((Graph) Node.this.getParent()).graphIsDirected();
                         boolean weighted = ((Graph) Node.this.getParent()).graphIsWeighted();
-                        int weight = 0;
+                        int weight = 1;
                         
                         if(weighted){
                             SpinnerNumberModel edgeWeight = new SpinnerNumberModel();
@@ -152,6 +148,19 @@ public class Node extends JComponent  {
         
         setVisible(true);
         repaint();
+    }
+    
+    public int myListPosition(){
+        
+        Graph g = (Graph) Node.this.getParent();
+        
+        for(int i=0; i<g.nodes.size(); i++){
+            if(this.equals(g.nodes.get(i))){
+                return i;
+            }
+        }
+        
+        return -1;
     }
     
     public boolean hasNeighbor(){

@@ -1,16 +1,6 @@
 package ptyxiakh;
 
-
-import java.awt.Point;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
-import java.io.File;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
 import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
@@ -20,7 +10,6 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
@@ -207,7 +196,7 @@ public class MainFrame extends JFrame{
         JMenuItem saveAs = new JMenuItem("Save As...");
         JMenuItem exit = new JMenuItem("Exit");
         JMenuItem degreeMenuItem = new JMenuItem("Degree");
-        JMenuItem closeness = new JMenuItem("Closeness");
+        JMenuItem closenessMenuItem = new JMenuItem("Closeness");
         JMenuItem betweenness = new JMenuItem("Betweenness");
         JMenuItem edgeBetweenness = new JMenuItem("Edge Betweenness");
         JMenuItem μpci = new JMenuItem("μ-Pci");
@@ -303,7 +292,32 @@ public class MainFrame extends JFrame{
                 }
             });
             centralities.add(degreeMenuItem);
-            centralities.add(closeness);
+            
+            closenessMenuItem.addActionListener((ActionEvent e) -> {
+                if(previewPanel.graphInUse){
+                    int result = JOptionPane.showOptionDialog(null, "Normalize Results?", "Closeness Normalization",
+							JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
+							null, null, null);
+                    if(result == JOptionPane.YES_OPTION){
+                        normalized = true;
+                        
+                    }
+                    else if(result == JOptionPane.NO_OPTION){
+                        normalized = false;
+                    }
+                    else{
+                        return;
+                    }
+                    
+                    boolean currentGraphDirected = previewPanel.graphIsDirected();
+                    boolean currentGraphWeighted = previewPanel.graphIsWeighted();
+                    
+                    ClosenessCentrality closeness = new ClosenessCentrality(this, normalized);
+                    closeness.CalculateCloseness(previewPanel.nodes);
+                    resultsPaneUse = true;
+                }
+            });
+            centralities.add(closenessMenuItem);
             centralities.add(betweenness);
             centralities.add(edgeBetweenness);
             centralities.add(μpci);
