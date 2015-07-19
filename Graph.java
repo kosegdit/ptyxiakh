@@ -579,7 +579,7 @@ public class Graph extends JPanel {
                 int connectivity = (int)(Math.random() * (101)) + 1;
                 
                 if(connectivity <= density){
-                    edges.add(new Edge(nodes.get(i), nodes.get(j), false, false, 0, this.getSize()));
+                    edges.add(new Edge(nodes.get(i), nodes.get(j), false, false, 1, this.getSize()));
                     this.add(edges.get(edges.size()-1));
                     
                     // Resize nodes i, j for every new (i,j) edge
@@ -589,6 +589,10 @@ public class Graph extends JPanel {
                 }
             }
         }
+        
+        directedGraphMenuItem.setState(false);
+        weightedGraphMenuItem.setState(false);
+        
         if(edges.size()>0){
             propertiesMenu.setEnabled(false);
         }
