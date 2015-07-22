@@ -44,6 +44,7 @@ public class ClosenessCentrality {
         
         for(int i=0; i<numOfNodes; i++){
             currentCloseness = 0;
+            
             for(int j=0; j<numOfNodes; j++){
                 currentCloseness = currentCloseness + floydArray[i][j];
             }

@@ -197,7 +197,7 @@ public class MainFrame extends JFrame{
         JMenuItem exit = new JMenuItem("Exit");
         JMenuItem degreeMenuItem = new JMenuItem("Degree");
         JMenuItem closenessMenuItem = new JMenuItem("Closeness");
-        JMenuItem betweenness = new JMenuItem("Betweenness");
+        JMenuItem betweennessMenuItem = new JMenuItem("Betweenness");
         JMenuItem edgeBetweenness = new JMenuItem("Edge Betweenness");
         JMenuItem μpci = new JMenuItem("μ-Pci");
         JMenuItem kShell = new JMenuItem("k-Shell");
@@ -309,16 +309,35 @@ public class MainFrame extends JFrame{
                         return;
                     }
                     
-                    boolean currentGraphDirected = previewPanel.graphIsDirected();
-                    boolean currentGraphWeighted = previewPanel.graphIsWeighted();
-                    
                     ClosenessCentrality closeness = new ClosenessCentrality(this, normalized);
                     closeness.CalculateCloseness(previewPanel.nodes);
                     resultsPaneUse = true;
                 }
             });
             centralities.add(closenessMenuItem);
-            centralities.add(betweenness);
+            
+            betweennessMenuItem.addActionListener((ActionEvent e) -> {
+                if(previewPanel.graphInUse){
+                    int result = JOptionPane.showOptionDialog(null, "Normalize Results?", "Closeness Normalization",
+							JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
+							null, null, null);
+                    if(result == JOptionPane.YES_OPTION){
+                        normalized = true;
+                        
+                    }
+                    else if(result == JOptionPane.NO_OPTION){
+                        normalized = false;
+                    }
+                    else{
+                        return;
+                    }
+                    
+                    BetweennessCentrality betweenness = new BetweennessCentrality(this, normalized);
+                    betweenness.CalculateBetweenness();
+                    resultsPaneUse = true;
+                }
+            });
+            centralities.add(betweennessMenuItem);
             centralities.add(edgeBetweenness);
             centralities.add(μpci);
             centralities.add(kShell);
