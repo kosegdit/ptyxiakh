@@ -18,7 +18,7 @@ public class DijkstraAllPaths {
         
         List<List<List<List<Integer>>>> paths = new ArrayList<>();
 
-        for (int source=0; source<5; source++) {
+        for (int source=0; source<matrix.length; source++) {
             paths.add(dijkstra(source, matrix));
             System.out.println(paths.get(source));
         }
@@ -30,12 +30,12 @@ public class DijkstraAllPaths {
     public List<List<List<Integer>>> dijkstra(int source, double[][] matrix) {
         
         List<List<List<Integer>>> paths = new ArrayList<>();
-        double[] d = new double[5]; // the distance matrix
-        int[][] prev = new int[5][5]; // the distance matrix
-        boolean[] visited = new boolean[5]; // the distance matrix
+        double[] d = new double[matrix.length]; // the distance matrix
+        int[][] prev = new int[matrix.length][matrix.length]; // the distance matrix
+        boolean[] visited = new boolean[matrix.length]; // the distance matrix
         int min;
 
-        for (int i=0; i<5; i++) {
+        for (int i=0; i<matrix.length; i++) {
             d[i] = Double.POSITIVE_INFINITY;
             prev[i][0] = 0;
             visited[i] = false;
@@ -43,10 +43,10 @@ public class DijkstraAllPaths {
 
         d[source] = 0;
 
-        for (int k=0; k<5; k++) {
+        for (int k=0; k<matrix.length; k++) {
             min = -1;
 
-            for (int i=0; i<5; i++) {
+            for (int i=0; i<matrix.length; i++) {
                 if (!visited[i] && ((min == -1) || (d[i] < d[min]))) {
                     min = i;
                 }
@@ -54,7 +54,7 @@ public class DijkstraAllPaths {
 
             visited[min] = true;
 
-            for (int i=0; i<5; i++) {
+            for (int i=0; i<matrix.length; i++) {
                 if (min!=i && matrix[min][i] != Double.POSITIVE_INFINITY) {
                     if (d[min] + matrix[min][i] < d[i]) {
                         d[i] = d[min] + matrix[min][i];
@@ -69,7 +69,7 @@ public class DijkstraAllPaths {
             }
         }
 
-        for (int i=0; i<5; i++) {
+        for (int i=0; i<matrix.length; i++) {
             if (i == source || d[i] == Double.POSITIVE_INFINITY) continue;
 
             paths.add(buildPaths(i, 0, prev));
