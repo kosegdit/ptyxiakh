@@ -1,10 +1,8 @@
 package ptyxiakh;
 
-import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JTable;
-import javax.swing.table.JTableHeader;
 
 /**
  *
@@ -13,7 +11,7 @@ import javax.swing.table.JTableHeader;
 public class ClosenessCentrality {
     
     MainFrame parent;
-    JTable resultsTable = new JTable();
+    List<Double> closeness = new ArrayList<>();
     boolean normalized;
     
     
@@ -24,13 +22,11 @@ public class ClosenessCentrality {
     }
     
     
-    public void CalculateCloseness(List<Node> nodes){
+    public List<Double> CalculateCloseness(){
         
-        int numOfNodes = nodes.size();
+        int numOfNodes = parent.previewPanel.nodes.size();
         double[][] floydArray = parent.previewPanel.adjacencyArray();
         double currentCloseness, temp;
-        List<Double> closeness = new ArrayList<>();
-        Object[][] results = new Object[numOfNodes][2];
         
         for(int k=0; k<numOfNodes; k++){
             for(int i=0; i<numOfNodes; i++){
@@ -49,46 +45,46 @@ public class ClosenessCentrality {
                 currentCloseness = currentCloseness + floydArray[i][j];
             }
             
-            closeness.add(currentCloseness);
-        }
-        
-        for(int i=0; i<numOfNodes; i++){
-            results[i][0] = nodes.get(i).label;
-            temp = 1/closeness.get(i);
-            
+            temp = 1/currentCloseness;
             if(normalized){
-                temp = temp/(numOfNodes-1);
-                Object[] column = {"Node", "Normalized Closeness"};
-                resultsTable = new JTable(results, column);
+                closeness.add(temp/(numOfNodes-1));
             }
             else{
-                Object[] column = {"Node", "Closeness"};
-                resultsTable = new JTable(results, column);
+                closeness.add(temp);
             }
+        }
+        
+        return closeness;
+    }
+    
+    
+    public void DisplayCloseness(){
+        
+        int numOfNodes = parent.previewPanel.nodes.size();
+        JTable resultsTable;
+        
+        Object[][] results = new Object[numOfNodes][2];
+        
+        for(int i=0; i<numOfNodes; i++){
+            results[i][0] = parent.previewPanel.nodes.get(i).label;
             
             if(closeness.get(i)!=Double.POSITIVE_INFINITY){
-                    results[i][1] = (double) Math.round(temp*10000)/10000;
+                results[i][1] = (double) Math.round(closeness.get(i)*10000)/10000;
             }
             else{
                 results[i][1] = Double.NaN;
             }
-            
-            
         }
         
-        DisplayResults(resultsTable);
-    }
-    
-    
-    public void DisplayResults(JTable resultsTable){
+        if(normalized){
+            Object[] column = {"Node", "Normalized Closeness"};
+            resultsTable = new JTable(results, column);
+        }
+        else{
+            Object[] column = {"Node", "Closeness"};
+            resultsTable = new JTable(results, column);
+        }
         
-        resultsTable.setEnabled(false);
-        resultsTable.setCellSelectionEnabled(false);
-        resultsTable.setBackground(new Color(240,240,240));
-
-        JTableHeader header = resultsTable.getTableHeader();
-        header.setDefaultRenderer(new LostHeaderRenderer());
-
-        parent.resultsScrollPane.getViewport().add(resultsTable);
+        DisplayCentralities.DisplayResults(resultsTable, parent);
     }
 }

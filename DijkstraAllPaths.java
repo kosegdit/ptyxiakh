@@ -17,8 +17,9 @@ public class DijkstraAllPaths {
     public List<List<List<List<Integer>>>> DijkstraPaths(double[][] matrix){
         
         List<List<List<List<Integer>>>> paths = new ArrayList<>();
+        int dimension = matrix.length;
 
-        for (int source=0; source<matrix.length; source++) {
+        for (int source=0; source<dimension; source++) {
             paths.add(dijkstra(source, matrix));
             System.out.println(paths.get(source));
         }
@@ -34,8 +35,9 @@ public class DijkstraAllPaths {
         int[][] prev = new int[matrix.length][matrix.length]; // the distance matrix
         boolean[] visited = new boolean[matrix.length]; // the distance matrix
         int min;
+        int dimension = matrix.length;
 
-        for (int i=0; i<matrix.length; i++) {
+        for (int i=0; i<dimension; i++) {
             d[i] = Double.POSITIVE_INFINITY;
             prev[i][0] = 0;
             visited[i] = false;
@@ -43,10 +45,10 @@ public class DijkstraAllPaths {
 
         d[source] = 0;
 
-        for (int k=0; k<matrix.length; k++) {
+        for (int k=0; k<dimension; k++) {
             min = -1;
 
-            for (int i=0; i<matrix.length; i++) {
+            for (int i=0; i<dimension; i++) {
                 if (!visited[i] && ((min == -1) || (d[i] < d[min]))) {
                     min = i;
                 }
@@ -54,7 +56,7 @@ public class DijkstraAllPaths {
 
             visited[min] = true;
 
-            for (int i=0; i<matrix.length; i++) {
+            for (int i=0; i<dimension; i++) {
                 if (min!=i && matrix[min][i] != Double.POSITIVE_INFINITY) {
                     if (d[min] + matrix[min][i] < d[i]) {
                         d[i] = d[min] + matrix[min][i];
@@ -69,7 +71,7 @@ public class DijkstraAllPaths {
             }
         }
 
-        for (int i=0; i<matrix.length; i++) {
+        for (int i=0; i<dimension; i++) {
             if (i == source || d[i] == Double.POSITIVE_INFINITY) continue;
 
             paths.add(buildPaths(i, 0, prev));

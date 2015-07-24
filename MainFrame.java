@@ -198,7 +198,7 @@ public class MainFrame extends JFrame{
         JMenuItem degreeMenuItem = new JMenuItem("Degree");
         JMenuItem closenessMenuItem = new JMenuItem("Closeness");
         JMenuItem betweennessMenuItem = new JMenuItem("Betweenness");
-        JMenuItem edgeBetweenness = new JMenuItem("Edge Betweenness");
+        JMenuItem edgeBetweennessMenuItem = new JMenuItem("Edge Betweenness");
         JMenuItem μpci = new JMenuItem("μ-Pci");
         JMenuItem kShell = new JMenuItem("k-Shell");
         JMenuItem pageRank = new JMenuItem("Page Rank");
@@ -288,6 +288,7 @@ public class MainFrame extends JFrame{
                     
                     DegreeCentrality degree = new DegreeCentrality(this, currentGraphDirected, currentGraphWeighted, normalized);
                     degree.CalculateDegree(previewPanel.nodes, previewPanel.edges);
+                    degree.DisplayDegree();
                     resultsPaneUse = true;
                 }
             });
@@ -310,7 +311,8 @@ public class MainFrame extends JFrame{
                     }
                     
                     ClosenessCentrality closeness = new ClosenessCentrality(this, normalized);
-                    closeness.CalculateCloseness(previewPanel.nodes);
+                    closeness.CalculateCloseness();
+                    closeness.DisplayCloseness();
                     resultsPaneUse = true;
                 }
             });
@@ -318,7 +320,7 @@ public class MainFrame extends JFrame{
             
             betweennessMenuItem.addActionListener((ActionEvent e) -> {
                 if(previewPanel.graphInUse){
-                    int result = JOptionPane.showOptionDialog(null, "Normalize Results?", "Closeness Normalization",
+                    int result = JOptionPane.showOptionDialog(null, "Normalize Results?", "Betweenness Normalization",
 							JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
 							null, null, null);
                     if(result == JOptionPane.YES_OPTION){
@@ -334,11 +336,22 @@ public class MainFrame extends JFrame{
                     
                     BetweennessCentrality betweenness = new BetweennessCentrality(this, normalized);
                     betweenness.CalculateBetweenness();
+                    betweenness.DisplayBetweenness();
                     resultsPaneUse = true;
                 }
             });
             centralities.add(betweennessMenuItem);
-            centralities.add(edgeBetweenness);
+            
+            edgeBetweennessMenuItem.addActionListener((ActionEvent e) -> {
+                if(previewPanel.graphInUse){
+                    
+                    EdgeBetweennessCentrality edgeBetweenness = new EdgeBetweennessCentrality(this);
+                    edgeBetweenness.CalculateEdgeBetweenness();
+                    edgeBetweenness.DisplayEdgeBetweenness();
+                    resultsPaneUse = true;
+                }
+            });
+            centralities.add(edgeBetweennessMenuItem);
             centralities.add(μpci);
             centralities.add(kShell);
             centralities.add(pageRank);
@@ -364,19 +377,21 @@ public class MainFrame extends JFrame{
         return MainMenuBar;
     }
     
-    public void UpdateInfoPanel(){
+    public void UpdateInfoPanel(String name){
         
-        String graphName;
+        String graphName = name;
         
-        if(previewPanel.nodes.isEmpty()){
-            graphName = "";
-        }
-        else{
-            if(lastLoadedFile == null){
-            graphName = "User Graph";
-        }
+        if(graphName.isEmpty()){
+            if(previewPanel.nodes.isEmpty()){
+                graphName = "";
+            }
             else{
-                graphName = lastLoadedFile;
+                if(lastLoadedFile == null){
+                graphName = "User Graph";
+            }
+                else{
+                    graphName = lastLoadedFile;
+                }
             }
         }
 

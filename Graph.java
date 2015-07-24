@@ -83,12 +83,12 @@ public class Graph extends JPanel {
         
         // previewPanel Pop up Menu to decide Graph properties and to create a new node and clear the current Graph
         directedGraphMenuItem.addActionListener((ActionEvent e) -> {
-                    parent.UpdateInfoPanel();
+                    parent.UpdateInfoPanel("");
                 });
         propertiesMenu.add(directedGraphMenuItem);
         
         weightedGraphMenuItem.addActionListener((ActionEvent e) -> {
-                    parent.UpdateInfoPanel();
+                    parent.UpdateInfoPanel("");
                 });
         propertiesMenu.add(weightedGraphMenuItem);
         previewPanelPopup.add(propertiesMenu);
@@ -152,7 +152,7 @@ public class Graph extends JPanel {
             parent.resultsPaneUse = false;
         }
         
-        parent.UpdateInfoPanel();
+        parent.UpdateInfoPanel("");
     }
     
     public boolean ShowSaveDialog(){
@@ -163,7 +163,7 @@ public class Graph extends JPanel {
         int returnVal = fc.showSaveDialog(Graph.this);
         
         if (returnVal == JFileChooser.APPROVE_OPTION){
-            MainFrame.lastLoadedFile = fc.getSelectedFile().toString();
+            MainFrame.lastLoadedFile = fc.getSelectedFile().toString() + ".cnt";
             SaveGraph(MainFrame.lastLoadedFile);
         }
         return returnVal == JFileChooser.APPROVE_OPTION;
@@ -294,7 +294,7 @@ public class Graph extends JPanel {
             }
 
             propertiesMenu.setEnabled(false);
-            parent.UpdateInfoPanel();
+            parent.UpdateInfoPanel("");
             this.repaint();
         }
 
@@ -339,6 +339,8 @@ public class Graph extends JPanel {
         }
         draft = false;
         myOutput.close();
+        
+        parent.UpdateInfoPanel("");
     }
     
     private void LoadGraphNodes(int numOfNodes, List<String> labels, List<String> locations){
@@ -422,7 +424,7 @@ public class Graph extends JPanel {
         
         draft = true;
         
-        parent.UpdateInfoPanel();
+        parent.UpdateInfoPanel("");
     }
     
     
@@ -462,7 +464,7 @@ public class Graph extends JPanel {
         propertiesMenu.setEnabled(false);
         draft = true;
         
-        parent.UpdateInfoPanel();
+        parent.UpdateInfoPanel("");
     }
     
     // Disconnects 2 nodes, deleting the edge that is between them
@@ -496,7 +498,7 @@ public class Graph extends JPanel {
         
         if(edges.size()==0) propertiesMenu.setEnabled(true);
         
-        parent.UpdateInfoPanel();
+        parent.UpdateInfoPanel("");
     }
     
     // Checks if the desired edge exists already in the Graph
@@ -554,7 +556,7 @@ public class Graph extends JPanel {
             propertiesMenu.setEnabled(true);
         }
 
-        parent.UpdateInfoPanel();
+        parent.UpdateInfoPanel("");
     }
     
     
@@ -598,7 +600,7 @@ public class Graph extends JPanel {
         }
 
         this.repaint();
-        parent.UpdateInfoPanel();
+        parent.UpdateInfoPanel("Erdős–Rényi Random Graph");
     }
     
     
