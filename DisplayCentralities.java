@@ -21,7 +21,8 @@ public class DisplayCentralities {
 
         JTableHeader header = resultsTable.getTableHeader();
         header.setDefaultRenderer(new LostHeaderRenderer());
-
+        
+        parent.results = resultsTable;
         parent.resultsScrollPane.getViewport().add(resultsTable);
     }
     

@@ -150,6 +150,7 @@ public class Graph extends JPanel {
             parent.resultsScrollPane.getViewport().remove(0);
             parent.resultsScrollPane.repaint();
             parent.resultsPaneUse = false;
+            parent.exportResultsMenuItem.setEnabled(false);
         }
         
         parent.UpdateInfoPanel("");
@@ -225,7 +226,6 @@ public class Graph extends JPanel {
         
         Scanner inputFile;
         StringTokenizer current_line;
-        Point nodeLocation;
         List<String> labels = new ArrayList<>();
         List<String> locations = new ArrayList<>();
         List<List<String>> neighbors = new ArrayList<>();

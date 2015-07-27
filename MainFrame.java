@@ -15,6 +15,7 @@ import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTable;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -47,6 +48,8 @@ public class MainFrame extends JFrame{
     JLabel edgesCounter;
     JLabel directedCheckLabel;
     JLabel weightedCheckLabel;
+    JMenuItem exportResultsMenuItem;
+    JTable results = new JTable();
     
         
     public MainFrame() {
@@ -194,6 +197,7 @@ public class MainFrame extends JFrame{
         JMenuItem load = new JMenuItem("Load Graph");
         JMenuItem save = new JMenuItem("Save");
         JMenuItem saveAs = new JMenuItem("Save As...");
+        exportResultsMenuItem = new JMenuItem("Export Results...");
         JMenuItem exit = new JMenuItem("Exit");
         JMenuItem degreeMenuItem = new JMenuItem("Degree");
         JMenuItem closenessMenuItem = new JMenuItem("Closeness");
@@ -261,6 +265,15 @@ public class MainFrame extends JFrame{
             file.add(saveAs);
             file.addSeparator();
             
+            exportResultsMenuItem.addActionListener((ActionEvent e) -> {
+                ExportResults exportTsv = new ExportResults(results);
+                exportTsv.showDialog();
+            });
+            file.add(exportResultsMenuItem);
+            exportResultsMenuItem.setEnabled(false);
+            
+            file.addSeparator();
+            
                 exit.addActionListener((ActionEvent e) -> {
                     System.exit(0);
                 });
@@ -290,6 +303,7 @@ public class MainFrame extends JFrame{
                     degree.CalculateDegree(previewPanel.nodes, previewPanel.edges);
                     degree.DisplayDegree();
                     resultsPaneUse = true;
+                    exportResultsMenuItem.setEnabled(true);
                 }
             });
             centralities.add(degreeMenuItem);
@@ -314,6 +328,7 @@ public class MainFrame extends JFrame{
                     closeness.CalculateCloseness();
                     closeness.DisplayCloseness();
                     resultsPaneUse = true;
+                    exportResultsMenuItem.setEnabled(true);
                 }
             });
             centralities.add(closenessMenuItem);
@@ -338,6 +353,7 @@ public class MainFrame extends JFrame{
                     betweenness.CalculateBetweenness();
                     betweenness.DisplayBetweenness();
                     resultsPaneUse = true;
+                    exportResultsMenuItem.setEnabled(true);
                 }
             });
             centralities.add(betweennessMenuItem);
@@ -349,6 +365,7 @@ public class MainFrame extends JFrame{
                     edgeBetweenness.CalculateEdgeBetweenness();
                     edgeBetweenness.DisplayEdgeBetweenness();
                     resultsPaneUse = true;
+                    exportResultsMenuItem.setEnabled(true);
                 }
             });
             centralities.add(edgeBetweennessMenuItem);

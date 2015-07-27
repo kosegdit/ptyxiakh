@@ -26,7 +26,7 @@ public class Edge extends JComponent{
         
         this.node1 = node1;
         this.node2 = node2;
-        this.label = "(" + node1.label + "," + node2.label + ")";
+        this.label ="(" + node1.label + "," + node2.label + ")";
         
         this.directed = directed;
         
