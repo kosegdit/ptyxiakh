@@ -1,6 +1,7 @@
 package ptyxiakh;
 
 import java.awt.event.ActionEvent;
+import java.util.List;
 import javax.swing.JFileChooser;
 import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
@@ -203,7 +204,7 @@ public class MainFrame extends JFrame{
         JMenuItem closenessMenuItem = new JMenuItem("Closeness");
         JMenuItem betweennessMenuItem = new JMenuItem("Betweenness");
         JMenuItem edgeBetweennessMenuItem = new JMenuItem("Edge Betweenness");
-        JMenuItem μpci = new JMenuItem("μ-Pci");
+        JMenuItem μpciMenuItem = new JMenuItem("μ-Pci");
         JMenuItem kShell = new JMenuItem("k-Shell");
         JMenuItem pageRank = new JMenuItem("Page Rank");
         JMenuItem randomGraphMenuItem = new JMenuItem("Random graph");
@@ -369,7 +370,39 @@ public class MainFrame extends JFrame{
                 }
             });
             centralities.add(edgeBetweennessMenuItem);
-            centralities.add(μpci);
+            
+            μpciMenuItem.addActionListener((ActionEvent e) -> {
+                if(previewPanel.graphInUse && !previewPanel.graphIsDirected() && !previewPanel.graphIsWeighted()){
+                    
+                    SpinnerNumberModel limits = new SpinnerNumberModel(1, 1, 3, 1);
+                    JSpinner mFactor = new JSpinner(limits);
+                    
+                    Object[] fullMessage = {"Choose the μ factor:", mFactor, "\n"};
+
+                    int result = JOptionPane.showOptionDialog(null, fullMessage, "μ Value",
+                                                                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE,
+                                                                    null, null, null);
+
+                    if(result != JOptionPane.OK_OPTION) {
+                        return;
+                    }
+                    
+                    int m = (int)mFactor.getValue();
+                    
+                    DegreeCentrality degree = new DegreeCentrality(this, false, false, false);
+                    List<Double> graphDegrees = degree.UndirectedUnweightedDegree(previewPanel.nodes, previewPanel.edges);
+                    MpciCentrality mPci = new MpciCentrality(this, m);
+                    mPci.CalculateMpci(graphDegrees);
+                    mPci.DisplayMpci();
+                    resultsPaneUse = true;
+                    exportResultsMenuItem.setEnabled(true);
+                }
+                else if(previewPanel.graphInUse){
+                    JOptionPane.showMessageDialog(null, "μ-Pci can only be applied to Undirected, Unweighted graphs");
+                }
+            });
+            centralities.add(μpciMenuItem);
+            
             centralities.add(kShell);
             centralities.add(pageRank);
             

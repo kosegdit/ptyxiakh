@@ -36,7 +36,8 @@ public class Graph extends JPanel {
     private Point mousePt;
     public boolean graphInUse;
     public boolean draft;
-    private int nodesCounter;
+    private int nodesCounter; 
+    private int lastLabel = 0;
     public boolean noAction;
     public Node readyToConnect;
     public Node readyToDisconnect;
@@ -133,6 +134,7 @@ public class Graph extends JPanel {
         draft = false;
         readyToConnect = null;
         readyToDisconnect = null;
+        lastLabel = 0;
         nodesCounter = 0;
         boolean noAction = false;
     }
@@ -233,72 +235,78 @@ public class Graph extends JPanel {
         
         try {
             inputFile = new Scanner(new FileReader(file));
+            graphInUse = true;
+            clearMenuItem.setEnabled(graphInUse);
+
+            while(inputFile.hasNextLine()){
+                current_line = new StringTokenizer(inputFile.nextLine());
+
+                if(current_line.hasMoreTokens()){
+                    String s = current_line.nextToken();
+                    String nextToken;
+
+                    if(s.startsWith("#")) {
+                        continue;
+                    }
+                    else if(s.equals("directed")){
+                        directedGraphMenuItem.setState(Boolean.parseBoolean(current_line.nextToken()));
+                    }
+                    else if(s.equals("weighted")){
+                        weightedGraphMenuItem.setState(Boolean.parseBoolean(current_line.nextToken()));
+                    }
+                    else{
+                        labels.add(s);
+                        List<String> nodeNeighbors = new ArrayList<>();
+                        List<String> edgesWeights = new ArrayList<>();
+                        nodesCounter++;
+                        lastLabel = Integer.valueOf(s);
+                        locations.add(current_line.nextToken());
+
+                        while(current_line.hasMoreTokens()){
+                            nextToken = current_line.nextToken();
+
+                            if(graphIsWeighted()){
+                                String[] result = nextToken.split(",");
+                                nodeNeighbors.add(result[0]);
+                                edgesWeights.add(result[1]);
+                            }
+                            else{
+                                nodeNeighbors.add(nextToken);
+                                edgesWeights.add("1");
+                            }
+                        }
+
+                        neighbors.add(nodeNeighbors);
+                        weights.add(edgesWeights);
+                    }
+                }
+            }
+        
+            if(nodesCounter>0){
+                LoadGraphNodes(nodesCounter, labels, locations);
+                for(int i=0; i<labels.size(); i++){
+                    for(int j=0; j<neighbors.get(i).size(); j++){
+                        LoadgraphEdges(labels.get(i), neighbors.get(i).get(j), graphIsDirected(), graphIsWeighted(), Integer.valueOf(weights.get(i).get(j)));
+                    }
+                }
+
+                propertiesMenu.setEnabled(false);
+                parent.UpdateInfoPanel("");
+                this.repaint();
+            }
+
+            inputFile.close();
         } 
         catch (FileNotFoundException ex) {
             System.err.println(ex);
             return;
         }
-        
-        graphInUse = true;
-        clearMenuItem.setEnabled(graphInUse);
-        
-        while(inputFile.hasNextLine()){
-            current_line = new StringTokenizer(inputFile.nextLine());
-            
-            if(current_line.hasMoreTokens()){
-                String s = current_line.nextToken();
-                String nextToken;
-                
-                if(s.startsWith("#")) {
-                    continue;
-                }
-                else if(s.equals("directed")){
-                    directedGraphMenuItem.setState(Boolean.parseBoolean(current_line.nextToken()));
-                }
-                else if(s.equals("weighted")){
-                    weightedGraphMenuItem.setState(Boolean.parseBoolean(current_line.nextToken()));
-                }
-                else{
-                    labels.add(s);
-                    List<String> nodeNeighbors = new ArrayList<>();
-                    List<String> edgesWeights = new ArrayList<>();
-                    nodesCounter++;
-                    locations.add(current_line.nextToken());
-                    
-                    while(current_line.hasMoreTokens()){
-                        nextToken = current_line.nextToken();
-                        
-                        if(graphIsWeighted()){
-                            String[] result = nextToken.split(",");
-                            nodeNeighbors.add(result[0]);
-                            edgesWeights.add(result[1]);
-                        }
-                        else{
-                            nodeNeighbors.add(nextToken);
-                            edgesWeights.add("1");
-                        }
-                    }
-                    
-                    neighbors.add(nodeNeighbors);
-                    weights.add(edgesWeights);
-                }
-            }
+        catch (Exception ex) {
+            JOptionPane.showMessageDialog (null, "Invalid Input File Format", "Error Message", JOptionPane.ERROR_MESSAGE);
+            return;
         }
         
-        if(nodesCounter>0){
-            LoadGraphNodes(nodesCounter, labels, locations);
-            for(int i=0; i<labels.size(); i++){
-                for(int j=0; j<neighbors.get(i).size(); j++){
-                    LoadgraphEdges(labels.get(i), neighbors.get(i).get(j), graphIsDirected(), graphIsWeighted(), Integer.valueOf(weights.get(i).get(j)));
-                }
-            }
-
-            propertiesMenu.setEnabled(false);
-            parent.UpdateInfoPanel("");
-            this.repaint();
-        }
-
-        inputFile.close();
+        
     }
     
     public void SaveGraph(String file){
@@ -420,7 +428,12 @@ public class Graph extends JPanel {
         nodeLocation.x = location.x -10;
         nodeLocation.y = location.y -10;
         
-        nodes.add(new Node(nodesCounter++, nodeLocation, this));
+        if(lastLabel>0){
+            nodes.add(new Node(++lastLabel, nodeLocation, this));
+        }
+        else{
+            nodes.add(new Node(nodesCounter++, nodeLocation, this));
+        }
         
         draft = true;
         
