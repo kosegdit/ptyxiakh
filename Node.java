@@ -135,7 +135,19 @@ public class Node extends JComponent  {
                 if(SwingUtilities.isLeftMouseButton(e)){
                     if(mousePt.x > 10 && mousePt.x < getWidth()-10 && mousePt.y > 10 && mousePt.y < getHeight()-10) {
                         Node node = (Node) e.getSource();
-                        node.setLocation(node.getX() + e.getX() - mousePt.x, node.getY() + e.getY() - mousePt.y);
+                        
+                        int x = node.getX() + e.getX() - mousePt.x;
+                        int y = node.getY() + e.getY() - mousePt.y;
+                        
+                        Dimension size = getParent().getPreferredSize();
+
+                        if(x > 0 && x < size.width-20) {
+                            node.setLocation(x, node.getY());
+                        }
+
+                        if(y > 0 && y < size.height-20) {
+                            node.setLocation(node.getX(), y);
+                        }
                     }
                 }
             }

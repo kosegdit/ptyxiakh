@@ -1,5 +1,6 @@
 package ptyxiakh;
 
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.util.List;
 import javax.swing.JFileChooser;
@@ -32,6 +33,7 @@ public class MainFrame extends JFrame{
     JSplitPane BaseSplitPane;
     JSplitPane RightSplitPane;
     JPanel infoPanel;
+    JScrollPane previewScroll;
     Graph previewPanel;
     boolean discard;
     boolean normalized;
@@ -52,7 +54,7 @@ public class MainFrame extends JFrame{
     JMenuItem exportResultsMenuItem;
     JTable results = new JTable();
     
-        
+    
     public MainFrame() {
         initComponents();
         setVisible(true);
@@ -68,6 +70,7 @@ public class MainFrame extends JFrame{
 
         BaseSplitPane = new JSplitPane();
         RightSplitPane = new JSplitPane();
+        previewScroll = new JScrollPane();
         previewPanel = new Graph(this);
         infoPanel = new JPanel();
         historyScrollPane = new JScrollPane();
@@ -89,8 +92,14 @@ public class MainFrame extends JFrame{
         BaseSplitPane.setOrientation(javax.swing.JSplitPane.HORIZONTAL_SPLIT);
         BaseSplitPane.setDividerLocation(480);
         BaseSplitPane.setResizeWeight(0.5);
-        BaseSplitPane.setLeftComponent(previewPanel);
+        BaseSplitPane.setLeftComponent(previewScroll);
         BaseSplitPane.setRightComponent(RightSplitPane);
+        
+        previewPanel.setPreferredSize(new Dimension(2000, 2000));
+        
+        previewScroll.setViewportView(previewPanel);
+        previewScroll.setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.
+                createBevelBorder(javax.swing.border.BevelBorder.RAISED), "Preview"));
         
         RightSplitPane.setOrientation(javax.swing.JSplitPane.VERTICAL_SPLIT);
         RightSplitPane.setResizeWeight(0.5);
@@ -181,6 +190,9 @@ public class MainFrame extends JFrame{
         );
 
         pack();
+        
+        previewScroll.getVerticalScrollBar().setValue(700);
+        previewScroll.getHorizontalScrollBar().setValue(700);
     }
     
     private JMenuBar createMainMenu(){

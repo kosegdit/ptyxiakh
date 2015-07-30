@@ -71,9 +71,6 @@ public class Graph extends JPanel {
         clearMenuItem.setEnabled(false);
         
         // Creates and sets the previewPanel and the previewPanel Pop up Menu
-        setBorder(javax.swing.BorderFactory.createTitledBorder(javax.swing.BorderFactory.
-                createBevelBorder(javax.swing.border.BevelBorder.RAISED), "Preview"));
-        
         javax.swing.GroupLayout previewPanelLayout = new javax.swing.GroupLayout(this);
         setLayout(previewPanelLayout);
         previewPanelLayout.setHorizontalGroup(
