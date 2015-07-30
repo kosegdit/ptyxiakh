@@ -1,5 +1,6 @@
 package ptyxiakh;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -434,6 +435,12 @@ public class Graph extends JPanel {
         else{
             nodes.add(new Node(nodesCounter++, nodeLocation, this));
         }
+        if(parent.resultsPaneUse){
+            for(int i=0; i<nodes.size(); i++){
+                nodes.get(i).setNodeColor(Color.BLUE);
+            }
+        }
+        
         
         draft = true;
         
@@ -477,6 +484,12 @@ public class Graph extends JPanel {
         propertiesMenu.setEnabled(false);
         draft = true;
         
+        if(parent.resultsPaneUse){
+            for(int i=0; i<nodes.size(); i++){
+                nodes.get(i).setNodeColor(Color.BLUE);
+            }
+        }
+        
         parent.UpdateInfoPanel("");
     }
     
@@ -510,6 +523,14 @@ public class Graph extends JPanel {
         readyToDisconnect = null;
         
         if(edges.size()==0) propertiesMenu.setEnabled(true);
+        
+        if(nodes.size()>0){
+            if(parent.resultsPaneUse){
+                for(int i=0; i<nodes.size(); i++){
+                    nodes.get(i).setNodeColor(Color.BLUE);
+                }
+            }
+        }
         
         parent.UpdateInfoPanel("");
     }
@@ -561,6 +582,13 @@ public class Graph extends JPanel {
         if(nodes.size() == 0) {
             clearMenuItem.setEnabled(false);
         }
+        else{
+            if(parent.resultsPaneUse){
+                for(int j=0; j<nodes.size(); j++){
+                    nodes.get(j).setNodeColor(Color.BLUE);
+                }
+            }
+        }
         
         if(edges.size()>0) {
             propertiesMenu.setEnabled(false);
@@ -568,7 +596,7 @@ public class Graph extends JPanel {
         else{
             propertiesMenu.setEnabled(true);
         }
-
+        
         parent.UpdateInfoPanel("");
     }
     

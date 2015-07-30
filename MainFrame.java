@@ -205,7 +205,7 @@ public class MainFrame extends JFrame{
         JMenuItem betweennessMenuItem = new JMenuItem("Betweenness");
         JMenuItem edgeBetweennessMenuItem = new JMenuItem("Edge Betweenness");
         JMenuItem μpciMenuItem = new JMenuItem("μ-Pci");
-        JMenuItem kShell = new JMenuItem("k-Shell");
+        JMenuItem kShellMenuItem = new JMenuItem("k-Shell / s-Core");
         JMenuItem pageRank = new JMenuItem("Page Rank");
         JMenuItem randomGraphMenuItem = new JMenuItem("Random graph");
             randomGraphMenuItem.setToolTipText("Creates a random graph using the Erdős–Rényi model");
@@ -233,9 +233,6 @@ public class MainFrame extends JFrame{
             file.addSeparator();
             
             load.addActionListener((ActionEvent e) -> {
-                discard = previewPanel.ClearGraphIfInUse();
-                if(discard) return;
-                
                 final JFileChooser fc = new JFileChooser();
                 fc.setAcceptAllFileFilterUsed(false);
                 fc.setFileFilter(new FileNameExtensionFilter("MyProgram files", "cnt"));
@@ -243,6 +240,9 @@ public class MainFrame extends JFrame{
                 
                 
                 if (returnVal == JFileChooser.APPROVE_OPTION){
+                    discard = previewPanel.ClearGraphIfInUse();
+                    if(discard) return;
+                    
                     lastLoadedFile = fc.getSelectedFile().toString();
                     previewPanel.LoadGraph(lastLoadedFile);
                 }
@@ -372,38 +372,64 @@ public class MainFrame extends JFrame{
             centralities.add(edgeBetweennessMenuItem);
             
             μpciMenuItem.addActionListener((ActionEvent e) -> {
-                if(previewPanel.graphInUse && !previewPanel.graphIsDirected() && !previewPanel.graphIsWeighted()){
-                    
-                    SpinnerNumberModel limits = new SpinnerNumberModel(1, 1, 3, 1);
-                    JSpinner mFactor = new JSpinner(limits);
-                    
-                    Object[] fullMessage = {"Choose the μ factor:", mFactor, "\n"};
+                if(previewPanel.graphInUse){
+                    if(!previewPanel.graphIsDirected() && !previewPanel.graphIsWeighted()){
+                        SpinnerNumberModel limits = new SpinnerNumberModel(1, 1, 3, 1);
+                        JSpinner mFactor = new JSpinner(limits);
 
-                    int result = JOptionPane.showOptionDialog(null, fullMessage, "μ Value",
-                                                                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE,
-                                                                    null, null, null);
+                        Object[] fullMessage = {"Choose the μ factor:", mFactor, "\n"};
 
-                    if(result != JOptionPane.OK_OPTION) {
-                        return;
+                        int result = JOptionPane.showOptionDialog(null, fullMessage, "μ Value",
+                                                                        JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE,
+                                                                        null, null, null);
+
+                        if(result != JOptionPane.OK_OPTION) {
+                            return;
+                        }
+
+                        int m = (int)mFactor.getValue();
+
+                        DegreeCentrality degree = new DegreeCentrality(this, false, false, false);
+                        List<Double> graphDegrees = degree.UndirectedUnweightedDegree(previewPanel.nodes, previewPanel.edges);
+                        MpciCentrality mPci = new MpciCentrality(this, m);
+                        mPci.CalculateMpci(graphDegrees);
+                        mPci.DisplayMpci();
+                        resultsPaneUse = true;
+                        exportResultsMenuItem.setEnabled(true);
                     }
-                    
-                    int m = (int)mFactor.getValue();
-                    
-                    DegreeCentrality degree = new DegreeCentrality(this, false, false, false);
-                    List<Double> graphDegrees = degree.UndirectedUnweightedDegree(previewPanel.nodes, previewPanel.edges);
-                    MpciCentrality mPci = new MpciCentrality(this, m);
-                    mPci.CalculateMpci(graphDegrees);
-                    mPci.DisplayMpci();
-                    resultsPaneUse = true;
-                    exportResultsMenuItem.setEnabled(true);
+                    else {
+                        JOptionPane.showMessageDialog(null, "μ-Pci can only be applied to Undirected, Unweighted graphs");
+                    }
                 }
-                else if(previewPanel.graphInUse){
-                    JOptionPane.showMessageDialog(null, "μ-Pci can only be applied to Undirected, Unweighted graphs");
-                }
+                
             });
             centralities.add(μpciMenuItem);
             
-            centralities.add(kShell);
+            kShellMenuItem.addActionListener((ActionEvent e) -> {
+                if(previewPanel.graphInUse){
+                    if(!previewPanel.graphIsDirected()){
+                        if(!previewPanel.graphIsWeighted()){
+//                            DegreeCentrality degree = new DegreeCentrality(this, false, false, false);
+//                            List<Double> graphDegrees = degree.UndirectedUnweightedDegree(previewPanel.nodes, previewPanel.edges);
+                            
+                            KshellScoreCentrality kshell = new KshellScoreCentrality(this);
+                            kshell.CalculateKshell();
+                            kshell.DisplayKshell();
+                            
+                            resultsPaneUse = true;
+                            exportResultsMenuItem.setEnabled(true);
+                        }
+                        else{
+                            
+                        }
+                    }
+                    else{
+                        JOptionPane.showMessageDialog(null, "k-Shell or s-Core can only be applied to Undirected graphs");
+                    }
+                }
+            });
+            centralities.add(kShellMenuItem);
+            
             centralities.add(pageRank);
             
         MainMenuBar.add(communities);
