@@ -263,7 +263,7 @@ public class Graph extends JPanel {
                             }
                             else{
                                 nodeNeighbors.add(nextToken);
-                                edgesWeights.add("1");
+                                edgesWeights.add("1.0");
                             }
                         }
 
@@ -277,7 +277,7 @@ public class Graph extends JPanel {
                 LoadGraphNodes(nodesCounter, labels, locations);
                 for(int i=0; i<labels.size(); i++){
                     for(int j=0; j<neighbors.get(i).size(); j++){
-                        LoadgraphEdges(labels.get(i), neighbors.get(i).get(j), graphIsDirected(), graphIsWeighted(), Integer.valueOf(weights.get(i).get(j)));
+                        LoadgraphEdges(labels.get(i), neighbors.get(i).get(j), graphIsDirected(), graphIsWeighted(), Double.valueOf(weights.get(i).get(j)));
                     }
                 }
 
@@ -363,7 +363,7 @@ public class Graph extends JPanel {
         }
     }
     
-    private void LoadgraphEdges(String node1, String node2, boolean directed, boolean weighted, int weight){
+    private void LoadgraphEdges(String node1, String node2, boolean directed, boolean weighted, double weight){
         
         Node n1 = null, n2 = null;
         
@@ -437,7 +437,7 @@ public class Graph extends JPanel {
     
     
     // Adds a new edge after user request
-    public void userConnectNodes(Node n2, boolean directed, boolean weighted, int weight){
+    public void userConnectNodes(Node n2, boolean directed, boolean weighted, double weight){
         
         if(readyToConnect.equals(n2)){
             readyToConnect = null;
@@ -604,7 +604,7 @@ public class Graph extends JPanel {
                 int connectivity = (int)(Math.random() * (101)) + 1;
                 
                 if(connectivity <= density){
-                    edges.add(new Edge(nodes.get(i), nodes.get(j), false, false, 1, this.getSize()));
+                    edges.add(new Edge(nodes.get(i), nodes.get(j), false, false, 1.0, this.getSize()));
                     this.add(edges.get(edges.size()-1));
                     
                     // Resize nodes i, j for every new (i,j) edge

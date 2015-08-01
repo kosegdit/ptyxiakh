@@ -20,9 +20,9 @@ public class Edge extends JComponent{
     String label;
     public boolean directed;
     public boolean weighted;
-    public int weight;
+    public double weight;
     
-    public Edge(Node node1, Node node2, boolean directed, boolean weighted, int weight, Dimension size) {
+    public Edge(Node node1, Node node2, boolean directed, boolean weighted, double weight, Dimension size) {
         
         this.node1 = node1;
         this.node2 = node2;
@@ -93,7 +93,12 @@ public class Edge extends JComponent{
             }
             else{
                 g2.setColor(Color.BLACK);
-                g2.drawString(String.valueOf(weight), (2*x+x1+x2)/2, ((2*y+y1+y2)/2)-5);
+                if(weight%1==0){
+                    g2.drawString(String.valueOf((int) weight), (2*x+x1+x2)/2, ((2*y+y1+y2)/2)-5);
+                }
+                else{
+                    g2.drawString(String.valueOf(weight), (2*x+x1+x2)/2, ((2*y+y1+y2)/2)-5);
+                }
             }
         }
         

@@ -12,11 +12,11 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import javax.swing.JComponent;
-import javax.swing.JFormattedTextField;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JSpinner;
+import javax.swing.JSpinner.NumberEditor;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
 import javax.swing.text.NumberFormatter;
@@ -89,15 +89,17 @@ public class Node extends JComponent  {
                     if (g.readyToConnect != null) {
                         boolean directed = ((Graph) Node.this.getParent()).graphIsDirected();
                         boolean weighted = ((Graph) Node.this.getParent()).graphIsWeighted();
-                        int weight = 1;
+                        double weight = 1.0;
                         
                         if(weighted){
-                            SpinnerNumberModel edgeWeight = new SpinnerNumberModel();
+                            SpinnerNumberModel edgeWeight = new SpinnerNumberModel(0.0,0.0 ,Double.POSITIVE_INFINITY,0.05);
                             JSpinner edgeWeightSpinner = new JSpinner(edgeWeight);
                             
-                            JFormattedTextField spinnerFilter = ((JSpinner.NumberEditor) edgeWeightSpinner.getEditor()).getTextField();
-                            ((NumberFormatter) spinnerFilter.getFormatter()).setAllowsInvalid(false);
+                            NumberEditor editor = (NumberEditor)edgeWeightSpinner.getEditor();
+                            editor.getFormat().setMinimumFractionDigits(2);
                             
+                            ((NumberFormatter) editor.getTextField().getFormatter()).setAllowsInvalid(false);
+
                             // An array of objects is created to carry all the information for the displayed window
                             Object[] fullMessage = {"Enter desired weight:", edgeWeightSpinner, "\n\n"};
 
@@ -109,7 +111,7 @@ public class Node extends JComponent  {
                                 return;
                             }
 
-                            weight = (int)edgeWeightSpinner.getValue();
+                            weight = (double)edgeWeightSpinner.getValue();
                             System.out.println(weight);
                         }
                         
