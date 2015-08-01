@@ -2,6 +2,7 @@ package ptyxiakh;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.swing.JTable;
 
@@ -12,7 +13,17 @@ import javax.swing.JTable;
 public class KshellScoreCentrality {
     
     MainFrame parent;
-    List<List<Node>> kShells = new ArrayList<>();
+    List<List<Node>> kShellScore = new ArrayList<>();
+    
+    List<Node> copyGraphNodes = new ArrayList<>();
+    List<Edge> copyGraphEdges = new ArrayList<>();
+
+    List<Node> tempNodes;
+    List<Edge> tempEdges;
+    
+    List<Double> graphDegrees;
+            
+    boolean done;
     
     
     public KshellScoreCentrality(MainFrame frame){
@@ -23,21 +34,9 @@ public class KshellScoreCentrality {
     
     public List<List<Node>> CalculateKshell(){
         
-        List<Node> copyGraphNodes = new ArrayList<>();
-        List<Edge> copyGraphEdges = new ArrayList<>();
-        
-        List<Node> tempNodes;
-        boolean done;
-        
         DegreeCentrality degree = new DegreeCentrality(parent, false, false, false);
         
-        // Initializing the Graph Copy
-        for(int i=0; i<parent.previewPanel.nodes.size(); i++){
-            copyGraphNodes.add(parent.previewPanel.nodes.get(i));
-        }
-        for(int i=0; i<parent.previewPanel.edges.size(); i++){
-            copyGraphEdges.add(parent.previewPanel.edges.get(i));
-        }
+        GetGraphCopy();
         
         for(int k=1; copyGraphNodes.size()>0; k++){
             tempNodes = new ArrayList<>();
@@ -45,8 +44,8 @@ public class KshellScoreCentrality {
             do{
                 done = true;
 
-                List<Double> graphDegrees = degree.UndirectedUnweightedDegree(copyGraphNodes, copyGraphEdges);
-                List<Edge> tempEdges = new ArrayList<>();
+                graphDegrees = degree.UndirectedUnweightedDegree(copyGraphNodes, copyGraphEdges);
+                tempEdges = new ArrayList<>();
 
                 for(int i=0; i<copyGraphNodes.size(); i++){
                     if(graphDegrees.get(i) <= k){
@@ -68,22 +67,81 @@ public class KshellScoreCentrality {
 
             }while(!done);
             
-            kShells.add(tempNodes);
+            kShellScore.add(tempNodes);
         }
         
-        return kShells;
+        return kShellScore;
+    }
+    
+    
+    public List<List<Node>> CalculateScore(){
+        
+        DegreeCentrality degree = new DegreeCentrality(parent, false, true, false);
+        
+        GetGraphCopy();
+        
+        do{
+            List<Double> graphInitDegrees = degree.UndirectedWeightedDegree(copyGraphNodes, copyGraphEdges);
+            double currentMindegree = Collections.min(graphInitDegrees);
+            
+            tempNodes = new ArrayList<>();
+            
+            do{
+                done = true;
+
+                graphDegrees = degree.UndirectedWeightedDegree(copyGraphNodes, copyGraphEdges);
+                tempEdges = new ArrayList<>();
+
+                for(int i=0; i<copyGraphNodes.size(); i++){
+                    if(graphDegrees.get(i) <= currentMindegree){
+                        tempNodes.add(copyGraphNodes.get(i));
+                        done = false;
+                    }
+                }
+                copyGraphNodes.removeAll(tempNodes);
+
+                for (Edge edge : copyGraphEdges) {
+                    for (Node node : tempNodes) {
+                        if (edge.node1.equals(node) || edge.node2.equals(node)) {
+                            tempEdges.add(edge);
+                        }
+                    }
+                }
+                copyGraphEdges.removeAll(tempEdges);
+                graphDegrees.clear();
+
+            }while(!done);
+            
+            kShellScore.add(tempNodes);
+            graphInitDegrees.clear();
+            
+        }while(copyGraphNodes.size()>0);
+        
+        return kShellScore;
+    }
+    
+    
+    private void GetGraphCopy(){
+        
+        // Initializing the Graph Copy
+        for(int i=0; i<parent.previewPanel.nodes.size(); i++){
+            copyGraphNodes.add(parent.previewPanel.nodes.get(i));
+        }
+        for(int i=0; i<parent.previewPanel.edges.size(); i++){
+            copyGraphEdges.add(parent.previewPanel.edges.get(i));
+        }
     }
     
     
     public void DisplayKshell(){
         
-        int numOfShells = kShells.size();
+        int numOfShells = kShellScore.size();
         
         List<Color> colors = ColorBands.getColorBands(Color.BLUE, numOfShells);
         
         for(int i=0; i<numOfShells; i++){
-            for(int j=0; j<kShells.get(i).size(); j++){
-                kShells.get(i).get(j).setNodeColor(colors.get(i));
+            for(int j=0; j<kShellScore.get(i).size(); j++){
+                kShellScore.get(i).get(j).setNodeColor(colors.get(i));
             }
         }
         parent.previewPanel.repaint();
@@ -96,8 +154,8 @@ public class KshellScoreCentrality {
             results[i][0] = i+1;
             result = "";
             
-            for(int j=0; j<kShells.get(i).size(); j++){
-                result += ", " + kShells.get(i).get(j).label;
+            for(int j=0; j<kShellScore.get(i).size(); j++){
+                result += ", " + kShellScore.get(i).get(j).label;
             }
             
             if(result.isEmpty()){
@@ -108,8 +166,14 @@ public class KshellScoreCentrality {
             }
         }
         
-        Object[] column = {"k", "Shell"};
-        resultsTable = new JTable(results, column);
+        if(parent.previewPanel.graphIsWeighted()){
+            Object[] column = {"s", "Core"};
+            resultsTable = new JTable(results, column);
+        }
+        else{
+            Object[] column = {"k", "Shell"};
+            resultsTable = new JTable(results, column);
+        }
         
         DisplayCentralities.DisplayResults(resultsTable, parent);
     }

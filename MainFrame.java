@@ -443,20 +443,19 @@ public class MainFrame extends JFrame{
             kShellMenuItem.addActionListener((ActionEvent e) -> {
                 if(previewPanel.graphInUse){
                     if(!previewPanel.graphIsDirected()){
+                        KshellScoreCentrality kshell = new KshellScoreCentrality(this);
+                        
                         if(!previewPanel.graphIsWeighted()){
-//                            DegreeCentrality degree = new DegreeCentrality(this, false, false, false);
-//                            List<Double> graphDegrees = degree.UndirectedUnweightedDegree(previewPanel.nodes, previewPanel.edges);
-                            
-                            KshellScoreCentrality kshell = new KshellScoreCentrality(this);
                             kshell.CalculateKshell();
                             kshell.DisplayKshell();
-                            
-                            resultsPaneUse = true;
-                            exportResultsMenuItem.setEnabled(true);
                         }
                         else{
-                            
+                            kshell.CalculateScore();
+                            kshell.DisplayKshell();
                         }
+                        
+                        resultsPaneUse = true;
+                        exportResultsMenuItem.setEnabled(true);
                     }
                     else{
                         JOptionPane.showMessageDialog(this, "k-Shell or s-Core can only be applied to Undirected graphs");
