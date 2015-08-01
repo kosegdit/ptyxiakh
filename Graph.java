@@ -15,14 +15,12 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
-import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
  *
@@ -156,26 +154,21 @@ public class Graph extends JPanel {
         parent.UpdateInfoPanel("");
     }
     
-    public boolean ShowSaveDialog(){
+    public void resetNodesColor(){
         
-        final JFileChooser fc = new JFileChooser();
-        fc.setAcceptAllFileFilterUsed(false);
-        fc.setFileFilter(new FileNameExtensionFilter("MyProgram files", "cnt"));
-        int returnVal = fc.showSaveDialog(Graph.this);
-        
-        if (returnVal == JFileChooser.APPROVE_OPTION){
-            MainFrame.lastLoadedFile = fc.getSelectedFile().toString() + ".cnt";
-            SaveGraph(MainFrame.lastLoadedFile);
-        }
-        return returnVal == JFileChooser.APPROVE_OPTION;
+        for(int i=0; i<nodes.size(); i++){
+                nodes.get(i).setNodeColor(Color.BLUE);
+            }
     }
+    
+    
 
     public boolean ClearGraph() {
         
         int clearDialogResult;
                 
         if(draft){
-            clearDialogResult = JOptionPane.showConfirmDialog(null, "Would you like to save the current Graph?", "MyProgram",
+            clearDialogResult = JOptionPane.showConfirmDialog(parent, "Would you like to save the current Graph?", "MyProgram",
                                                                 JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
         }
         else{
@@ -184,7 +177,7 @@ public class Graph extends JPanel {
         switch(clearDialogResult) {
             case JOptionPane.YES_OPTION:
                 if(MainFrame.lastLoadedFile == null){
-                    if(ShowSaveDialog()){
+                    if(parent.ShowSaveDialog()){
                         reset();
                         return false;
                     }
@@ -300,7 +293,7 @@ public class Graph extends JPanel {
             return;
         }
         catch (Exception ex) {
-            JOptionPane.showMessageDialog (null, "Invalid Input File Format", "Error Message", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog (parent, "Invalid Input File Format", "Error Message", JOptionPane.ERROR_MESSAGE);
             return;
         }
         
@@ -433,9 +426,7 @@ public class Graph extends JPanel {
             nodes.add(new Node(nodesCounter++, nodeLocation, this));
         }
         if(parent.resultsPaneUse){
-            for(int i=0; i<nodes.size(); i++){
-                nodes.get(i).setNodeColor(Color.BLUE);
-            }
+            resetNodesColor();
         }
         
         
@@ -482,9 +473,7 @@ public class Graph extends JPanel {
         draft = true;
         
         if(parent.resultsPaneUse){
-            for(int i=0; i<nodes.size(); i++){
-                nodes.get(i).setNodeColor(Color.BLUE);
-            }
+            resetNodesColor();
         }
         
         parent.UpdateInfoPanel("");
@@ -521,11 +510,9 @@ public class Graph extends JPanel {
         
         if(edges.size()==0) propertiesMenu.setEnabled(true);
         
-        if(nodes.size()>0){
-            if(parent.resultsPaneUse){
-                for(int i=0; i<nodes.size(); i++){
-                    nodes.get(i).setNodeColor(Color.BLUE);
-                }
+        if(parent.resultsPaneUse){
+            if(nodes.size()>0){
+                resetNodesColor();
             }
         }
         
@@ -581,9 +568,7 @@ public class Graph extends JPanel {
         }
         else{
             if(parent.resultsPaneUse){
-                for(int j=0; j<nodes.size(); j++){
-                    nodes.get(j).setNodeColor(Color.BLUE);
-                }
+                resetNodesColor();
             }
         }
         

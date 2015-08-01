@@ -2,6 +2,8 @@ package ptyxiakh;
 
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.List;
 import javax.swing.JFileChooser;
 import javax.swing.JFormattedTextField;
@@ -62,7 +64,16 @@ public class MainFrame extends JFrame{
         setTitle("MyProgram");
         setLocation(300, 300);
         setResizable(true);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+        this.addWindowListener(new WindowAdapter() {
+        public void windowClosing(WindowEvent e) {
+            if(!previewPanel.ClearGraphIfInUse()){
+                System.exit(0);
+            }
+        }
+
+    });
     }
     
     
@@ -264,7 +275,7 @@ public class MainFrame extends JFrame{
             
             save.addActionListener((ActionEvent e) -> {
                 if(lastLoadedFile == null){
-                    previewPanel.ShowSaveDialog();
+                    ShowSaveDialog();
                 }
                 else{
                     previewPanel.SaveGraph(lastLoadedFile);
@@ -273,7 +284,7 @@ public class MainFrame extends JFrame{
             file.add(save);
             
             saveAs.addActionListener((ActionEvent e) -> {
-                previewPanel.ShowSaveDialog();
+                ShowSaveDialog();
             });
             file.add(saveAs);
             file.addSeparator();
@@ -287,15 +298,17 @@ public class MainFrame extends JFrame{
             
             file.addSeparator();
             
-                exit.addActionListener((ActionEvent e) -> {
+            exit.addActionListener((ActionEvent e) -> {
+                if(!previewPanel.ClearGraphIfInUse()){
                     System.exit(0);
-                });
+                }
+            });
             file.add(exit);
 
         MainMenuBar.add(centralities);
             degreeMenuItem.addActionListener((ActionEvent e) -> {
                 if(previewPanel.graphInUse){
-                    int result = JOptionPane.showOptionDialog(null, "Normalize Results?", "Degree Normalization",
+                    int result = JOptionPane.showOptionDialog(this, "Normalize Results?", "Degree Normalization",
 							JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
 							null, null, null);
                     if(result == JOptionPane.YES_OPTION){
@@ -308,6 +321,8 @@ public class MainFrame extends JFrame{
                     else{
                         return;
                     }
+                    
+                    if(resultsPaneUse) previewPanel.resetNodesColor();
                     
                     boolean currentGraphDirected = previewPanel.graphIsDirected();
                     boolean currentGraphWeighted = previewPanel.graphIsWeighted();
@@ -323,7 +338,7 @@ public class MainFrame extends JFrame{
             
             closenessMenuItem.addActionListener((ActionEvent e) -> {
                 if(previewPanel.graphInUse){
-                    int result = JOptionPane.showOptionDialog(null, "Normalize Results?", "Closeness Normalization",
+                    int result = JOptionPane.showOptionDialog(this, "Normalize Results?", "Closeness Normalization",
 							JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
 							null, null, null);
                     if(result == JOptionPane.YES_OPTION){
@@ -337,6 +352,8 @@ public class MainFrame extends JFrame{
                         return;
                     }
                     
+                    if(resultsPaneUse) previewPanel.resetNodesColor();
+                    
                     ClosenessCentrality closeness = new ClosenessCentrality(this, normalized);
                     closeness.CalculateCloseness();
                     closeness.DisplayCloseness();
@@ -348,7 +365,7 @@ public class MainFrame extends JFrame{
             
             betweennessMenuItem.addActionListener((ActionEvent e) -> {
                 if(previewPanel.graphInUse){
-                    int result = JOptionPane.showOptionDialog(null, "Normalize Results?", "Betweenness Normalization",
+                    int result = JOptionPane.showOptionDialog(this, "Normalize Results?", "Betweenness Normalization",
 							JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
 							null, null, null);
                     if(result == JOptionPane.YES_OPTION){
@@ -361,6 +378,8 @@ public class MainFrame extends JFrame{
                     else{
                         return;
                     }
+                    
+                    if(resultsPaneUse) previewPanel.resetNodesColor();
                     
                     BetweennessCentrality betweenness = new BetweennessCentrality(this, normalized);
                     betweenness.CalculateBetweenness();
@@ -374,6 +393,8 @@ public class MainFrame extends JFrame{
             edgeBetweennessMenuItem.addActionListener((ActionEvent e) -> {
                 if(previewPanel.graphInUse){
                     
+                    if(resultsPaneUse) previewPanel.resetNodesColor();
+                    
                     EdgeBetweennessCentrality edgeBetweenness = new EdgeBetweennessCentrality(this);
                     edgeBetweenness.CalculateEdgeBetweenness();
                     edgeBetweenness.DisplayEdgeBetweenness();
@@ -385,13 +406,15 @@ public class MainFrame extends JFrame{
             
             μpciMenuItem.addActionListener((ActionEvent e) -> {
                 if(previewPanel.graphInUse){
+                    if(resultsPaneUse) previewPanel.resetNodesColor();
+                    
                     if(!previewPanel.graphIsDirected() && !previewPanel.graphIsWeighted()){
                         SpinnerNumberModel limits = new SpinnerNumberModel(1, 1, 3, 1);
                         JSpinner mFactor = new JSpinner(limits);
 
                         Object[] fullMessage = {"Choose the μ factor:", mFactor, "\n"};
 
-                        int result = JOptionPane.showOptionDialog(null, fullMessage, "μ Value",
+                        int result = JOptionPane.showOptionDialog(this, fullMessage, "μ Value",
                                                                         JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE,
                                                                         null, null, null);
 
@@ -436,7 +459,7 @@ public class MainFrame extends JFrame{
                         }
                     }
                     else{
-                        JOptionPane.showMessageDialog(null, "k-Shell or s-Core can only be applied to Undirected graphs");
+                        JOptionPane.showMessageDialog(this, "k-Shell or s-Core can only be applied to Undirected graphs");
                     }
                 }
             });
@@ -453,7 +476,7 @@ public class MainFrame extends JFrame{
           
         MainMenuBar.add(about);
             aboutItem.addActionListener((ActionEvent e) -> {
-                JOptionPane.showMessageDialog(null, "----------------------------------------\n\n" + 
+                JOptionPane.showMessageDialog(this, "----------------------------------------\n\n" + 
                         "Created by: Segditsas Konstantinos\n" + "ksegditsas@yahoo.gr\n\n" +
                         "Advisor Professor: Katsaros Dimitrios\n" + "dkatsar@inf.uth.gr\n\n" + "ver 1.0\n\n" + 
                         "----------------------------------------\n"
@@ -463,6 +486,20 @@ public class MainFrame extends JFrame{
             
     
         return MainMenuBar;
+    }
+    
+    public boolean ShowSaveDialog(){
+        
+        final JFileChooser fc = new JFileChooser();
+        fc.setAcceptAllFileFilterUsed(false);
+        fc.setFileFilter(new FileNameExtensionFilter("MyProgram files", "cnt"));
+        int returnVal = fc.showSaveDialog(this);
+        
+        if (returnVal == JFileChooser.APPROVE_OPTION){
+            MainFrame.lastLoadedFile = fc.getSelectedFile().toString() + ".cnt";
+            previewPanel.SaveGraph(MainFrame.lastLoadedFile);
+        }
+        return returnVal == JFileChooser.APPROVE_OPTION;
     }
     
     public void UpdateInfoPanel(String name){
@@ -535,7 +572,7 @@ public class MainFrame extends JFrame{
         // An array of objects is created to carry all the information for the displayed window
         Object[] fullMessage = {"Enter number of nodes:", numOfNodesSpinner, "\n\n", densitySliderLabel, densitySlider};
 
-        int result = JOptionPane.showOptionDialog(null, fullMessage, "Random Graph Properties",
+        int result = JOptionPane.showOptionDialog(this, fullMessage, "Random Graph Properties",
 							JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE,
 							null, null, null);
         
