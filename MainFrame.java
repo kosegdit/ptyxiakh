@@ -226,10 +226,12 @@ public class MainFrame extends JFrame{
         JMenuItem degreeMenuItem = new JMenuItem("Degree");
         JMenuItem closenessMenuItem = new JMenuItem("Closeness");
         JMenuItem betweennessMenuItem = new JMenuItem("Betweenness");
+            betweennessMenuItem.setToolTipText("Shortest Path Betweenness Centrality");
         JMenuItem edgeBetweennessMenuItem = new JMenuItem("Edge Betweenness");
         JMenuItem μpciMenuItem = new JMenuItem("μ-Pci");
         JMenuItem kShellMenuItem = new JMenuItem("k-Shell / s-Core");
-        JMenuItem pageRank = new JMenuItem("Page Rank");
+            kShellMenuItem.setToolTipText("k-Shell for Unweighted and s-Core for Weighted graphs");
+        JMenuItem pageRankMenuItem = new JMenuItem("Page Rank");
         JMenuItem randomGraphMenuItem = new JMenuItem("Random graph");
             randomGraphMenuItem.setToolTipText("Creates a random graph using the Erdős–Rényi model");
         JMenuItem smallWorldGraph = new JMenuItem("Small world graph");
@@ -464,7 +466,23 @@ public class MainFrame extends JFrame{
             });
             centralities.add(kShellMenuItem);
             
-            centralities.add(pageRank);
+            pageRankMenuItem.addActionListener((ActionEvent e) -> {
+                if(previewPanel.graphInUse){
+                    if(previewPanel.graphIsDirected() && !previewPanel.graphIsWeighted()){
+                        PageRankCentrality pagerank = new PageRankCentrality(this);
+                        pagerank.CalculatePageRank();
+                        pagerank.NodesRank();
+                        pagerank.DisplayPageRank();
+
+                        resultsPaneUse = true;
+                        exportResultsMenuItem.setEnabled(true);
+                    }
+                    else{
+                        JOptionPane.showMessageDialog(this, "Page Rank can only be applied to Directed, Unweighted graphs");
+                    }
+                }
+            });
+            centralities.add(pageRankMenuItem);
             
         MainMenuBar.add(communities);
             communities.add(cpm);

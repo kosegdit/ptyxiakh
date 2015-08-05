@@ -112,7 +112,6 @@ public class Node extends JComponent  {
                             }
 
                             weight = (double)edgeWeightSpinner.getValue();
-                            System.out.println(weight);
                         }
                         
                         g.userConnectNodes(Node.this, directed, weighted, weight);

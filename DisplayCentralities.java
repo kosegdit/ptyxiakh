@@ -25,5 +25,4 @@ public class DisplayCentralities {
         parent.results = resultsTable;
         parent.resultsScrollPane.getViewport().add(resultsTable);
     }
-    
 }

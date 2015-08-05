@@ -12,6 +12,7 @@ public class ClosenessCentrality {
     
     MainFrame parent;
     List<Double> closeness = new ArrayList<>();
+    List<Integer> reaches = new ArrayList<>();
     boolean normalized;
     
     
@@ -45,6 +46,13 @@ public class ClosenessCentrality {
                 currentCloseness = currentCloseness + floydArray[i][j];
             }
             
+            if(currentCloseness == Double.POSITIVE_INFINITY){
+                reaches.add(0);
+            }
+            else{
+                reaches.add(1);
+            }
+            
             temp = 1/currentCloseness;
             if(normalized){
                 closeness.add(temp/(numOfNodes-1));
@@ -68,11 +76,11 @@ public class ClosenessCentrality {
         for(int i=0; i<numOfNodes; i++){
             results[i][0] = parent.previewPanel.nodes.get(i).label;
             
-            if(closeness.get(i)!=Double.POSITIVE_INFINITY){
-                results[i][1] = (double) Math.round(closeness.get(i)*10000)/10000;
+            if(reaches.get(i)==0){
+                results[i][1] = Double.NaN;
             }
             else{
-                results[i][1] = Double.NaN;
+                results[i][1] = (double) Math.round(closeness.get(i)*10000)/10000;
             }
         }
         

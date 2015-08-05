@@ -82,13 +82,18 @@ public class Edge extends JComponent{
         
         if(weighted){
             if(directed){
+                if(weight%1==0){
+                    g2.drawString(String.valueOf((int) weight), (2*x+x1+x2)/2, ((2*y+y1+y2)/2)-5);
+                }
+                else{
+                    g2.drawString(String.valueOf(weight), (2*x+x1+x2)/2, ((2*y+y1+y2)/2)-5);
+                }
+                
                 if(node1.label < node2.label){
                     g2.setColor(Color.decode("0x439351"));
-                    g2.drawString(String.valueOf(weight), (2*x+x1+x2)/2, ((2*y+y1+y2)/2)-5);
                 }
                 else{
                     g2.setColor(Color.RED);
-                    g2.drawString(String.valueOf(weight), (2*x+x1+x2)/2, ((2*y+y1+y2)/2)+15);
                 }
             }
             else{
