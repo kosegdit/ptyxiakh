@@ -4,6 +4,8 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import javax.swing.JFileChooser;
 import javax.swing.JFormattedTextField;
@@ -234,8 +236,8 @@ public class MainFrame extends JFrame{
         JMenuItem pageRankMenuItem = new JMenuItem("Page Rank");
         JMenuItem randomGraphMenuItem = new JMenuItem("Random graph");
             randomGraphMenuItem.setToolTipText("Creates a random graph using the Erdős–Rényi model");
-        JMenuItem smallWorldGraph = new JMenuItem("Small world graph");
-            smallWorldGraph.setToolTipText("Six degrees of seperation");
+        JMenuItem smallWorldGraphMenuItem = new JMenuItem("Small world graph");
+            smallWorldGraphMenuItem.setToolTipText("Six degrees of seperation");
         JMenuItem scaleFreeGraph = new JMenuItem("Scale free graph");
             scaleFreeGraph.setToolTipText("Creates a random graph using the Albert-Barabasi model");
         JMenuItem cpm = new JMenuItem("CPM");
@@ -253,7 +255,10 @@ public class MainFrame extends JFrame{
                 });
                 generate.add(randomGraphMenuItem);
                 
-                generate.add(smallWorldGraph);
+                smallWorldGraphMenuItem.addActionListener((ActionEvent e) -> {
+                    NewSmallWorldGraph();
+                });
+                generate.add(smallWorldGraphMenuItem);
                 generate.add(scaleFreeGraph);
             file.addSeparator();
             
@@ -574,7 +579,7 @@ public class MainFrame extends JFrame{
         int startValue = 50;
         final JLabel densitySliderLabel = new JLabel("Choose Graph density: " + startValue + "%");
         
-        // Creates the Density Slider, right above is the laber for the Slider
+        // Creates the Density Slider, right above is the label for the Slider
         JSlider densitySlider = new JSlider(JSlider.HORIZONTAL, 0, 100, startValue);
         densitySlider.setMajorTickSpacing(20);
         densitySlider.setMinorTickSpacing(5);
@@ -601,5 +606,70 @@ public class MainFrame extends JFrame{
         int numberOfNodes = (int)numOfNodesSpinner.getValue();
         
         previewPanel.RandomGraph(density, numberOfNodes);
+    }
+    
+    
+    private void NewSmallWorldGraph(){
+        
+        // If there is already a graph in use, asks the user to save his progress
+        discard = previewPanel.ClearGraphIfInUse();
+        if(discard) return;
+        
+        // Creates the Spinner for the number of Nodes with a downlimit of 1, and a spinner filter
+        // for integers, to prevent wrong user input
+        SpinnerNumberModel nodeLimits = new SpinnerNumberModel(20, 1, Short.MAX_VALUE, 1);
+        JSpinner numOfNodesSpinner = new JSpinner(nodeLimits);
+        
+        JFormattedTextField spinnerFilter = ((JSpinner.NumberEditor) numOfNodesSpinner.getEditor()).getTextField();
+        ((NumberFormatter) spinnerFilter.getFormatter()).setAllowsInvalid(false);
+        
+        int startValue = 50;
+        final JLabel rewireSliderLabel = new JLabel("Possibility to maintain starting edges: " + startValue + "%");
+        
+        // Creates the Density Slider, right above is the label for the Slider
+        JSlider rewireSlider = new JSlider(JSlider.HORIZONTAL, 0, 100, startValue);
+        rewireSlider.setMajorTickSpacing(20);
+        rewireSlider.setMinorTickSpacing(5);
+        rewireSlider.setPaintTicks(true);
+        rewireSlider.setPaintLabels(true);
+        
+        // Change listener for the Density Slider to catch the real time changes
+        rewireSlider.addChangeListener((ChangeEvent e) -> {
+            rewireSliderLabel.setText("Possibility to maintain starting edges: " + rewireSlider.getValue() + "%");
+        });
+        
+        Object[] getNodes = {"Enter number of nodes:", numOfNodesSpinner, "\n\n", rewireSliderLabel, rewireSlider};
+        
+        int result = JOptionPane.showOptionDialog(this, getNodes, "Small World Graph Properties 1/2",
+							JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE,
+							null, null, null);
+        
+        if(result != JOptionPane.OK_OPTION) {
+            return;
+        }
+        
+        int numberOfNodes = (int)numOfNodesSpinner.getValue();
+        int p = rewireSlider.getValue();
+        
+        int zLimit = (int)Math.floor(0.15*numberOfNodes);
+        
+        if ( (zLimit % 2) != 0 ) zLimit--;
+        
+        zLimit /= 2;
+        
+        Object[] zValues = new Object[zLimit + 1];
+        
+        for(int i=0; i<=zLimit; i++){
+            zValues[i] = i*2;
+        }
+        
+        Object s = JOptionPane.showInputDialog(this, "Starting amount of neighbors for each Node:\n", "Small World Graph Properties 2/2", 
+                                                    JOptionPane.PLAIN_MESSAGE, null, zValues, 0);
+        
+        if(s == null) return;
+        
+        int Z = (int) s;
+        
+        previewPanel.SmallWorldGraph(numberOfNodes, p, Z);
     }
 }

@@ -627,6 +627,82 @@ public class Graph extends JPanel {
     }
     
     
+    public void SmallWorldGraph(int numOfNodes, int p, int Z){
+        
+        graphInUse = true;
+        draft = true;
+        clearMenuItem.setEnabled(true);
+        
+        Point[] coords = getCircleCoords(numOfNodes, this.getSize());
+        
+        // Initializing Nodes
+        for(int i=0; i<numOfNodes; i++){
+            nodes.add(new Node(nodesCounter++, coords[i], this));
+            this.add(nodes.get(i));
+        }
+        
+        // Initializing Edges
+        for(int i=0; i<numOfNodes; i++){
+            
+            for(int j=0; j<=(Z/2); j++){
+                int position = i+j;
+                
+                if(position!=i){
+                    if(position >= nodes.size()) position -= nodes.size();
+                    
+                    edges.add(new Edge(nodes.get(i), nodes.get(position), false, false, 1.0, this.getSize()));
+                    this.add(edges.get(edges.size()-1));
+                    
+                    nodes.get(i).resize(1);
+                    nodes.get(position).resize(1);
+                }
+            }
+        }
+        
+        boolean correctEdge;
+        
+        // Rewiring Edges
+        for(int i=0; i<numOfNodes; i++){
+            for(int j=0; j<edges.size(); j++){
+                if(nodes.get(i).equals(edges.get(j).node1) || nodes.get(i).equals(edges.get(j).node2)){
+                    int rewire = (int)(Math.random() * (101));
+                    
+                    if(rewire > p){
+                        this.remove(edges.get(j));
+                        edges.get(j).node1.resize(-1);
+                        edges.get(j).node2.resize(-1);
+                        edges.remove(j);
+                        
+                        correctEdge = false;
+                        
+                        do{
+                            int newNode = (int)(Math.random() * (numOfNodes));
+                            
+                            if(newNode != i){
+                                Edge e = new Edge(nodes.get(i), nodes.get(newNode), false, false, 1.0, this.getSize());
+                                
+                                if(!edgeExists(e)){
+                                    edges.add(e);
+                                    this.add(e);
+                                    
+                                    nodes.get(i).resize(1);
+                                    nodes.get(newNode).resize(1);
+                                    
+                                    correctEdge = true;
+                                }
+                            }
+                            
+                        }while(!correctEdge);
+                    }
+                }
+            }
+        }
+        
+        this.repaint();
+        parent.UpdateInfoPanel("Small World Graph");
+    }    
+    
+    
     public void printListNodes(){
         
         for(int i=0; i<nodes.size(); i++){
