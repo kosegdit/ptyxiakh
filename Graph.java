@@ -386,9 +386,11 @@ public class Graph extends JPanel {
     
     
     //Creates the Adjacency Array for the current Graph
-    public double[][] adjacencyArray(){
+    public double[][] adjacencyArray(List<Node> nodesList, List<Edge> edgesList){
         
-        int numOfNodes = nodes.size();
+        int numOfNodes = nodesList.size();
+        int numOfEdges = edgesList.size();
+        
         double[][] adjMatrix = new double[numOfNodes][numOfNodes];
         
         for(int i=0; i<numOfNodes; i++){
@@ -399,11 +401,11 @@ public class Graph extends JPanel {
             }
         }
         
-        for(int i=0; i<edges.size(); i++){
-            adjMatrix[edges.get(i).node1.myListPosition()][edges.get(i).node2.myListPosition()] = edges.get(i).weight;
+        for(int i=0; i<numOfEdges; i++){
+            adjMatrix[edgesList.get(i).node1.myListPosition()][edgesList.get(i).node2.myListPosition()] = edgesList.get(i).weight;
             
             if(!graphIsDirected()){
-                adjMatrix[edges.get(i).node2.myListPosition()][edges.get(i).node1.myListPosition()] = edges.get(i).weight;
+                adjMatrix[edgesList.get(i).node2.myListPosition()][edgesList.get(i).node1.myListPosition()] = edgesList.get(i).weight;
             }
 
         }
@@ -697,6 +699,11 @@ public class Graph extends JPanel {
                 }
             }
         }
+        
+        directedGraphMenuItem.setState(false);
+        weightedGraphMenuItem.setState(false);
+        
+        propertiesMenu.setEnabled(false);
         
         this.repaint();
         parent.UpdateInfoPanel("Small World Graph");

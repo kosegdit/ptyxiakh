@@ -23,10 +23,11 @@ public class MpciCentrality {
     }
     
     
-    public List<Integer> CalculateMpci(List<Double> degree){
+    public List<Integer> CalculateMpci(List<Double> degree, List<Node> nodesList, List<Edge> edgesList){
         
-        int numOfNodes = parent.previewPanel.nodes.size();
-        double[][] adjMatrix = parent.previewPanel.adjacencyArray();
+        int numOfNodes = nodesList.size();
+        double[][] adjMatrix = parent.previewPanel.adjacencyArray(nodesList, edgesList);
+        
         List<Integer> currentNodeNeighbors;
         List<List<Integer>> firstNeighbors = new ArrayList<>();
         List<List<Integer>> secondNeighbors = new ArrayList<>();
@@ -34,6 +35,7 @@ public class MpciCentrality {
         List<List<Integer>> finalNeighbors;
         List<Double> currentNodeNeighborsDegrees;
         List<List<Double>> neighborDegrees = new ArrayList<>();
+        
         boolean nodeExists;
         
         for(int i=0; i<numOfNodes; i++){
@@ -154,15 +156,15 @@ public class MpciCentrality {
     }
     
     
-    public void DisplayMpci(){
+    public void DisplayMpci(List<Node> nodesList){
         
-        int numOfNodes = parent.previewPanel.nodes.size();
+        int numOfNodes = nodesList.size();
         JTable resultsTable;
         
         Object[][] results = new Object[numOfNodes][2];
         
         for(int i=0; i<numOfNodes; i++){
-            results[i][0] = parent.previewPanel.nodes.get(i).label;
+            results[i][0] = nodesList.get(i).label;
             results[i][1] = mPci.get(i);
         }
         

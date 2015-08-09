@@ -23,10 +23,10 @@ public class ClosenessCentrality {
     }
     
     
-    public List<Double> CalculateCloseness(){
+    public List<Double> CalculateCloseness(List<Node> nodesList, List<Edge> edgesList){
         
-        int numOfNodes = parent.previewPanel.nodes.size();
-        double[][] floydArray = parent.previewPanel.adjacencyArray();
+        int numOfNodes = nodesList.size();
+        double[][] floydArray = parent.previewPanel.adjacencyArray(nodesList, edgesList);
         double currentCloseness, temp;
         
         for(int k=0; k<numOfNodes; k++){
@@ -66,15 +66,15 @@ public class ClosenessCentrality {
     }
     
     
-    public void DisplayCloseness(){
+    public void DisplayCloseness(List<Node> nodesList){
         
-        int numOfNodes = parent.previewPanel.nodes.size();
+        int numOfNodes = nodesList.size();
         JTable resultsTable;
         
         Object[][] results = new Object[numOfNodes][2];
         
         for(int i=0; i<numOfNodes; i++){
-            results[i][0] = parent.previewPanel.nodes.get(i).label;
+            results[i][0] = nodesList.get(i).label;
             
             if(reaches.get(i)==0){
                 results[i][1] = Double.NaN;

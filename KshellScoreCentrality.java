@@ -32,11 +32,11 @@ public class KshellScoreCentrality {
     }
     
     
-    public List<List<Node>> CalculateKshell(){
+    public List<List<Node>> CalculateKshell(List<Node> nodesList, List<Edge> edgesList){
         
         DegreeCentrality degree = new DegreeCentrality(parent, false, false, false);
         
-        GetGraphCopy();
+        GetGraphCopy(nodesList, edgesList);
         
         for(int k=1; copyGraphNodes.size()>0; k++){
             tempNodes = new ArrayList<>();
@@ -74,11 +74,11 @@ public class KshellScoreCentrality {
     }
     
     
-    public List<List<Node>> CalculateScore(){
+    public List<List<Node>> CalculateScore(List<Node> nodesList, List<Edge> edgesList){
         
         DegreeCentrality degree = new DegreeCentrality(parent, false, true, false);
         
-        GetGraphCopy();
+        GetGraphCopy(nodesList, edgesList);
         
         do{
             List<Double> graphInitDegrees = degree.UndirectedWeightedDegree(copyGraphNodes, copyGraphEdges);
@@ -121,14 +121,17 @@ public class KshellScoreCentrality {
     }
     
     
-    private void GetGraphCopy(){
+    private void GetGraphCopy(List<Node> nodesList, List<Edge> edgesList){
+        
+        int numOfNodes = nodesList.size();
+        int numOfEdges = edgesList.size();
         
         // Initializing the Graph Copy
-        for(int i=0; i<parent.previewPanel.nodes.size(); i++){
-            copyGraphNodes.add(parent.previewPanel.nodes.get(i));
+        for(int i=0; i<numOfNodes; i++){
+            copyGraphNodes.add(nodesList.get(i));
         }
-        for(int i=0; i<parent.previewPanel.edges.size(); i++){
-            copyGraphEdges.add(parent.previewPanel.edges.get(i));
+        for(int i=0; i<numOfEdges; i++){
+            copyGraphEdges.add(edgesList.get(i));
         }
     }
     
@@ -150,6 +153,7 @@ public class KshellScoreCentrality {
         
         Object[][] results = new Object[numOfShells][2];
         String result;
+        
         for(int i=0; i<numOfShells; i++){
             results[i][0] = i+1;
             result = "";

@@ -27,9 +27,9 @@ public class PageRankCentrality {
     }
     
     
-    public void CalculatePageRank(){
+    public void CalculatePageRank(List<Node> nodesList, List<Edge> edgesList){
         
-        int n = parent.previewPanel.nodes.size();
+        int n = nodesList.size();
         danglingNodes = new int[n];
         e = new int[n];
         pageRank = new double[n];
@@ -41,7 +41,7 @@ public class PageRankCentrality {
         List<List<Double>> graphDegrees = degree.DirectedUnweightedDegree(parent.previewPanel.nodes, parent.previewPanel.edges);
         graphOutDegrees = graphDegrees.get(1);
         
-        double[][] adjMatrix = parent.previewPanel.adjacencyArray();
+        double[][] adjMatrix = parent.previewPanel.adjacencyArray(nodesList, edgesList);
         H = new double[n][n];
         G = new double[n][n];
         
@@ -101,13 +101,10 @@ public class PageRankCentrality {
             
         }while(!converged);
         
-//        for(int i=0; i<n; i++){
-//            System.out.println(pageRank[i]);
-//        }
     }
     
     
-    public List<Integer> NodesRank(){
+    public List<Integer> NodesRank(List<Node> nodesList){
         
         pageRankCopy = new double[pageRank.length];
         nodesRank = new ArrayList<>();
@@ -117,7 +114,7 @@ public class PageRankCentrality {
         
         for(int i=0; i<pageRank.length; i++){
             pageRankCopy[i] = pageRank[i];
-            nodesRank.add(parent.previewPanel.nodes.get(i).label);
+            nodesRank.add(nodesList.get(i).label);
         }
 
         for(int i=0; i<pageRankCopy.length; i++){

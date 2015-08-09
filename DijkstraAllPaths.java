@@ -21,7 +21,7 @@ public class DijkstraAllPaths {
 
         for (int source=0; source<dimension; source++) {
             paths.add(dijkstra(source, matrix));
-            System.out.println(paths.get(source));
+            //System.out.println(paths.get(source));
         }
 
         return paths;

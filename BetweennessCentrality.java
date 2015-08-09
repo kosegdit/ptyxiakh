@@ -22,10 +22,10 @@ public class BetweennessCentrality {
     }
     
     
-    public List<Double> CalculateBetweenness(){
+    public List<Double> CalculateBetweenness(List<Node> nodesList, List<Edge> edgesList){
         
-        int numOfNodes = parent.previewPanel.nodes.size();
-        double[][] adjMatrix = parent.previewPanel.adjacencyArray();
+        int numOfNodes = nodesList.size();
+        double[][] adjMatrix = parent.previewPanel.adjacencyArray(nodesList, edgesList);
         double currentBetweenness;
         
         DijkstraAllPaths dijkstra = new DijkstraAllPaths();
@@ -62,15 +62,15 @@ public class BetweennessCentrality {
     }
     
     
-    public void DisplayBetweenness(){
+    public void DisplayBetweenness(List<Node> nodesList){
         
-        int numOfNodes = parent.previewPanel.nodes.size();
+        int numOfNodes = nodesList.size();
         JTable resultsTable;
         
         Object[][] results = new Object[numOfNodes][2];
         
         for(int i=0; i<numOfNodes; i++){
-            results[i][0] = parent.previewPanel.nodes.get(i).label;
+            results[i][0] = nodesList.get(i).label;
             results[i][1] = (double) Math.round(betweenness.get(i)*10000)/10000;
         }
         

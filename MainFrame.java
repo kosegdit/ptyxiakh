@@ -4,8 +4,6 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import javax.swing.JFileChooser;
 import javax.swing.JFormattedTextField;
@@ -242,8 +240,8 @@ public class MainFrame extends JFrame{
             scaleFreeGraph.setToolTipText("Creates a random graph using the Albert-Barabasi model");
         JMenuItem cpm = new JMenuItem("CPM");
             cpm.setToolTipText("Clique Percolation Method");
-        JMenuItem ebc = new JMenuItem("EBC");
-            ebc.setToolTipText("Newmann & Girvan using the Edge Betweenness Centrality");
+        JMenuItem ebcMenuItem = new JMenuItem("EBC");
+            ebcMenuItem.setToolTipText("Newmann & Girvan using the Edge Betweenness Centrality");
         JMenuItem cibc = new JMenuItem("CiBC");
             cibc.setToolTipText("Communities identification with Betweenness Centrality");
         
@@ -362,8 +360,8 @@ public class MainFrame extends JFrame{
                     if(resultsPaneUse) previewPanel.resetNodesColor();
                     
                     ClosenessCentrality closeness = new ClosenessCentrality(this, normalized);
-                    closeness.CalculateCloseness();
-                    closeness.DisplayCloseness();
+                    closeness.CalculateCloseness(previewPanel.nodes, previewPanel.edges);
+                    closeness.DisplayCloseness(previewPanel.nodes);
                     resultsPaneUse = true;
                     exportResultsMenuItem.setEnabled(true);
                 }
@@ -389,8 +387,8 @@ public class MainFrame extends JFrame{
                     if(resultsPaneUse) previewPanel.resetNodesColor();
                     
                     BetweennessCentrality betweenness = new BetweennessCentrality(this, normalized);
-                    betweenness.CalculateBetweenness();
-                    betweenness.DisplayBetweenness();
+                    betweenness.CalculateBetweenness(previewPanel.nodes, previewPanel.edges);
+                    betweenness.DisplayBetweenness(previewPanel.nodes);
                     resultsPaneUse = true;
                     exportResultsMenuItem.setEnabled(true);
                 }
@@ -403,8 +401,8 @@ public class MainFrame extends JFrame{
                     if(resultsPaneUse) previewPanel.resetNodesColor();
                     
                     EdgeBetweennessCentrality edgeBetweenness = new EdgeBetweennessCentrality(this);
-                    edgeBetweenness.CalculateEdgeBetweenness();
-                    edgeBetweenness.DisplayEdgeBetweenness();
+                    edgeBetweenness.CalculateEdgeBetweenness(previewPanel.nodes, previewPanel.edges);
+                    edgeBetweenness.DisplayEdgeBetweenness(previewPanel.edges);
                     resultsPaneUse = true;
                     exportResultsMenuItem.setEnabled(true);
                 }
@@ -413,9 +411,9 @@ public class MainFrame extends JFrame{
             
             μpciMenuItem.addActionListener((ActionEvent e) -> {
                 if(previewPanel.graphInUse){
-                    if(resultsPaneUse) previewPanel.resetNodesColor();
-                    
                     if(!previewPanel.graphIsDirected() && !previewPanel.graphIsWeighted()){
+                        if(resultsPaneUse) previewPanel.resetNodesColor();
+                        
                         SpinnerNumberModel limits = new SpinnerNumberModel(1, 1, 3, 1);
                         JSpinner mFactor = new JSpinner(limits);
 
@@ -434,13 +432,13 @@ public class MainFrame extends JFrame{
                         DegreeCentrality degree = new DegreeCentrality(this, false, false, false);
                         List<Double> graphDegrees = degree.UndirectedUnweightedDegree(previewPanel.nodes, previewPanel.edges);
                         MpciCentrality mPci = new MpciCentrality(this, m);
-                        mPci.CalculateMpci(graphDegrees);
-                        mPci.DisplayMpci();
+                        mPci.CalculateMpci(graphDegrees, previewPanel.nodes, previewPanel.edges);
+                        mPci.DisplayMpci(previewPanel.nodes);
                         resultsPaneUse = true;
                         exportResultsMenuItem.setEnabled(true);
                     }
                     else {
-                        JOptionPane.showMessageDialog(null, "μ-Pci can only be applied to Undirected, Unweighted graphs");
+                        JOptionPane.showMessageDialog(this, "μ-Pci can only be applied to Undirected, Unweighted graphs");
                     }
                 }
                 
@@ -453,11 +451,11 @@ public class MainFrame extends JFrame{
                         KshellScoreCentrality kshell = new KshellScoreCentrality(this);
                         
                         if(!previewPanel.graphIsWeighted()){
-                            kshell.CalculateKshell();
+                            kshell.CalculateKshell(previewPanel.nodes, previewPanel.edges);
                             kshell.DisplayKshell();
                         }
                         else{
-                            kshell.CalculateScore();
+                            kshell.CalculateScore(previewPanel.nodes, previewPanel.edges);
                             kshell.DisplayKshell();
                         }
                         
@@ -475,8 +473,8 @@ public class MainFrame extends JFrame{
                 if(previewPanel.graphInUse){
                     if(previewPanel.graphIsDirected() && !previewPanel.graphIsWeighted()){
                         PageRankCentrality pagerank = new PageRankCentrality(this);
-                        pagerank.CalculatePageRank();
-                        pagerank.NodesRank();
+                        pagerank.CalculatePageRank(previewPanel.nodes, previewPanel.edges);
+                        pagerank.NodesRank(previewPanel.nodes);
                         pagerank.DisplayPageRank();
 
                         resultsPaneUse = true;
@@ -491,7 +489,21 @@ public class MainFrame extends JFrame{
             
         MainMenuBar.add(communities);
             communities.add(cpm);
-            communities.add(ebc);
+            
+            ebcMenuItem.addActionListener((ActionEvent e) -> {
+                if(previewPanel.graphInUse){
+                    if(resultsPaneUse) previewPanel.resetNodesColor();
+                    
+                    EBCommunity ebc = new EBCommunity(this);
+                    ebc.CalculateEBC(previewPanel.nodes, previewPanel.edges);
+                    ebc.DisplayEBCommunity();
+                    
+                    resultsPaneUse = true;
+                    exportResultsMenuItem.setEnabled(true);
+                }
+                
+            });
+            communities.add(ebcMenuItem);
             communities.add(cibc);
             
         MainMenuBar.add(epidemics);
