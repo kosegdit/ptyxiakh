@@ -42,8 +42,6 @@ public class EBCommunity {
         boolean done = false;
         
         do{
-            //System.out.println("Step: " + step);
-            
             graphEdgeCentral = edgeCentral.CalculateEdgeBetweenness(copyGraphNodes, copyGraphEdges);
 
             // Get the adjacency array
@@ -127,6 +125,9 @@ public class EBCommunity {
             
             if(i<=removedEdges.size()-1){
                 results[currentRow][3] = removedEdges.get(i).label;
+            }
+            else{
+                results[currentRow][3] = "No Edges";
             }
             
             results[currentRow][1] = stepComponents.get(i).size();

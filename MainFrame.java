@@ -242,8 +242,12 @@ public class MainFrame extends JFrame{
             cpm.setToolTipText("Clique Percolation Method");
         JMenuItem ebcMenuItem = new JMenuItem("EBC");
             ebcMenuItem.setToolTipText("Newmann & Girvan using the Edge Betweenness Centrality");
-        JMenuItem cibc = new JMenuItem("CiBC");
-            cibc.setToolTipText("Communities identification with Betweenness Centrality");
+        JMenuItem cibcMenuItem = new JMenuItem("CiBC");
+            cibcMenuItem.setToolTipText("Communities identification with Betweenness Centrality");
+        JMenuItem linearThresholdMenuItem = new JMenuItem("Linear Threshold");
+            linearThresholdMenuItem.setToolTipText("Susceptible Infected Susceptible");
+        JMenuItem independentCascadeMenuItem = new JMenuItem("Independent Cascade");
+            independentCascadeMenuItem.setToolTipText("Susceptible Infected Recovered");
         
         
         MainMenuBar.add(file);
@@ -504,9 +508,75 @@ public class MainFrame extends JFrame{
                 
             });
             communities.add(ebcMenuItem);
-            communities.add(cibc);
+            
+            cibcMenuItem.addActionListener((ActionEvent e) -> {
+                if(previewPanel.graphInUse){
+                    if(previewPanel.graphIsDirected() && previewPanel.graphIsWeighted()){
+                        String message = "Edges directions and weights will only affect the \nBetweenness Centrality computation and not the Clique Merging!";
+                        String title = "Current Graph is Directed and Weighted";
+                        
+                        int result = JOptionPane.showOptionDialog(this, message, title, JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE, null, null, null);
+                        
+                        if(result != JOptionPane.OK_OPTION) {
+                            return;
+                        }
+                    }
+                    else if(previewPanel.graphIsDirected()){
+                        String message = "Edges directions will only affect the Betweenness Centrality \ncomputation and not the Clique Merging!";
+                        String title = "Current Graph is Directed";
+                        
+                        int result = JOptionPane.showOptionDialog(this, message, title, JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE, null, null, null);
+                        
+                        if(result != JOptionPane.OK_OPTION) {
+                            return;
+                        }
+                    }
+                    else if(previewPanel.graphIsWeighted()){
+                        String message = "Edges weights will only affect the Betweenness Centrality \ncomputation and not the Clique Merging!";
+                        String title = "Current Graph is Weighted";
+                        
+                        int result = JOptionPane.showOptionDialog(this, message, title, JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE, null, null, null);
+                        
+                        if(result != JOptionPane.OK_OPTION) {
+                            return;
+                        }
+                    }
+                    
+                    SpinnerNumberModel sParameter = new SpinnerNumberModel(1.0,0.0 ,Double.POSITIVE_INFINITY,0.05);
+                    JSpinner sSpinner = new JSpinner(sParameter);
+                    
+                    JSpinner.NumberEditor editor = (JSpinner.NumberEditor)sSpinner.getEditor();
+                    editor.getFormat().setMinimumFractionDigits(2);
+                    
+                    ((NumberFormatter) editor.getTextField().getFormatter()).setAllowsInvalid(false);
+                    
+                    Object[] fullMessage = {"Enter desired S value:", sSpinner, "\n"};
+                            
+                    int result = JOptionPane.showOptionDialog(this, fullMessage, "Merging Parameter S",
+                                                                            JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE,
+                                                                            null, null, null);
+                    if(result != JOptionPane.OK_OPTION) {
+                        return;
+                    }
+
+                    double s = (double)sSpinner.getValue();
+                            
+                    if(resultsPaneUse) previewPanel.resetNodesColor();
+                    
+                    CiBCommunity cibc = new CiBCommunity(this, s);
+                    cibc.CalculateCiBC(previewPanel.nodes, previewPanel.edges);
+                    cibc.DisplayCiBC();
+                    
+                    resultsPaneUse = true;
+                    exportResultsMenuItem.setEnabled(true);
+                }
+                
+            });
+            communities.add(cibcMenuItem);
             
         MainMenuBar.add(epidemics);
+            epidemics.add(linearThresholdMenuItem);
+            epidemics.add(independentCascadeMenuItem);
           
         MainMenuBar.add(about);
             aboutItem.addActionListener((ActionEvent e) -> {

@@ -51,7 +51,12 @@ public class ExportResults {
 
             for(int i=0; i< model.getRowCount(); i++) {
                 for(int j=0; j < model.getColumnCount(); j++) {
-                    excel.write(model.getValueAt(i,j).toString()+"\t");
+                    if(model.getValueAt(i,j) == null){
+                        excel.write("\t");
+                    }
+                    else{
+                        excel.write(model.getValueAt(i,j).toString()+"\t");
+                    }
                 }
                 excel.write("\n");
             }

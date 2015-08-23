@@ -3,6 +3,7 @@ package ptyxiakh;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  *
@@ -19,6 +20,13 @@ public class ColorBands {
         }
         return colorBands;
 
+    }
+
+    public static Color getRandomColor() {
+        
+        Random rand = new Random();
+
+        return new Color(rand.nextInt(256), rand.nextInt(256), rand.nextInt(256));
     }
 
     public static Color darken(Color color, double fraction) {

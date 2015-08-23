@@ -100,10 +100,9 @@ public class Node extends JComponent  {
                             
                             ((NumberFormatter) editor.getTextField().getFormatter()).setAllowsInvalid(false);
 
-                            // An array of objects is created to carry all the information for the displayed window
-                            Object[] fullMessage = {"Enter desired weight:", edgeWeightSpinner, "\n\n"};
+                            Object[] fullMessage = {"Enter desired weight:", edgeWeightSpinner, "\n"};
 
-                            int result = JOptionPane.showOptionDialog(null, fullMessage, "Current Edge Weight",
+                            int result = JOptionPane.showOptionDialog(getParent().getParent(), fullMessage, "Current Edge Weight",
                                                                             JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE,
                                                                             null, null, null);
 
