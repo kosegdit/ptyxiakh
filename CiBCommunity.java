@@ -158,7 +158,7 @@ public class CiBCommunity {
                     continue;
                 }
                 
-                maxTemp = (double)cliqueMatrix[j][i]/(double)cliqueMatrix[i][i];
+                maxTemp = (double)cliqueMatrix[i][j]/(double)cliqueMatrix[i][i];
                 
                 if(maxTemp > maxFractal){
                     maxFractal = maxTemp;
@@ -208,6 +208,8 @@ public class CiBCommunity {
         }
         
         resultsTable = new JTable(results, column);
+        
+        parent.UpdateAlgorithmName("Results: CiBC Communities");
         DisplayCentralities.DisplayResults(resultsTable, parent);
     }
 }

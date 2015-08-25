@@ -319,6 +319,7 @@ public class DegreeCentrality {
             }
         }
         
+        parent.UpdateAlgorithmName("Results: Degree Centrality");
         DisplayCentralities.DisplayResults(resultsTable, parent);
     }
 }

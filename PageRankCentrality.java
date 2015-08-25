@@ -16,7 +16,7 @@ public class PageRankCentrality {
     int[] danglingNodes, e;
     double[] pageRank, pageRankCopy;
     List<Double> graphOutDegrees;
-    List<Integer> nodesRank;
+    List<Node> nodesRank;
     double[][] H, G;
     boolean converged = false;
     
@@ -104,17 +104,18 @@ public class PageRankCentrality {
     }
     
     
-    public List<Integer> NodesRank(List<Node> nodesList){
+    public List<Node> NodesRank(List<Node> nodesList){
         
         pageRankCopy = new double[pageRank.length];
         nodesRank = new ArrayList<>();
         
-        int tempNode, max;
+        Node tempNode;
+        int max;
         double tempPagerank;
         
         for(int i=0; i<pageRank.length; i++){
             pageRankCopy[i] = pageRank[i];
-            nodesRank.add(nodesList.get(i).label);
+            nodesRank.add(nodesList.get(i));
         }
 
         for(int i=0; i<pageRankCopy.length; i++){
@@ -149,12 +150,13 @@ public class PageRankCentrality {
         
         for(int i=0; i<pageRank.length; i++){
             results[i][0] = i+1;
-            results[i][1] = nodesRank.get(i);
+            results[i][1] = nodesRank.get(i).label;
             results[i][2] = (double) Math.round(pageRankCopy[i]*100000)/100000;
         }
         
         resultsTable = new JTable(results, column);
         
+        parent.UpdateAlgorithmName("Results: Page Rank Centrality");
         DisplayCentralities.DisplayResults(resultsTable, parent);
     }
 }

@@ -1,10 +1,27 @@
 package ptyxiakh;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Random;
+import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
+import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
@@ -14,13 +31,17 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.ScrollPaneLayout;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.NumberFormatter;
@@ -45,6 +66,7 @@ public class MainFrame extends JFrame{
     JTabbedPane bottomRightTabbedPane;
     static String lastLoadedFile;
     JLabel graphTitle;
+    JLabel currentAlgorithm;
     JLabel directedLabel;
     JLabel weightedLabel;
     JLabel nodesLabel;
@@ -55,7 +77,7 @@ public class MainFrame extends JFrame{
     JLabel weightedCheckLabel;
     JMenuItem exportResultsMenuItem;
     JTable results = new JTable();
-    
+    int selectedNodes = 0;
     
     public MainFrame() {
         initComponents();
@@ -92,6 +114,7 @@ public class MainFrame extends JFrame{
         directedCheckLabel = new JLabel("\u00D7");
         weightedLabel = new JLabel("Weighted:");
         weightedCheckLabel = new JLabel("\u00D7");
+        currentAlgorithm = new JLabel();
         nodesLabel = new JLabel("Nodes:");
         edgesLabel = new JLabel("Edges:");
         nodesCounter = new JLabel("0");
@@ -153,7 +176,8 @@ public class MainFrame extends JFrame{
                         .addGroup(javax.swing.GroupLayout.Alignment.LEADING, infoPanelLayout.createSequentialGroup()
                             .addComponent(directedLabel)
                             .addGap(18, 18, 18)
-                            .addComponent(directedCheckLabel))))
+                            .addComponent(directedCheckLabel)))
+                    .addComponent(currentAlgorithm))
                 .addContainerGap(409, Short.MAX_VALUE))
         );
         infoPanelLayout.setVerticalGroup(
@@ -177,7 +201,9 @@ public class MainFrame extends JFrame{
                 .addGroup(infoPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(edgesLabel)
                     .addComponent(edgesCounter))
-                .addContainerGap(32, Short.MAX_VALUE))
+                .addGap(22, 32, 32)
+                .addComponent(currentAlgorithm)
+                .addContainerGap(53, Short.MAX_VALUE))
         );
 
         bottomRightTabbedPane.addTab("Info", infoPanel);
@@ -575,6 +601,26 @@ public class MainFrame extends JFrame{
             communities.add(cibcMenuItem);
             
         MainMenuBar.add(epidemics);
+            linearThresholdMenuItem.addActionListener((ActionEvent e) -> {
+                
+                Object[] choices = {"Load File", "Step by Step", "Cancel"};
+                Object defaultChoice = choices[0];
+                int result = JOptionPane.showOptionDialog(this, "Would you like to load the inputs by loading a file, or step by step?", "Linear Threshold Inputs", 
+                        JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, choices, defaultChoice);
+                
+                if(result != JOptionPane.YES_OPTION) return;
+
+                List<Node> startingNodes = StartingNodesDialog();
+                
+                if(startingNodes == null || startingNodes.isEmpty()) return;
+                
+                List<Double> nodeThresholds = NodeThresholdsDialog(startingNodes);
+
+                if(nodeThresholds == null) return;
+                
+                List<Double> edgeThresholds = EdgeThresholdsDialog();
+                
+            });
             epidemics.add(linearThresholdMenuItem);
             epidemics.add(independentCascadeMenuItem);
           
@@ -592,6 +638,35 @@ public class MainFrame extends JFrame{
         return MainMenuBar;
     }
     
+    public List<Node> getStartingNodes(List<Double> list, String sort) {
+        List<EpidemicNode> p = new ArrayList<>();
+        
+        for(int i=0; i<list.size(); i++) {
+            p.add(new EpidemicNode(i, list.get(i)));
+        }
+
+        Collections.sort(p, new Comparator<EpidemicNode>() {
+            @Override
+            public int compare(EpidemicNode o1, EpidemicNode o2) {
+                Double n1 = o1.value;
+                Double n2 = o2.value;
+                return n1.compareTo(n2);
+            }
+        });
+
+        if(sort.equals("best")) {
+            Collections.reverse(p);
+        }
+        
+        List<Node> startingNodes = new ArrayList<>();
+
+        for(int i=0; i<selectedNodes; i++) {
+            startingNodes.add(previewPanel.nodes.get(p.get(i).index));
+        }
+        
+        return startingNodes;
+    }
+    
     public boolean ShowSaveDialog(){
         
         final JFileChooser fc = new JFileChooser();
@@ -605,6 +680,7 @@ public class MainFrame extends JFrame{
         }
         return returnVal == JFileChooser.APPROVE_OPTION;
     }
+    
     
     public void UpdateInfoPanel(String name){
         
@@ -644,12 +720,16 @@ public class MainFrame extends JFrame{
     }
     
     
+    public void UpdateAlgorithmName(String name){
+        
+        String algorithmName = name;
+        
+        currentAlgorithm.setText(algorithmName);
+    }
+    
+    
     private void NewRandomGraph(){
 
-        // If there is already a graph in use, asks the user to save his progress
-        discard = previewPanel.ClearGraphIfInUse();
-        if(discard) return;
-        
         // Creates the Spinner for the number of Nodes with a downlimit of 1, and a spinner filter
         // for integers, to prevent wrong user input
         SpinnerNumberModel limits = new SpinnerNumberModel(20, 1, Short.MAX_VALUE, 1);
@@ -684,6 +764,10 @@ public class MainFrame extends JFrame{
             return;
         }
         
+        // If there is already a graph in use, asks the user to save his progress
+        discard = previewPanel.ClearGraphIfInUse();
+        if(discard) return;
+        
         int density = densitySlider.getValue();
         int numberOfNodes = (int)numOfNodesSpinner.getValue();
         
@@ -692,10 +776,6 @@ public class MainFrame extends JFrame{
     
     
     private void NewSmallWorldGraph(){
-        
-        // If there is already a graph in use, asks the user to save his progress
-        discard = previewPanel.ClearGraphIfInUse();
-        if(discard) return;
         
         // Creates the Spinner for the number of Nodes with a downlimit of 1, and a spinner filter
         // for integers, to prevent wrong user input
@@ -730,6 +810,10 @@ public class MainFrame extends JFrame{
             return;
         }
         
+        // If there is already a graph in use, asks the user to save his progress
+        discard = previewPanel.ClearGraphIfInUse();
+        if(discard) return;
+        
         int numberOfNodes = (int)numOfNodesSpinner.getValue();
         int p = rewireSlider.getValue();
         
@@ -753,5 +837,563 @@ public class MainFrame extends JFrame{
         int Z = (int) s;
         
         previewPanel.SmallWorldGraph(numberOfNodes, p, Z);
+    }
+    
+    public List<Node> StartingNodesDialog() {
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        Border b = javax.swing.BorderFactory.createEtchedBorder(javax.swing.border.EtchedBorder.LOWERED);
+
+        JRadioButton firstRB = new JRadioButton("Random");
+        firstRB.setActionCommand("first");
+        JRadioButton secondRB = new JRadioButton("User Select");
+        secondRB.setActionCommand("second");
+        JRadioButton thirdRB = new JRadioButton("Centrality Based", true);
+        thirdRB.setActionCommand("third");
+
+        ButtonGroup group = new ButtonGroup();
+        group.add(firstRB);
+        group.add(secondRB);
+        group.add(thirdRB);
+
+        // random
+        SpinnerNumberModel limits = new SpinnerNumberModel(1, 1, previewPanel.nodes.size(), 1);
+        JSpinner firstInfectedNodes = new JSpinner(limits);
+
+        JFormattedTextField spinnerFilter = ((JSpinner.NumberEditor) firstInfectedNodes.getEditor()).getTextField();
+        ((NumberFormatter) spinnerFilter.getFormatter()).setAllowsInvalid(false);
+
+        JPanel randomPanel = new JPanel(new BorderLayout());
+        randomPanel.add(firstInfectedNodes);
+        randomPanel.setVisible(false);
+
+        // centralities
+        
+        JRadioButton kshellButton;
+        if(!previewPanel.graphIsWeighted()){
+            kshellButton = new JRadioButton("k-Shell");
+        }
+        else{
+            kshellButton = new JRadioButton("s-Core");
+        }
+        kshellButton.setActionCommand("kshell");
+        kshellButton.setEnabled(!previewPanel.graphIsDirected());
+        
+        JRadioButton pciButton = new JRadioButton("μ-PCI");
+        pciButton.setActionCommand("pci");
+        pciButton.setEnabled(!previewPanel.graphIsDirected() && !previewPanel.graphIsWeighted());
+        
+        JRadioButton betweennessButton = new JRadioButton("Betweenness");
+        betweennessButton.setActionCommand("betweenness");
+        
+        JRadioButton degreeButton;
+        if(!previewPanel.graphIsDirected()){
+            degreeButton = new JRadioButton("Degree", true);
+        }
+        else{
+            degreeButton = new JRadioButton("Out Degree", true);
+        }
+        degreeButton.setActionCommand("degree");
+        
+        JRadioButton pageRankButton = new JRadioButton("Page Rank");
+        pageRankButton.setActionCommand("pagerank");
+        pageRankButton.setEnabled(previewPanel.graphIsDirected() && !previewPanel.graphIsWeighted());
+
+        ButtonGroup centralitiesGroup = new ButtonGroup();
+        centralitiesGroup.add(degreeButton);
+        centralitiesGroup.add(betweennessButton);
+        centralitiesGroup.add(kshellButton);
+        centralitiesGroup.add(pciButton);
+        centralitiesGroup.add(pageRankButton);
+
+
+        JRadioButton bestButton = new JRadioButton("Best");
+        bestButton.setActionCommand("best");
+        bestButton.setSelected(true);
+        JRadioButton worstButton = new JRadioButton("Worst");
+        worstButton.setActionCommand("worst");
+
+        ButtonGroup sortingGroup = new ButtonGroup();
+        sortingGroup.add(bestButton);
+        sortingGroup.add(worstButton);
+
+        JPanel leftPanel = new JPanel(new GridLayout(0, 1));
+        leftPanel.add(degreeButton);
+        leftPanel.add(betweennessButton);
+        leftPanel.add(kshellButton);
+        leftPanel.add(pciButton);
+        leftPanel.add(pageRankButton);
+
+        JPanel rightPanel = new JPanel(new GridLayout(0, 1));
+        rightPanel.add(bestButton);
+        rightPanel.add(worstButton);
+
+        JSpinner firstInfectedNodes2 = new JSpinner(limits);
+        JFormattedTextField spinnerFilter2 = ((JSpinner.NumberEditor) firstInfectedNodes2.getEditor()).getTextField();
+        ((NumberFormatter) spinnerFilter2.getFormatter()).setAllowsInvalid(false);
+
+        JPanel centralitiesPanel = new JPanel(new BorderLayout(0, 10));
+        centralitiesPanel.add(firstInfectedNodes2, BorderLayout.PAGE_START);
+        centralitiesPanel.add(leftPanel, BorderLayout.LINE_START);
+        centralitiesPanel.add(rightPanel, BorderLayout.LINE_END);
+
+
+        // user select
+        JPanel selectPanel = new JPanel(new GridLayout(0, 1));
+
+        List<JCheckBox> cbs = new ArrayList<>();
+
+        for(int i=0; i<previewPanel.nodes.size(); i++) {
+            JCheckBox cb = new JCheckBox(previewPanel.nodes.get(i).label + "");
+            cb.addItemListener(new ItemListener() {
+                public void itemStateChanged(ItemEvent e) {
+
+                    if(cb.isSelected()) {
+                        selectedNodes++;
+                    }
+                    else {
+                        selectedNodes--;
+                    }
+
+                    mainPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(b, "Nodes Selected: " + selectedNodes));
+                }
+            });
+            cbs.add(cb);
+            selectPanel.add(cb);
+        }
+
+        JScrollPane selectScrollPane = new JScrollPane(selectPanel);
+        selectScrollPane.setVisible(false);
+        selectScrollPane.setBorder(null);
+
+
+        mainPanel.setPreferredSize(new Dimension(93, 167));
+        mainPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(b, "Centrality and Order"));
+        mainPanel.add(randomPanel, BorderLayout.PAGE_START);
+        mainPanel.add(selectScrollPane, BorderLayout.CENTER);
+        mainPanel.add(centralitiesPanel, BorderLayout.PAGE_END);
+
+        JPanel panel = new JPanel(new BorderLayout(20, 20));
+        panel.add(firstRB, BorderLayout.LINE_START);
+        panel.add(secondRB, BorderLayout.CENTER);
+        panel.add(thirdRB, BorderLayout.LINE_END);
+        panel.add(mainPanel, BorderLayout.PAGE_END);
+
+        firstRB.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                mainPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(b, "Number of Nodes"));
+                randomPanel.setVisible(true);
+                centralitiesPanel.setVisible(false);
+                selectScrollPane.setVisible(false);
+            }
+        });
+
+        thirdRB.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                mainPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(b, "Centrality and Order"));
+                randomPanel.setVisible(false);
+                centralitiesPanel.setVisible(true);
+                selectScrollPane.setVisible(false);
+            }
+        });
+
+        secondRB.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                mainPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(b, "Nodes Selected: " + selectedNodes));
+                randomPanel.setVisible(false);
+                centralitiesPanel.setVisible(false);
+                selectScrollPane.setVisible(true);
+            }
+        });
+
+        Object[] firstMessage = {"How would you like to select the first Infected Nodes?\n\n", panel};
+
+        int result = JOptionPane.showOptionDialog(this, firstMessage, "Starting Nodes", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
+
+        if(result != JOptionPane.OK_OPTION) return null;
+
+        List<Node> startingNodes = new ArrayList<>();
+
+        String selection = group.getSelection().getActionCommand();
+        if(selection.equals("first")) {
+            selectedNodes = (int)firstInfectedNodes.getValue();
+
+            List<Integer> tempArray = new ArrayList<>();
+
+            for(int i=0; i<previewPanel.nodes.size(); i++) {
+                tempArray.add(i);
+            }
+
+            Collections.shuffle(tempArray);
+
+            for(int i=0; i<selectedNodes; i++) {
+                startingNodes.add(previewPanel.nodes.get(tempArray.get(i)));
+            }
+        }
+        else if(selection.equals("second")) {
+            for(int i=0; i<cbs.size(); i++) {
+                if(cbs.get(i).isSelected()) {
+                    startingNodes.add(previewPanel.nodes.get(i));
+                }
+            }
+        }
+        else if(selection.equals("third")) {
+            selectedNodes = (int)firstInfectedNodes2.getValue();
+
+            String centralitySelection = centralitiesGroup.getSelection().getActionCommand();
+            String sortingSelection = sortingGroup.getSelection().getActionCommand();
+
+            if(centralitySelection.equals("kshell")) {
+                KshellScoreCentrality kshell = new KshellScoreCentrality(this);
+                List<List<Node>> list = kshell.CalculateKshell(previewPanel.nodes, previewPanel.edges);
+
+                if(sortingSelection.equals("best")) {
+                    Collections.reverse(list);
+                }
+
+                for(int i=0; i<list.size(); i++) {
+                    for(int j=0; j<list.get(i).size(); j++) {
+                        startingNodes.add(list.get(i).get(j));
+
+                        if(startingNodes.size() == selectedNodes) {
+                            break;
+                        }
+                    }
+
+                    if(startingNodes.size() == selectedNodes) {
+                        break;
+                    }
+                }
+            }
+            else if(centralitySelection.equals("pci")) {
+                DegreeCentrality degree = new DegreeCentrality(this, false, false, false);
+                List<Double> graphDegrees = degree.UndirectedUnweightedDegree(previewPanel.nodes, previewPanel.edges);
+                MpciCentrality mPci = new MpciCentrality(this, 1);
+                List<Double> list = mPci.CalculateMpci(graphDegrees, previewPanel.nodes, previewPanel.edges);
+
+                startingNodes = getStartingNodes(list, sortingSelection);
+            }
+            else if(centralitySelection.equals("pagerank")) {
+                PageRankCentrality pagerank = new PageRankCentrality(this);
+                pagerank.CalculatePageRank(previewPanel.nodes, previewPanel.edges);
+                List<Node> list = pagerank.NodesRank(previewPanel.nodes);
+
+                if(sortingSelection.equals("worst")) {
+                    Collections.reverse(list);
+                }
+
+                for(int i=0; i<selectedNodes; i++) {
+                    startingNodes.add(list.get(i));
+                }
+            }
+            else if(centralitySelection.equals("betweenness")) {
+                BetweennessCentrality bc = new BetweennessCentrality(this, false);
+                List<Double> list = bc.CalculateBetweenness(previewPanel.nodes, previewPanel.edges);
+
+                startingNodes = getStartingNodes(list, sortingSelection);
+            }
+            else if(centralitySelection.equals("degree")) {
+                DegreeCentrality degree = new DegreeCentrality(this, previewPanel.graphIsDirected(), previewPanel.graphIsWeighted(), normalized);
+                List<Double> list;
+
+                if(previewPanel.graphIsDirected()){
+                    if(previewPanel.graphIsWeighted()){
+                        list = degree.DirectedWeightedDegree(previewPanel.nodes, previewPanel.edges).get(1);
+                    }
+                    else{
+                        list = degree.DirectedUnweightedDegree(previewPanel.nodes, previewPanel.edges).get(1);
+                    }
+                }
+                else{
+                    if(previewPanel.graphIsWeighted()){
+                        list = degree.UndirectedWeightedDegree(previewPanel.nodes, previewPanel.edges);
+                    }
+                    else{
+                        list = degree.UndirectedUnweightedDegree(previewPanel.nodes, previewPanel.edges);
+                    }
+                }
+
+                startingNodes = getStartingNodes(list, sortingSelection);
+            }
+        }
+        
+        return startingNodes;
+    }
+    
+    public List<Double> NodeThresholdsDialog(List<Node> starting) {
+        int remain = previewPanel.nodes.size() - starting.size();
+
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        Border b = javax.swing.BorderFactory.createEtchedBorder(javax.swing.border.EtchedBorder.LOWERED);
+
+        JRadioButton firstRB = new JRadioButton("Global", true);
+        firstRB.setActionCommand("first");
+        JRadioButton secondRB = new JRadioButton("User Input");
+        secondRB.setActionCommand("second");
+        JRadioButton thirdRB = new JRadioButton("Random");
+        thirdRB.setActionCommand("third");
+
+        ButtonGroup group = new ButtonGroup();
+        group.add(firstRB);
+        group.add(secondRB);
+        group.add(thirdRB);
+
+        // global
+        SpinnerNumberModel limits = new SpinnerNumberModel(0.5, 0.0, 1.0, 0.05);
+        JSpinner globalSpinner = new JSpinner(limits);
+
+        JSpinner.NumberEditor editor = (JSpinner.NumberEditor)globalSpinner.getEditor();
+        editor.getFormat().setMinimumFractionDigits(2);
+
+        ((NumberFormatter) editor.getTextField().getFormatter()).setAllowsInvalid(false);
+
+        JPanel globalPanel = new JPanel(new BorderLayout());
+        globalPanel.add(globalSpinner);
+
+        // random
+        JPanel randomPanel = new JPanel(new BorderLayout());
+        randomPanel.add(new JLabel("Random Threshold for each single Node"));
+        randomPanel.setVisible(false);
+
+        // user input
+        JPanel userInputPanel = new JPanel(new GridLayout(0, 2));
+
+        List<JSpinner> spinners = new ArrayList<>();
+
+        for(int i=0; i<previewPanel.nodes.size(); i++) {
+            if(!starting.contains(previewPanel.nodes.get(i))) {
+                JSpinner spinner = new JSpinner(new SpinnerNumberModel(0.5, 0.0, 1.0, 0.05));
+                JSpinner.NumberEditor e = (JSpinner.NumberEditor)spinner.getEditor();
+                e.getFormat().setMinimumFractionDigits(2);
+                ((NumberFormatter) e.getTextField().getFormatter()).setAllowsInvalid(false);
+
+                spinners.add(spinner);
+                
+                userInputPanel.add(new JLabel(previewPanel.nodes.get(i).label + ""));
+                userInputPanel.add(spinner);
+            }
+        }
+
+        JScrollPane selectScrollPane = new JScrollPane(userInputPanel);
+        selectScrollPane.setVisible(false);
+        selectScrollPane.setBorder(null);
+
+        mainPanel.setPreferredSize(new Dimension(93, 22 + (remain > 6 ? 120 : remain*20)));
+        mainPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(b, "Same Threshold for all Nodes"));
+        mainPanel.add(globalPanel, BorderLayout.PAGE_START);
+        mainPanel.add(selectScrollPane, BorderLayout.CENTER);
+        mainPanel.add(randomPanel, BorderLayout.PAGE_END);
+
+        JPanel panel = new JPanel(new BorderLayout(46, 20));
+        panel.add(firstRB, BorderLayout.LINE_START);
+        panel.add(secondRB, BorderLayout.CENTER);
+        panel.add(thirdRB, BorderLayout.LINE_END);
+        panel.add(mainPanel, BorderLayout.PAGE_END);
+
+        firstRB.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                mainPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(b, "Same Threshold for all Nodes"));
+                globalPanel.setVisible(true);
+                randomPanel.setVisible(false);
+                selectScrollPane.setVisible(false);
+            }
+        });
+
+        secondRB.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                mainPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(b, "Specific Threshold for each Node"));
+                globalPanel.setVisible(false);
+                randomPanel.setVisible(false);
+                selectScrollPane.setVisible(true);
+            }
+        });
+
+        thirdRB.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                mainPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(b, "Global Random Threshold"));
+                globalPanel.setVisible(false);
+                randomPanel.setVisible(true);
+                selectScrollPane.setVisible(false);
+            }
+        });
+
+        Object[] firstMessage = {"Which way would you like to insert the Nodes Thresholds?\n\n", panel};
+
+        int result = JOptionPane.showOptionDialog(this, firstMessage, "Nodes Thresholds", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
+
+        if(result != JOptionPane.OK_OPTION) return null;
+
+        List<Double> thresholds = new ArrayList<>();
+
+        String selection = group.getSelection().getActionCommand();
+        if(selection.equals("first")) {
+            double value = (double)globalSpinner.getValue();
+            for(int i=0; i<previewPanel.nodes.size(); i++) {
+                if(starting.contains(previewPanel.nodes.get(i))) {
+                    thresholds.add(-1.0);
+                }
+                else {
+                    thresholds.add(value);
+                }
+            }
+        }
+        else if(selection.equals("second")) {
+            for(int i=0; i<previewPanel.nodes.size(); i++) {
+                if(starting.contains(previewPanel.nodes.get(i))) {
+                    thresholds.add(-1.0);
+                }
+                else {
+                    thresholds.add((double)Math.round((double)spinners.get(0).getValue()*100)/100);
+                    spinners.remove(0);
+                }
+            }
+        }
+        else if(selection.equals("third")) {
+            Random rand = new Random();
+
+            for(int i=0; i<previewPanel.nodes.size(); i++) {
+                if(starting.contains(previewPanel.nodes.get(i))) {
+                    thresholds.add(-1.0);
+                }
+                else {
+                    thresholds.add((double)Math.round(rand.nextDouble()*100)/100);
+                }
+            }
+        }
+        
+        return thresholds;
+    }
+    
+    public List<Double> EdgeThresholdsDialog() {
+        
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        Border b = javax.swing.BorderFactory.createEtchedBorder(javax.swing.border.EtchedBorder.LOWERED);
+
+        JRadioButton firstRB = new JRadioButton("Global", true);
+        firstRB.setActionCommand("first");
+        JRadioButton secondRB = new JRadioButton("User Input");
+        secondRB.setActionCommand("second");
+        JRadioButton thirdRB = new JRadioButton("Random");
+        thirdRB.setActionCommand("third");
+
+        ButtonGroup group = new ButtonGroup();
+        group.add(firstRB);
+        group.add(secondRB);
+        group.add(thirdRB);
+
+        // global
+        SpinnerNumberModel limits = new SpinnerNumberModel(0.5, 0.0, 1.0, 0.05);
+        JSpinner globalSpinner = new JSpinner(limits);
+
+        JSpinner.NumberEditor editor = (JSpinner.NumberEditor)globalSpinner.getEditor();
+        editor.getFormat().setMinimumFractionDigits(2);
+
+        ((NumberFormatter) editor.getTextField().getFormatter()).setAllowsInvalid(false);
+
+        JPanel globalPanel = new JPanel(new BorderLayout());
+        globalPanel.add(globalSpinner);
+
+        // random
+        JPanel randomPanel = new JPanel(new BorderLayout());
+        randomPanel.add(new JLabel("Random Possibility for each single Edge"));
+        randomPanel.setVisible(false);
+
+        // user input
+        JPanel userInputPanel = new JPanel(new GridLayout(0, 2));
+
+        List<JSpinner> spinners = new ArrayList<>();
+
+        for(int i=0; i<previewPanel.edges.size(); i++) {
+            JSpinner spinner = new JSpinner(new SpinnerNumberModel(0.5, 0.0, 1.0, 0.05));
+            JSpinner.NumberEditor e = (JSpinner.NumberEditor)spinner.getEditor();
+            e.getFormat().setMinimumFractionDigits(2);
+            ((NumberFormatter) e.getTextField().getFormatter()).setAllowsInvalid(false);
+
+            spinners.add(spinner);
+
+            userInputPanel.add(new JLabel(previewPanel.edges.get(i).label + ""));
+            userInputPanel.add(spinner);
+        }
+
+        JScrollPane selectScrollPane = new JScrollPane(userInputPanel);
+        selectScrollPane.setVisible(false);
+        selectScrollPane.setBorder(null);
+
+        mainPanel.setPreferredSize(new Dimension(93, 22 + (previewPanel.edges.size() > 6 ? 120 : previewPanel.edges.size()*20)));
+        mainPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(b, "Global"));
+        mainPanel.add(globalPanel, BorderLayout.PAGE_START);
+        mainPanel.add(selectScrollPane, BorderLayout.CENTER);
+        mainPanel.add(randomPanel, BorderLayout.PAGE_END);
+
+        JPanel panel = new JPanel(new BorderLayout(46, 20));
+        panel.add(firstRB, BorderLayout.LINE_START);
+        panel.add(secondRB, BorderLayout.CENTER);
+        panel.add(thirdRB, BorderLayout.LINE_END);
+        panel.add(mainPanel, BorderLayout.PAGE_END);
+
+        firstRB.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                mainPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(b, "Same Possibility for all Edges"));
+                globalPanel.setVisible(true);
+                randomPanel.setVisible(false);
+                selectScrollPane.setVisible(false);
+            }
+        });
+
+        secondRB.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                mainPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(b, "Specific Possibility for each Edge"));
+                globalPanel.setVisible(false);
+                randomPanel.setVisible(false);
+                selectScrollPane.setVisible(true);
+            }
+        });
+
+        thirdRB.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                mainPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(b, "Global Random polution Possibility"));
+                globalPanel.setVisible(false);
+                randomPanel.setVisible(true);
+                selectScrollPane.setVisible(false);
+            }
+        });
+
+        Object[] firstMessage = {"How would you like to insert the polution Possibility of the Edges?\n\n", panel};
+
+        int result = JOptionPane.showOptionDialog(this, firstMessage, "Edges polution Possibility", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
+
+        if(result != JOptionPane.OK_OPTION) return null;
+
+        List<Double> thresholds = new ArrayList<>();
+
+        String selection = group.getSelection().getActionCommand();
+        if(selection.equals("first")) {
+            double value = (double)globalSpinner.getValue();
+            for(int i=0; i<previewPanel.edges.size(); i++) {
+                thresholds.add(value);
+            }
+        }
+        else if(selection.equals("second")) {
+            for(int i=0; i<previewPanel.edges.size(); i++) {
+                thresholds.add((double)Math.round((double)spinners.get(i).getValue()*100)/100);
+            }
+        }
+        else if(selection.equals("third")) {
+            Random rand = new Random();
+
+            for(int i=0; i<previewPanel.edges.size(); i++) {
+                thresholds.add((double)Math.round(rand.nextDouble()*100)/100);
+            }
+        }
+        
+        return thresholds;
     }
 }

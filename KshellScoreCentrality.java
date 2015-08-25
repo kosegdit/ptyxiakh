@@ -173,10 +173,12 @@ public class KshellScoreCentrality {
         if(parent.previewPanel.graphIsWeighted()){
             Object[] column = {"s", "Core"};
             resultsTable = new JTable(results, column);
+            parent.UpdateAlgorithmName("Results: S Core Centrality");
         }
         else{
             Object[] column = {"k", "Shell"};
             resultsTable = new JTable(results, column);
+            parent.UpdateAlgorithmName("Results: K Shell Centrality");
         }
         
         DisplayCentralities.DisplayResults(resultsTable, parent);

@@ -93,6 +93,7 @@ public class ClosenessCentrality {
             resultsTable = new JTable(results, column);
         }
         
+        parent.UpdateAlgorithmName("Results: Closeness Centrality");
         DisplayCentralities.DisplayResults(resultsTable, parent);
     }
 }

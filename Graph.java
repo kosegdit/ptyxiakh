@@ -152,6 +152,7 @@ public class Graph extends JPanel {
         }
         
         parent.UpdateInfoPanel("");
+        parent.UpdateAlgorithmName("");
     }
     
     public void resetNodesColor(){
@@ -626,6 +627,7 @@ public class Graph extends JPanel {
 
         this.repaint();
         parent.UpdateInfoPanel("Erdős–Rényi Random Graph");
+        parent.UpdateAlgorithmName("");
     }
     
     
@@ -707,6 +709,7 @@ public class Graph extends JPanel {
         
         this.repaint();
         parent.UpdateInfoPanel("Small World Graph");
+        parent.UpdateAlgorithmName("");
     }    
     
     

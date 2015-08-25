@@ -148,6 +148,8 @@ public class EBCommunity {
         results[0][0] = "1: Init";
         
         resultsTable = new JTable(results, column);
+        
+        parent.UpdateAlgorithmName("Results: EBC Communities");
         DisplayCentralities.DisplayResults(resultsTable, parent);
     }
     

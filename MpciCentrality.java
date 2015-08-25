@@ -12,7 +12,7 @@ public class MpciCentrality {
     
     MainFrame parent;
     int m;
-    List<Integer> mPci = new ArrayList<>();
+    List<Double> mPci = new ArrayList<>();
     
     
     public MpciCentrality(MainFrame frame, int m){
@@ -22,7 +22,7 @@ public class MpciCentrality {
     }
     
     
-    public List<Integer> CalculateMpci(List<Double> degree, List<Node> nodesList, List<Edge> edgesList){
+    public List<Double> CalculateMpci(List<Double> degree, List<Node> nodesList, List<Edge> edgesList){
         
         int numOfNodes = nodesList.size();
         double[][] adjMatrix = parent.previewPanel.adjacencyArray(nodesList, edgesList);
@@ -48,9 +48,6 @@ public class MpciCentrality {
             firstNeighbors.add(currentNodeNeighbors);
         }
         finalNeighbors = firstNeighbors;
-        
-        System.out.println(finalNeighbors);
-        System.out.println();
         
         if(m>1){
             List<Integer> currentNodeSecondNeighbors;
@@ -80,8 +77,6 @@ public class MpciCentrality {
             }
             finalNeighbors = secondNeighbors;
             
-            System.out.println(finalNeighbors);
-            System.out.println();
         }
         
         if(m>2){
@@ -111,9 +106,6 @@ public class MpciCentrality {
                 thirdNeighbors.add(currentNodeThirdNeighbors);
             }
             finalNeighbors = thirdNeighbors;
-            
-            System.out.println(finalNeighbors);
-            System.out.println();
         }
         
         for(int i=0; i<finalNeighbors.size(); i++){
@@ -124,7 +116,6 @@ public class MpciCentrality {
             }
             neighborDegrees.add(currentNodeNeighborsDegrees);
         }
-        System.out.println(neighborDegrees);
         
         for(int i=0; i<neighborDegrees.size(); i++){
             double k=0;
@@ -147,8 +138,8 @@ public class MpciCentrality {
                 }
                 
             }while(!found);
-            System.out.println(k);
-            mPci.add((int)((double)--k));
+            
+            mPci.add((double)--k);
         }
         
         return mPci;
@@ -164,12 +155,13 @@ public class MpciCentrality {
         
         for(int i=0; i<numOfNodes; i++){
             results[i][0] = nodesList.get(i).label;
-            results[i][1] = mPci.get(i);
+            results[i][1] = mPci.get(i).intValue();
         }
         
         Object[] column = {"Node", m + "-Pci"};
         resultsTable = new JTable(results, column);
         
+        parent.UpdateAlgorithmName("Results: μ-PCI Centrality");
         DisplayCentralities.DisplayResults(resultsTable, parent);
     }
 }
