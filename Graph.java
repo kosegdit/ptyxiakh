@@ -297,8 +297,6 @@ public class Graph extends JPanel {
             JOptionPane.showMessageDialog (parent, "Invalid Input File Format", "Error Message", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        
-        
     }
     
     public void SaveGraph(String file){

@@ -13,12 +13,16 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
+import java.util.Scanner;
+import java.util.StringTokenizer;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBox;
@@ -77,7 +81,7 @@ public class MainFrame extends JFrame{
     JLabel weightedCheckLabel;
     JMenuItem exportResultsMenuItem;
     JTable results = new JTable();
-    int selectedNodes = 0;
+    int selectedNodes;
     
     public MainFrame() {
         initComponents();
@@ -602,26 +606,83 @@ public class MainFrame extends JFrame{
             
         MainMenuBar.add(epidemics);
             linearThresholdMenuItem.addActionListener((ActionEvent e) -> {
-                
-                Object[] choices = {"Load File", "Step by Step", "Cancel"};
+                selectedNodes = 0;
+                Object[] choices = {"Load File..", "Step by Step..", "Cancel"};
                 Object defaultChoice = choices[0];
                 int result = JOptionPane.showOptionDialog(this, "Would you like to load the inputs by loading a file, or step by step?", "Linear Threshold Inputs", 
                         JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, choices, defaultChoice);
                 
-                if(result != JOptionPane.YES_OPTION) return;
+                if(result == JOptionPane.YES_OPTION) {
+                    final JFileChooser fc = new JFileChooser();
+                    fc.setAcceptAllFileFilterUsed(false);
+                    fc.setFileFilter(new FileNameExtensionFilter("Epidemic Files", "ept"));
+                    int returnVal = fc.showOpenDialog(MainFrame.this);
 
-                List<Node> startingNodes = StartingNodesDialog();
-                
-                if(startingNodes == null || startingNodes.isEmpty()) return;
-                
-                List<Double> nodeThresholds = NodeThresholdsDialog(startingNodes);
 
-                if(nodeThresholds == null) return;
+                    if (returnVal == JFileChooser.APPROVE_OPTION){
+                        String epidemicFile = fc.getSelectedFile().toString();
+                        LoadEpidemic(epidemicFile, "lt");
+                    }
+                }
+                else if(result == JOptionPane.NO_OPTION){
+                    List<Node> startingNodes = StartingNodesDialog();
                 
-                List<Double> edgeThresholds = EdgeThresholdsDialog();
+                    if(startingNodes == null || startingNodes.isEmpty()) return;
+
+                    List<Double> nodeThresholds = NodeThresholdsDialog(startingNodes);
+
+                    if(nodeThresholds == null) return;
+
+                    List<Double> edgeThresholds = EdgeThresholdsDialog();
+                }
+                else{
+                    return;
+                }
                 
             });
             epidemics.add(linearThresholdMenuItem);
+            
+            independentCascadeMenuItem.addActionListener((ActionEvent e) -> {
+                selectedNodes = 0;
+                
+                Object[] choices = {"Load File..", "Step by Step..", "Cancel"};
+                Object defaultChoice = choices[0];
+                int result = JOptionPane.showOptionDialog(this, "Would you like to load the inputs by loading a file, or step by step?", "Independent Cascade Inputs", 
+                        JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, choices, defaultChoice);
+                
+                if(result == JOptionPane.YES_OPTION) {
+                    final JFileChooser fc = new JFileChooser();
+                    fc.setAcceptAllFileFilterUsed(false);
+                    fc.setFileFilter(new FileNameExtensionFilter("Epidemic Files", "ept"));
+                    int returnVal = fc.showOpenDialog(MainFrame.this);
+
+
+                    if (returnVal == JFileChooser.APPROVE_OPTION){
+                        String epidemicFile = fc.getSelectedFile().toString();
+                        LoadEpidemic(epidemicFile, "ic");
+                    }
+                }
+                else if(result == JOptionPane.NO_OPTION){
+                    List<Node> startingNodes = StartingNodesDialog();
+                    List<Double> fullStartingNodes = new ArrayList<>();
+                
+                    if(startingNodes == null || startingNodes.isEmpty()) return;
+
+                    List<Double> edgeThresholds = EdgeThresholdsDialog();
+                    
+                    for(int i=0; i<startingNodes.size(); i++){
+                        for(int j=0; i<previewPanel.nodes.size(); j++){
+                            if(previewPanel.nodes.get(j).equals(startingNodes.get(i))){
+                                fullStartingNodes.add(j, -1.0);
+                            }
+
+                        }
+                    }
+                }
+                else{
+                    return;
+                }
+            });
             epidemics.add(independentCascadeMenuItem);
           
         MainMenuBar.add(about);
@@ -637,6 +698,84 @@ public class MainFrame extends JFrame{
     
         return MainMenuBar;
     }
+    
+    
+    private void LoadEpidemic(String file, String epidemic){
+        
+        Scanner inputFile;
+        StringTokenizer current_line;
+        
+        int numOfNodes = previewPanel.nodes.size();
+        int numOfEdges = previewPanel.edges.size();
+        
+        List<Double> nodeThreshold = new ArrayList<>();
+        double[] nodeThresholdArray = new double[numOfNodes];
+        List<Double> edgeThreshold = new ArrayList<>();
+        double[] edgeThresholdArray = new double[numOfEdges];
+        
+        try {
+            inputFile = new Scanner(new FileReader(file));
+            
+            while(inputFile.hasNextLine()){
+                current_line = new StringTokenizer(inputFile.nextLine());
+
+                if(current_line.hasMoreTokens()){
+                    String s = current_line.nextToken();
+                    String nextToken;
+
+                    if(s.startsWith("#")) {
+                        continue;
+                    }
+                    else{
+                        int currentNodeLabel = Integer.valueOf(s);
+                        int i;
+                                
+                        for(i=0; i<numOfNodes; i++){
+                            if(previewPanel.nodes.get(i).label == currentNodeLabel){
+                                nextToken = current_line.nextToken();
+                                nodeThresholdArray[i] = Double.valueOf(nextToken);
+
+                                
+                                break;
+                            }
+                        }
+
+                        while(current_line.hasMoreTokens()){
+                            nextToken = current_line.nextToken();
+                            String[] result = nextToken.split(",");
+                            
+                            int currentNeighborLabel = Integer.valueOf(result[0]);
+                            
+                            for(int j=0; j<numOfEdges; j++){
+                                if(previewPanel.edges.get(j).node1.label == i && previewPanel.edges.get(j).node2.label == currentNeighborLabel){
+                                    edgeThresholdArray[j] = Double.valueOf(result[1]);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            for(int i=0; i<numOfNodes; i++){
+                nodeThreshold.add(nodeThresholdArray[i]);
+            }
+            
+            for(int i=0; i<numOfEdges; i++){
+                edgeThreshold.add(edgeThresholdArray[i]);
+            }
+
+            inputFile.close();
+        } 
+        catch (FileNotFoundException ex) {
+            System.err.println(ex);
+            return;
+        }
+        catch (Exception ex) {
+            JOptionPane.showMessageDialog (this, "Invalid Input File Format", "Error Message", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+    }
+    
     
     public List<Node> getStartingNodes(List<Double> list, String sort) {
         List<EpidemicNode> p = new ArrayList<>();
@@ -666,6 +805,7 @@ public class MainFrame extends JFrame{
         
         return startingNodes;
     }
+    
     
     public boolean ShowSaveDialog(){
         
@@ -838,6 +978,7 @@ public class MainFrame extends JFrame{
         
         previewPanel.SmallWorldGraph(numberOfNodes, p, Z);
     }
+    
     
     public List<Node> StartingNodesDialog() {
         JPanel mainPanel = new JPanel(new BorderLayout());
@@ -1122,6 +1263,7 @@ public class MainFrame extends JFrame{
         return startingNodes;
     }
     
+    
     public List<Double> NodeThresholdsDialog(List<Node> starting) {
         int remain = previewPanel.nodes.size() - starting.size();
 
@@ -1268,6 +1410,7 @@ public class MainFrame extends JFrame{
         
         return thresholds;
     }
+    
     
     public List<Double> EdgeThresholdsDialog() {
         
