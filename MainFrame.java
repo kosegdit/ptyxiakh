@@ -14,7 +14,9 @@ import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -621,19 +623,42 @@ public class MainFrame extends JFrame{
 
                     if (returnVal == JFileChooser.APPROVE_OPTION){
                         String epidemicFile = fc.getSelectedFile().toString();
-                        LoadEpidemic(epidemicFile, "lt");
+                        LoadEpidemic(epidemicFile);
                     }
                 }
                 else if(result == JOptionPane.NO_OPTION){
-                    List<Node> startingNodes = StartingNodesDialog();
-                
-                    if(startingNodes == null || startingNodes.isEmpty()) return;
+                    boolean nodesSelected = false;
+                    List<Node> startingNodes = new ArrayList<>();
+                    
+                    do{
+                        startingNodes = StartingNodesDialog();
 
+                        if(startingNodes == null) return;
+
+                        if(startingNodes.isEmpty()){
+                            int result2 = JOptionPane.showOptionDialog(this, "You have to select at least 1 node to start the Algorithm", "No Nodes Selected", 
+                                JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE, null, null, null);
+
+                            if(result2 != JOptionPane.OK_OPTION) return;
+                        }
+                        else{
+                            nodesSelected = true;
+                        }
+                    }while(!nodesSelected);
+                    
                     List<Double> nodeThresholds = NodeThresholdsDialog(startingNodes);
 
                     if(nodeThresholds == null) return;
 
                     List<Double> edgeThresholds = EdgeThresholdsDialog();
+                    
+                    if(edgeThresholds == null) return;
+                    
+                    String epidemincSave = ShowEpidemicSaveDialog();
+                    
+                    if(!epidemincSave.equals("discard")){
+                        SaveEpidemic(epidemincSave, "lt", nodeThresholds, edgeThresholds);
+                    }
                 }
                 else{
                     return;
@@ -659,24 +684,46 @@ public class MainFrame extends JFrame{
 
                     if (returnVal == JFileChooser.APPROVE_OPTION){
                         String epidemicFile = fc.getSelectedFile().toString();
-                        LoadEpidemic(epidemicFile, "ic");
+                        LoadEpidemic(epidemicFile);
                     }
                 }
                 else if(result == JOptionPane.NO_OPTION){
-                    List<Node> startingNodes = StartingNodesDialog();
+                    boolean nodesSelected = false;
+                    List<Node> startingNodes = new ArrayList<>();
+                    
+                    do{
+                        startingNodes = StartingNodesDialog();
+
+                        if(startingNodes == null) return;
+
+                        if(startingNodes.isEmpty()){
+                            int result2 = JOptionPane.showOptionDialog(this, "You have to select at least 1 node to start the Algorithm", "No Nodes Selected", 
+                                JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE, null, null, null);
+
+                            if(result2 != JOptionPane.OK_OPTION) return;
+                        }
+                        else{
+                            nodesSelected = true;
+                        }
+                    }while(!nodesSelected);
+                    
                     List<Double> fullStartingNodes = new ArrayList<>();
-                
-                    if(startingNodes == null || startingNodes.isEmpty()) return;
 
                     List<Double> edgeThresholds = EdgeThresholdsDialog();
                     
-                    for(int i=0; i<startingNodes.size(); i++){
-                        for(int j=0; i<previewPanel.nodes.size(); j++){
-                            if(previewPanel.nodes.get(j).equals(startingNodes.get(i))){
-                                fullStartingNodes.add(j, -1.0);
-                            }
-
+                    for(int i=0; i<previewPanel.nodes.size(); i++) {
+                        if(startingNodes.contains(previewPanel.nodes.get(i))) {
+                            fullStartingNodes.add(-1.0);
                         }
+                        else {
+                            fullStartingNodes.add(0.0);
+                        }
+                    }
+                    
+                    String epidemincSave = ShowEpidemicSaveDialog();
+                    
+                    if(!epidemincSave.equals("discard")){
+                        SaveEpidemic(epidemincSave, "ic", fullStartingNodes, edgeThresholds);
                     }
                 }
                 else{
@@ -700,7 +747,7 @@ public class MainFrame extends JFrame{
     }
     
     
-    private void LoadEpidemic(String file, String epidemic){
+    private void LoadEpidemic(String file){
         
         Scanner inputFile;
         StringTokenizer current_line;
@@ -807,6 +854,31 @@ public class MainFrame extends JFrame{
     }
     
     
+    private String ShowEpidemicSaveDialog(){
+        
+        int result = JOptionPane.showOptionDialog(this, "Would you like to save the selected input values for future use?", "Save Input Values",
+							JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE,
+							null, null, null);
+        
+        if(result != JOptionPane.OK_OPTION) {
+            return "discard";
+        }
+        
+        final JFileChooser fc = new JFileChooser();
+        fc.setAcceptAllFileFilterUsed(false);
+        fc.setFileFilter(new FileNameExtensionFilter("Epidemic Files", "ept"));
+        int returnVal = fc.showSaveDialog(this);
+
+
+        if (returnVal == JFileChooser.APPROVE_OPTION){
+            String epidemicSave;
+            return epidemicSave = fc.getSelectedFile().toString() + ".ept";
+        }
+        
+        return "discard";
+    }
+    
+    
     public boolean ShowSaveDialog(){
         
         final JFileChooser fc = new JFileChooser();
@@ -819,6 +891,46 @@ public class MainFrame extends JFrame{
             previewPanel.SaveGraph(MainFrame.lastLoadedFile);
         }
         return returnVal == JFileChooser.APPROVE_OPTION;
+    }
+    
+    
+    private void SaveEpidemic(String file, String epidemic, List<Double> nodesThresholds, List<Double> edgesThresholds){
+        
+        int numOfNodes = nodesThresholds.size();
+        int numOfEdges = edgesThresholds.size();
+        
+        PrintStream myOutput = null;
+        try {
+            myOutput = new PrintStream(new FileOutputStream(file));
+        }
+        catch (Exception ex) {
+                System.out.println("No output file written");
+                return;
+        }
+        
+        if(epidemic.equals("lt")){
+            myOutput.print("#Linear Threshold input\n\n");
+            myOutput.print("#List of Nodes, with their Thresholds and Edges Thresholds\n\n");
+        }
+        else{
+            myOutput.print("#Independent Cascade input\n\n");
+            myOutput.print("#List of Nodes and Edges Thresholds\n\n");
+        }
+        
+        for(int i=0; i<numOfNodes; i++){
+            myOutput.print(previewPanel.nodes.get(i).label + "\t");
+            myOutput.print(nodesThresholds.get(i) + "\t");
+            
+            for(int j=0; j<numOfEdges; j++){
+                if(previewPanel.edges.get(j).node1.label == previewPanel.nodes.get(i).label){
+                    myOutput.print(previewPanel.edges.get(j).node2.label);
+                    myOutput.print("," + edgesThresholds.get(j));
+                    myOutput.print("\t");
+                }
+            }
+            myOutput.print("\n");
+        }
+        myOutput.close();
     }
     
     
