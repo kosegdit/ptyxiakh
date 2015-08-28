@@ -1,12 +1,8 @@
 package ptyxiakh;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.GridLayout;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -18,14 +14,12 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.StringTokenizer;
-import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
@@ -44,8 +38,6 @@ import javax.swing.JSpinner;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
-import javax.swing.JTextArea;
-import javax.swing.ScrollPaneLayout;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
@@ -67,9 +59,9 @@ public class MainFrame extends JFrame{
     boolean discard;
     boolean normalized;
     boolean resultsPaneUse;
-    JScrollPane historyScrollPane;
+    //JScrollPane historyScrollPane;
     JScrollPane resultsScrollPane;
-    JTabbedPane bottomRightTabbedPane;
+    //JTabbedPane bottomRightTabbedPane;
     static String lastLoadedFile;
     JLabel graphTitle;
     JLabel currentAlgorithm;
@@ -112,9 +104,9 @@ public class MainFrame extends JFrame{
         previewScroll = new JScrollPane();
         previewPanel = new Graph(this);
         infoPanel = new JPanel();
-        historyScrollPane = new JScrollPane();
+        //historyScrollPane = new JScrollPane();
         resultsScrollPane = new JScrollPane();
-        bottomRightTabbedPane = new JTabbedPane();
+        //bottomRightTabbedPane = new JTabbedPane();
         graphTitle = new JLabel("Graph:");
         directedLabel = new JLabel("Directed:");
         directedCheckLabel = new JLabel("\u00D7");
@@ -154,7 +146,8 @@ public class MainFrame extends JFrame{
         RightSplitPane.setTopComponent(resultsScrollPane);
         
         // Creates and sets the infoPanel
-        infoPanel.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        infoPanel.setBorder(javax.swing.BorderFactory.
+                createTitledBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED), "Informations"));
         
         
         
@@ -212,14 +205,14 @@ public class MainFrame extends JFrame{
                 .addContainerGap(53, Short.MAX_VALUE))
         );
 
-        bottomRightTabbedPane.addTab("Info", infoPanel);
+        //bottomRightTabbedPane.addTab("Info", infoPanel);
         
         
         // Creates and sets the historyScrollPane
-        historyScrollPane.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
-        bottomRightTabbedPane.addTab("History", historyScrollPane);
+        //historyScrollPane.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        //bottomRightTabbedPane.addTab("History", historyScrollPane);
 
-        RightSplitPane.setRightComponent(bottomRightTabbedPane);
+        RightSplitPane.setRightComponent(infoPanel);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -623,7 +616,10 @@ public class MainFrame extends JFrame{
 
                     if (returnVal == JFileChooser.APPROVE_OPTION){
                         String epidemicFile = fc.getSelectedFile().toString();
-                        LoadEpidemic(epidemicFile);
+                        LoadEpidemic(epidemicFile, "lt");
+                        
+                        resultsPaneUse = true;
+                        exportResultsMenuItem.setEnabled(true);
                     }
                 }
                 else if(result == JOptionPane.NO_OPTION){
@@ -654,11 +650,20 @@ public class MainFrame extends JFrame{
                     
                     if(edgeThresholds == null) return;
                     
-                    String epidemincSave = ShowEpidemicSaveDialog();
+                    String epidemicSave = ShowEpidemicSaveDialog();
                     
-                    if(!epidemincSave.equals("discard")){
-                        SaveEpidemic(epidemincSave, "lt", nodeThresholds, edgeThresholds);
+                    if(!epidemicSave.equals("discard")){
+                        SaveEpidemic(epidemicSave, "lt", nodeThresholds, edgeThresholds);
                     }
+                    
+                    if(resultsPaneUse) previewPanel.resetNodesColor();
+                    
+                    LinearThresholdEpidemic lte = new LinearThresholdEpidemic(this);
+                    lte.CalculateLinearThreshold(nodeThresholds, edgeThresholds);
+                    lte.DisplayLinearThreshold();
+                    
+                    resultsPaneUse = true;
+                    exportResultsMenuItem.setEnabled(true);
                 }
                 else{
                     return;
@@ -684,7 +689,7 @@ public class MainFrame extends JFrame{
 
                     if (returnVal == JFileChooser.APPROVE_OPTION){
                         String epidemicFile = fc.getSelectedFile().toString();
-                        LoadEpidemic(epidemicFile);
+                        LoadEpidemic(epidemicFile, "ic");
                     }
                 }
                 else if(result == JOptionPane.NO_OPTION){
@@ -720,10 +725,10 @@ public class MainFrame extends JFrame{
                         }
                     }
                     
-                    String epidemincSave = ShowEpidemicSaveDialog();
+                    String epidemicSave = ShowEpidemicSaveDialog();
                     
-                    if(!epidemincSave.equals("discard")){
-                        SaveEpidemic(epidemincSave, "ic", fullStartingNodes, edgeThresholds);
+                    if(!epidemicSave.equals("discard")){
+                        SaveEpidemic(epidemicSave, "ic", fullStartingNodes, edgeThresholds);
                     }
                 }
                 else{
@@ -747,7 +752,7 @@ public class MainFrame extends JFrame{
     }
     
     
-    private void LoadEpidemic(String file){
+    private void LoadEpidemic(String file, String epidemic){
         
         Scanner inputFile;
         StringTokenizer current_line;
@@ -810,15 +815,23 @@ public class MainFrame extends JFrame{
             for(int i=0; i<numOfEdges; i++){
                 edgeThreshold.add(edgeThresholdArray[i]);
             }
-
+            
+            if(resultsPaneUse) previewPanel.resetNodesColor();
+            
+            if(epidemic.equals("lt")){
+                LinearThresholdEpidemic lte = new LinearThresholdEpidemic(this);
+                lte.CalculateLinearThreshold(nodeThreshold, edgeThreshold);
+                lte.DisplayLinearThreshold();
+            }
+            
             inputFile.close();
-        } 
+        }
         catch (FileNotFoundException ex) {
-            System.err.println(ex);
+            JOptionPane.showMessageDialog (this, "File Not Found", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
         catch (Exception ex) {
-            JOptionPane.showMessageDialog (this, "Invalid Input File Format", "Error Message", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog (this, "Invalid Input File Format", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
     }
