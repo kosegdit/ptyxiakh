@@ -36,7 +36,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
 import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.border.Border;
@@ -617,9 +616,6 @@ public class MainFrame extends JFrame{
                     if (returnVal == JFileChooser.APPROVE_OPTION){
                         String epidemicFile = fc.getSelectedFile().toString();
                         LoadEpidemic(epidemicFile, "lt");
-                        
-                        resultsPaneUse = true;
-                        exportResultsMenuItem.setEnabled(true);
                     }
                 }
                 else if(result == JOptionPane.NO_OPTION){
@@ -730,6 +726,15 @@ public class MainFrame extends JFrame{
                     if(!epidemicSave.equals("discard")){
                         SaveEpidemic(epidemicSave, "ic", fullStartingNodes, edgeThresholds);
                     }
+                    
+                    if(resultsPaneUse) previewPanel.resetNodesColor();
+                    
+                    IndependentCascadeEpidemic ic = new IndependentCascadeEpidemic(this);
+                    ic.CalculateIndependentCascde(fullStartingNodes, edgeThresholds);
+                    ic.DisplayIndependentCascade();
+                    
+                    resultsPaneUse = true;
+                    exportResultsMenuItem.setEnabled(true);
                 }
                 else{
                     return;
@@ -775,31 +780,35 @@ public class MainFrame extends JFrame{
                     String s = current_line.nextToken();
                     String nextToken;
 
-                    if(s.startsWith("#")) {
-                        continue;
-                    }
-                    else{
-                        int currentNodeLabel = Integer.valueOf(s);
-                        int i;
-                                
-                        for(i=0; i<numOfNodes; i++){
-                            if(previewPanel.nodes.get(i).label == currentNodeLabel){
-                                nextToken = current_line.nextToken();
-                                nodeThresholdArray[i] = Double.valueOf(nextToken);
+                    if(s.startsWith("#")) continue;
+                    
+                    int currentNodeLabel = Integer.valueOf(s);
+                    Node temp_node = previewPanel.nodes.stream().filter(x -> x.label == currentNodeLabel).findFirst().get();
+                    int i = previewPanel.nodes.indexOf(temp_node);
+                    
+                    nextToken = current_line.nextToken();
+                    nodeThresholdArray[i] = Double.valueOf(nextToken);
+//                    for(i=0; i<numOfNodes; i++){
+//                        if(previewPanel.nodes.get(i).label == currentNodeLabel){
+//                            nextToken = current_line.nextToken();
+//                            nodeThresholdArray[i] = Double.valueOf(nextToken);
+//
+//                            break;
+//                        }
+//                    }
+                    
+                    while(current_line.hasMoreTokens()){
+                        nextToken = current_line.nextToken();
+                        String[] result = nextToken.split(",");
 
-                                
-                                break;
+                        int currentNeighborLabel = Integer.valueOf(result[0]);
+
+                        for(int j=0; j<numOfEdges; j++){
+                            if(previewPanel.edges.get(j).node1.label == previewPanel.nodes.get(i).label && previewPanel.edges.get(j).node2.label == currentNeighborLabel){
+                                edgeThresholdArray[j] = Double.valueOf(result[1]);
                             }
-                        }
-
-                        while(current_line.hasMoreTokens()){
-                            nextToken = current_line.nextToken();
-                            String[] result = nextToken.split(",");
-                            
-                            int currentNeighborLabel = Integer.valueOf(result[0]);
-                            
-                            for(int j=0; j<numOfEdges; j++){
-                                if(previewPanel.edges.get(j).node1.label == i && previewPanel.edges.get(j).node2.label == currentNeighborLabel){
+                            if(!previewPanel.graphIsDirected()) {
+                                if(previewPanel.edges.get(i).node1.label == previewPanel.nodes.get(j).label && previewPanel.edges.get(i).node2.label == currentNeighborLabel){
                                     edgeThresholdArray[j] = Double.valueOf(result[1]);
                                 }
                             }
@@ -823,6 +832,11 @@ public class MainFrame extends JFrame{
                 lte.CalculateLinearThreshold(nodeThreshold, edgeThreshold);
                 lte.DisplayLinearThreshold();
             }
+            else{
+                IndependentCascadeEpidemic ic = new IndependentCascadeEpidemic(this);
+                ic.CalculateIndependentCascde(nodeThreshold, edgeThreshold);
+                ic.DisplayIndependentCascade();
+            }
             
             inputFile.close();
         }
@@ -834,6 +848,9 @@ public class MainFrame extends JFrame{
             JOptionPane.showMessageDialog (this, "Invalid Input File Format", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
+        
+        resultsPaneUse = true;
+        exportResultsMenuItem.setEnabled(true);
     }
     
     
