@@ -75,7 +75,7 @@ public class EdgeBetweennessCentrality {
         
         resultsTable = new JTable(results, column);
         
-        parent.UpdateAlgorithmName("Results: Edge Betweenness Centrality");
+        parent.UpdateAlgorithmName("Results: Centralities -> Edge Betweenness");
         DisplayCentralities.DisplayResults(resultsTable, parent);
     }
 }

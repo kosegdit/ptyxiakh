@@ -161,7 +161,7 @@ public class MpciCentrality {
         Object[] column = {"Node", m + "-Pci"};
         resultsTable = new JTable(results, column);
         
-        parent.UpdateAlgorithmName("Results: μ-PCI Centrality");
+        parent.UpdateAlgorithmName("Results: Centralities -> μ-PCI");
         DisplayCentralities.DisplayResults(resultsTable, parent);
     }
 }

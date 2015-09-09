@@ -83,7 +83,7 @@ public class BetweennessCentrality {
             resultsTable = new JTable(results, column);
         }
         
-        parent.UpdateAlgorithmName("Results: Betweenness Centrality");
+        parent.UpdateAlgorithmName("Results: Centralities -> Betweenness");
         DisplayCentralities.DisplayResults(resultsTable, parent);
     }
 }

@@ -159,7 +159,7 @@ public class Graph extends JPanel {
         
         for(int i=0; i<nodes.size(); i++){
                 nodes.get(i).setNodeColor(Color.BLUE);
-            }
+        }
     }
     
     

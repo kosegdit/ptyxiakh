@@ -156,7 +156,7 @@ public class PageRankCentrality {
         
         resultsTable = new JTable(results, column);
         
-        parent.UpdateAlgorithmName("Results: Page Rank Centrality");
+        parent.UpdateAlgorithmName("Results: Centralities -> Page Rank");
         DisplayCentralities.DisplayResults(resultsTable, parent);
     }
 }

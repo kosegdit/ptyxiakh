@@ -209,7 +209,7 @@ public class CiBCommunity {
         
         resultsTable = new JTable(results, column);
         
-        parent.UpdateAlgorithmName("Results: CiBC Communities");
+        parent.UpdateAlgorithmName("Results: Communities -> CiBC");
         DisplayCentralities.DisplayResults(resultsTable, parent);
     }
 }
