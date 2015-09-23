@@ -80,7 +80,7 @@ public class MainFrame extends JFrame{
         initComponents();
         setVisible(true);
         setSize(1000, 700);
-        setTitle("MyProgram");
+        setTitle("AviNet");
         setLocation(300, 300);
         setResizable(true);
         
@@ -260,8 +260,6 @@ public class MainFrame extends JFrame{
             randomGraphMenuItem.setToolTipText("Creates a random graph using the Erdős–Rényi model");
         JMenuItem smallWorldGraphMenuItem = new JMenuItem("Small world graph");
             smallWorldGraphMenuItem.setToolTipText("Six degrees of seperation");
-        JMenuItem scaleFreeGraph = new JMenuItem("Scale free graph");
-            scaleFreeGraph.setToolTipText("Creates a random graph using the Albert-Barabasi model");
         JMenuItem cpm = new JMenuItem("CPM");
             cpm.setToolTipText("Clique Percolation Method");
         JMenuItem ebcMenuItem = new JMenuItem("EBC");
@@ -285,13 +283,12 @@ public class MainFrame extends JFrame{
                     NewSmallWorldGraph();
                 });
                 generate.add(smallWorldGraphMenuItem);
-                generate.add(scaleFreeGraph);
             file.addSeparator();
             
             load.addActionListener((ActionEvent e) -> {
                 final JFileChooser fc = new JFileChooser();
                 fc.setAcceptAllFileFilterUsed(false);
-                fc.setFileFilter(new FileNameExtensionFilter("MyProgram files", "cnt"));
+                fc.setFileFilter(new FileNameExtensionFilter("AviNet files", "cnt"));
                 int returnVal = fc.showOpenDialog(MainFrame.this);
                 
                 
@@ -440,8 +437,6 @@ public class MainFrame extends JFrame{
             μpciMenuItem.addActionListener((ActionEvent e) -> {
                 if(previewPanel.graphInUse){
                     if(!previewPanel.graphIsDirected() && !previewPanel.graphIsWeighted()){
-                        if(resultsPaneUse) previewPanel.resetNodesColor();
-                        
                         SpinnerNumberModel limits = new SpinnerNumberModel(1, 1, 3, 1);
                         JSpinner mFactor = new JSpinner(limits);
 
@@ -456,6 +451,8 @@ public class MainFrame extends JFrame{
                         }
 
                         int m = (int)mFactor.getValue();
+                        
+                        if(resultsPaneUse) previewPanel.resetNodesColor();
 
                         DegreeCentrality degree = new DegreeCentrality(this, false, false, false);
                         List<Double> graphDegrees = degree.UndirectedUnweightedDegree(previewPanel.nodes, previewPanel.edges);
@@ -500,6 +497,8 @@ public class MainFrame extends JFrame{
             pageRankMenuItem.addActionListener((ActionEvent e) -> {
                 if(previewPanel.graphInUse){
                     if(previewPanel.graphIsDirected() && !previewPanel.graphIsWeighted()){
+                        if(resultsPaneUse) previewPanel.resetNodesColor();
+                        
                         PageRankCentrality pagerank = new PageRankCentrality(this);
                         pagerank.CalculatePageRank(previewPanel.nodes, previewPanel.edges);
                         pagerank.NodesRank(previewPanel.nodes);
@@ -536,7 +535,7 @@ public class MainFrame extends JFrame{
             cibcMenuItem.addActionListener((ActionEvent e) -> {
                 if(previewPanel.graphInUse){
                     if(previewPanel.graphIsDirected() && previewPanel.graphIsWeighted()){
-                        String message = "Edges directions and weights will only affect the \nBetweenness Centrality computation and not the Clique Merging!";
+                        String message = "Edges directions and weights will only affect the \nBetweenness Centrality computation but not the Clique Merging!";
                         String title = "Current Graph is Directed and Weighted";
                         
                         int result = JOptionPane.showOptionDialog(this, message, title, JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE, null, null, null);
@@ -546,7 +545,7 @@ public class MainFrame extends JFrame{
                         }
                     }
                     else if(previewPanel.graphIsDirected()){
-                        String message = "Edges directions will only affect the Betweenness Centrality \ncomputation and not the Clique Merging!";
+                        String message = "Edges directions will only affect the Betweenness Centrality \ncomputation but not the Clique Merging!";
                         String title = "Current Graph is Directed";
                         
                         int result = JOptionPane.showOptionDialog(this, message, title, JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE, null, null, null);
@@ -603,7 +602,7 @@ public class MainFrame extends JFrame{
                 selectedNodes = 0;
                 Object[] choices = {"Load File..", "Step by Step..", "Cancel"};
                 Object defaultChoice = choices[0];
-                int result = JOptionPane.showOptionDialog(this, "Would you like to load the inputs by loading a file, or step by step?", "Linear Threshold Inputs", 
+                int result = JOptionPane.showOptionDialog(this, "Would you rather load the inputs by loading a file, or step by step?", "Linear Threshold Inputs", 
                         JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, choices, defaultChoice);
                 
                 if(result == JOptionPane.YES_OPTION) {
@@ -673,7 +672,7 @@ public class MainFrame extends JFrame{
                 
                 Object[] choices = {"Load File..", "Step by Step..", "Cancel"};
                 Object defaultChoice = choices[0];
-                int result = JOptionPane.showOptionDialog(this, "Would you like to load the inputs by loading a file, or step by step?", "Independent Cascade Inputs", 
+                int result = JOptionPane.showOptionDialog(this, "Would you rather load the inputs by loading a file, or step by step?", "Independent Cascade Inputs", 
                         JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, choices, defaultChoice);
                 
                 if(result == JOptionPane.YES_OPTION) {
@@ -748,7 +747,7 @@ public class MainFrame extends JFrame{
                         "Created by: Segditsas Konstantinos\n" + "ksegditsas@yahoo.gr\n\n" +
                         "Advisor Professor: Katsaros Dimitrios\n" + "dkatsar@inf.uth.gr\n\n" + "ver 1.0\n\n" + 
                         "----------------------------------------\n"
-                        , "About MyProgram", JOptionPane.INFORMATION_MESSAGE);
+                        , "About AviNet", JOptionPane.INFORMATION_MESSAGE);
             });
             about.add(aboutItem);
             
@@ -913,7 +912,7 @@ public class MainFrame extends JFrame{
         
         final JFileChooser fc = new JFileChooser();
         fc.setAcceptAllFileFilterUsed(false);
-        fc.setFileFilter(new FileNameExtensionFilter("MyProgram files", "cnt"));
+        fc.setFileFilter(new FileNameExtensionFilter("AviNet files", "cnt"));
         int returnVal = fc.showSaveDialog(this);
         
         if (returnVal == JFileChooser.APPROVE_OPTION){
@@ -1036,7 +1035,7 @@ public class MainFrame extends JFrame{
         });
         
         // An array of objects is created to carry all the information for the displayed window
-        Object[] fullMessage = {"Enter number of nodes:", numOfNodesSpinner, "\n\n", densitySliderLabel, densitySlider};
+        Object[] fullMessage = {"Insert number of nodes:", numOfNodesSpinner, "\n\n", densitySliderLabel, densitySlider};
 
         int result = JOptionPane.showOptionDialog(this, fullMessage, "Random Graph Properties",
 							JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE,
@@ -1068,7 +1067,7 @@ public class MainFrame extends JFrame{
         ((NumberFormatter) spinnerFilter.getFormatter()).setAllowsInvalid(false);
         
         int startValue = 50;
-        final JLabel rewireSliderLabel = new JLabel("Possibility to maintain starting edges: " + startValue + "%");
+        final JLabel rewireSliderLabel = new JLabel("Possibility to maintain initial edges: " + startValue + "%");
         
         // Creates the Density Slider, right above is the label for the Slider
         JSlider rewireSlider = new JSlider(JSlider.HORIZONTAL, 0, 100, startValue);
@@ -1079,10 +1078,10 @@ public class MainFrame extends JFrame{
         
         // Change listener for the Density Slider to catch the real time changes
         rewireSlider.addChangeListener((ChangeEvent e) -> {
-            rewireSliderLabel.setText("Possibility to maintain starting edges: " + rewireSlider.getValue() + "%");
+            rewireSliderLabel.setText("Possibility to maintain initial edges: " + rewireSlider.getValue() + "%");
         });
         
-        Object[] getNodes = {"Enter number of nodes:", numOfNodesSpinner, "\n\n", rewireSliderLabel, rewireSlider};
+        Object[] getNodes = {"Insert number of nodes:", numOfNodesSpinner, "\n\n", rewireSliderLabel, rewireSlider};
         
         int result = JOptionPane.showOptionDialog(this, getNodes, "Small World Graph Properties 1/2",
 							JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE,
@@ -1091,10 +1090,6 @@ public class MainFrame extends JFrame{
         if(result != JOptionPane.OK_OPTION) {
             return;
         }
-        
-        // If there is already a graph in use, asks the user to save his progress
-        discard = previewPanel.ClearGraphIfInUse();
-        if(discard) return;
         
         int numberOfNodes = (int)numOfNodesSpinner.getValue();
         int p = rewireSlider.getValue();
@@ -1111,12 +1106,16 @@ public class MainFrame extends JFrame{
             zValues[i] = i*2;
         }
         
-        Object s = JOptionPane.showInputDialog(this, "Starting amount of neighbors for each Node:\n", "Small World Graph Properties 2/2", 
+        Object s = JOptionPane.showInputDialog(this, "Number of neighbours for each Node:\n", "Small World Graph Properties 2/2", 
                                                     JOptionPane.PLAIN_MESSAGE, null, zValues, 0);
         
         if(s == null) return;
         
         int Z = (int) s;
+        
+        // If there is already a graph in use, asks the user to save his progress
+        discard = previewPanel.ClearGraphIfInUse();
+        if(discard) return;
         
         previewPanel.SmallWorldGraph(numberOfNodes, p, Z);
     }
@@ -1291,7 +1290,7 @@ public class MainFrame extends JFrame{
             }
         });
 
-        Object[] firstMessage = {"How would you like to select the first Infected Nodes?\n\n", panel};
+        Object[] firstMessage = {"How would you rather select the initially Infected Nodes?\n\n", panel};
 
         int result = JOptionPane.showOptionDialog(this, firstMessage, "Starting Nodes", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
 
@@ -1506,7 +1505,7 @@ public class MainFrame extends JFrame{
             }
         });
 
-        Object[] firstMessage = {"Which way would you like to insert the Nodes Thresholds?\n\n", panel};
+        Object[] firstMessage = {"How would you rather insert the Nodes Thresholds?\n\n", panel};
 
         int result = JOptionPane.showOptionDialog(this, firstMessage, "Nodes Thresholds", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
 
@@ -1651,7 +1650,7 @@ public class MainFrame extends JFrame{
             }
         });
 
-        Object[] firstMessage = {"How would you like to insert the polution Possibility of the Edges?\n\n", panel};
+        Object[] firstMessage = {"How would you rather insert the polution Possibility of the Edges?\n\n", panel};
 
         int result = JOptionPane.showOptionDialog(this, firstMessage, "Edges polution Possibility", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
 

@@ -169,7 +169,7 @@ public class Graph extends JPanel {
         int clearDialogResult;
                 
         if(draft){
-            clearDialogResult = JOptionPane.showConfirmDialog(parent, "Would you like to save the current Graph?", "MyProgram",
+            clearDialogResult = JOptionPane.showConfirmDialog(parent, "Would you like to save the current Graph?", "AviNet",
                                                                 JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
         }
         else{
@@ -218,7 +218,7 @@ public class Graph extends JPanel {
     
     public void LoadGraph(String file){
         
-        Scanner inputFile;
+        Scanner inputFile = null;
         StringTokenizer current_line;
         List<String> labels = new ArrayList<>();
         List<String> locations = new ArrayList<>();
@@ -286,17 +286,34 @@ public class Graph extends JPanel {
                 parent.UpdateInfoPanel("");
                 this.repaint();
             }
-
-            inputFile.close();
         } 
         catch (FileNotFoundException ex) {
+            graphInUse = false;
+            clearMenuItem.setEnabled(graphInUse);
+            nodesCounter = 0;
+            directedGraphMenuItem.setState(false);
+            weightedGraphMenuItem.setState(false);
+            lastLabel = 0;
             System.err.println(ex);
+            JOptionPane.showMessageDialog (parent, "File does not exist", "Error Message", JOptionPane.ERROR_MESSAGE);
             return;
         }
         catch (Exception ex) {
+            graphInUse = false;
+            clearMenuItem.setEnabled(graphInUse);
+            nodesCounter = 0;
+            directedGraphMenuItem.setState(false);
+            weightedGraphMenuItem.setState(false);
+            lastLabel = 0;
+            System.err.println(ex);
             JOptionPane.showMessageDialog (parent, "Invalid Input File Format", "Error Message", JOptionPane.ERROR_MESSAGE);
             return;
         }
+        finally{
+            if(inputFile == null) return;
+            inputFile.close();
+        }
+        
     }
     
     public void SaveGraph(String file){

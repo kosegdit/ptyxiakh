@@ -54,7 +54,7 @@ public class Node extends JComponent  {
     
         this.label = label;
         
-        newEdgeMenuItem.setToolTipText("Choose the node you want to connect");
+        newEdgeMenuItem.setToolTipText("Select the node you want to connect");
         newEdgeMenuItem.addActionListener(new ActionListener() {
 
             @Override
@@ -64,7 +64,7 @@ public class Node extends JComponent  {
         });
         NodePopup.add(newEdgeMenuItem);
         
-        deleteEdgeMenuItem.setToolTipText("Choose the node you want to connect");
+        deleteEdgeMenuItem.setToolTipText("Select the node you want to connect");
         deleteEdgeMenuItem.addActionListener(new ActionListener() {
 
             @Override
@@ -100,7 +100,7 @@ public class Node extends JComponent  {
                             
                             ((NumberFormatter) editor.getTextField().getFormatter()).setAllowsInvalid(false);
 
-                            Object[] fullMessage = {"Enter desired weight:", edgeWeightSpinner, "\n"};
+                            Object[] fullMessage = {"Insert desired weight:", edgeWeightSpinner, "\n"};
 
                             int result = JOptionPane.showOptionDialog(getParent().getParent(), fullMessage, "Current Edge Weight",
                                                                             JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE,
