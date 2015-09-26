@@ -11,7 +11,7 @@ import javax.swing.JTable;
 public class PageRankCentrality {
     
     MainFrame parent;
-    double alpha = 0.9;
+    double alpha = 0.85;
     double epsilon = 0.00000001;
     int[] danglingNodes, e;
     double[] pageRank, pageRankCopy;

@@ -226,8 +226,20 @@ public class DegreeCentrality {
 
                     for(int i=0; i<numOfNodes; i++){
                         results[i][0] = parent.previewPanel.nodes.get(i).label;
-                        results[i][1] = (double) Math.round(inDegree.get(i)*1000)/1000;
-                        results[i][2] = (double) Math.round(outDegree.get(i)*1000)/1000;
+                        
+                        if(inDegree.get(i) % 1 == 0){
+                            results[i][1] = Math.round(inDegree.get(i));
+                        }
+                        else{
+                            results[i][1] = (double) Math.round(inDegree.get(i)*1000)/1000;
+                        }
+                        
+                        if(outDegree.get(i) % 1 == 0){
+                            results[i][2] = Math.round(outDegree.get(i));
+                        }
+                        else{
+                            results[i][2] = (double) Math.round(outDegree.get(i)*1000)/1000;
+                        }
                     }
                 }
                 else{
@@ -279,7 +291,12 @@ public class DegreeCentrality {
 
                     for(int i=0; i<numOfNodes; i++){
                         results[i][0] = parent.previewPanel.nodes.get(i).label;
-                        results[i][1] = (double) Math.round(undirectedWeightedDegree.get(i)*1000)/1000;
+                        if(undirectedWeightedDegree.get(i) % 1 == 0){
+                            results[i][1] = Math.round(undirectedWeightedDegree.get(i));
+                        }
+                        else{
+                            results[i][1] = (double) Math.round(undirectedWeightedDegree.get(i)*1000)/1000;
+                        }
                     }
                 }
                 else{
@@ -289,8 +306,19 @@ public class DegreeCentrality {
 
                     for(int i=0; i<numOfNodes; i++){
                         results[i][0] = parent.previewPanel.nodes.get(i).label;
-                        results[i][1] = (double) Math.round(undirectedWeightedDegree.get(i)*1000)/1000;
-                        results[i][2] = (double) Math.round(edgeNormalizedDegree.get(i)*1000)/1000;
+                        if(undirectedWeightedDegree.get(i) % 1 == 0){
+                            results[i][1] = Math.round(undirectedWeightedDegree.get(i));
+                        }
+                        else{
+                            results[i][1] = (double) Math.round(undirectedWeightedDegree.get(i)*1000)/1000;
+                        }
+                        
+                        if(edgeNormalizedDegree.get(i) % 1 == 0){
+                            results[i][2] = Math.round(edgeNormalizedDegree.get(i));
+                        }
+                        else{
+                            results[i][2] = (double) Math.round(edgeNormalizedDegree.get(i)*1000)/1000;
+                        }
                     }
                 }
             }

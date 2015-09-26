@@ -515,7 +515,7 @@ public class MainFrame extends JFrame{
             centralities.add(pageRankMenuItem);
             
         MainMenuBar.add(communities);
-            communities.add(cpm);
+            //communities.add(cpm);
             
             ebcMenuItem.addActionListener((ActionEvent e) -> {
                 if(previewPanel.graphInUse){
@@ -535,7 +535,7 @@ public class MainFrame extends JFrame{
             cibcMenuItem.addActionListener((ActionEvent e) -> {
                 if(previewPanel.graphInUse){
                     if(previewPanel.graphIsDirected() && previewPanel.graphIsWeighted()){
-                        String message = "Edges directions and weights will only affect the \nBetweenness Centrality computation but not the Clique Merging!";
+                        String message = "           Edges directions and weights will only affect the \nBetweenness Centrality computation but not the Clique Merging!";
                         String title = "Current Graph is Directed and Weighted";
                         
                         int result = JOptionPane.showOptionDialog(this, message, title, JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE, null, null, null);
@@ -545,7 +545,7 @@ public class MainFrame extends JFrame{
                         }
                     }
                     else if(previewPanel.graphIsDirected()){
-                        String message = "Edges directions will only affect the Betweenness Centrality \ncomputation but not the Clique Merging!";
+                        String message = "Edges directions will only affect the Betweenness Centrality \n           computation but not the Clique Merging!";
                         String title = "Current Graph is Directed";
                         
                         int result = JOptionPane.showOptionDialog(this, message, title, JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE, null, null, null);
@@ -555,7 +555,7 @@ public class MainFrame extends JFrame{
                         }
                     }
                     else if(previewPanel.graphIsWeighted()){
-                        String message = "Edges weights will only affect the Betweenness Centrality \ncomputation and not the Clique Merging!";
+                        String message = "Edges weights will only affect the Betweenness Centrality \n           computation and not the Clique Merging!";
                         String title = "Current Graph is Weighted";
                         
                         int result = JOptionPane.showOptionDialog(this, message, title, JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE, null, null, null);
