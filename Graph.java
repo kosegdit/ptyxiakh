@@ -1,3 +1,15 @@
+/*
+ * /*
+ * *
+ * * This is a class file for the program AviNet
+ * *
+ * * Copyright (c) Segditsas Konstantinos, 2015
+ * * Email: kosegdit@gmail.com
+ * *
+ * * All rights reserved
+ * *
+ */
+
 package ptyxiakh;
 
 import java.awt.Color;
@@ -726,15 +738,6 @@ public class Graph extends JPanel {
         parent.UpdateInfoPanel("Small World Graph");
         parent.UpdateAlgorithmName("");
     }    
-    
-    
-    public void printListNodes(){
-        
-        for(int i=0; i<nodes.size(); i++){
-            System.out.println("" + nodes.size() + " nodes");
-            //System.out.println("Node: " + nodes.get(i).label + " width: " + nodes.get(i).getWidth() + " heigth: " + nodes.get(i).getHeight());
-        }
-    }
     
     
     // Returns the Circle coordinates for the nodes

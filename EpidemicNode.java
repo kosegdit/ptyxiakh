@@ -1,8 +1,15 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * /*
+ * *
+ * * This is a class file for the program AviNet
+ * *
+ * * Copyright (c) Segditsas Konstantinos, 2015
+ * * Email: kosegdit@gmail.com
+ * *
+ * * All rights reserved
+ * *
  */
+
 package ptyxiakh;
 
 /**

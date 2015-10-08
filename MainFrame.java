@@ -1,3 +1,15 @@
+/*
+ * /*
+ * *
+ * * This is a class file for the program AviNet
+ * *
+ * * Copyright (c) Segditsas Konstantinos, 2015
+ * * Email: kosegdit@gmail.com
+ * *
+ * * All rights reserved
+ * *
+ */
+
 package ptyxiakh;
 
 import java.awt.BorderLayout;
@@ -58,9 +70,7 @@ public class MainFrame extends JFrame{
     boolean discard;
     boolean normalized;
     boolean resultsPaneUse;
-    //JScrollPane historyScrollPane;
     JScrollPane resultsScrollPane;
-    //JTabbedPane bottomRightTabbedPane;
     static String lastLoadedFile;
     JLabel graphTitle;
     JLabel currentAlgorithm;
@@ -103,9 +113,7 @@ public class MainFrame extends JFrame{
         previewScroll = new JScrollPane();
         previewPanel = new Graph(this);
         infoPanel = new JPanel();
-        //historyScrollPane = new JScrollPane();
         resultsScrollPane = new JScrollPane();
-        //bottomRightTabbedPane = new JTabbedPane();
         graphTitle = new JLabel("Graph:");
         directedLabel = new JLabel("Directed:");
         directedCheckLabel = new JLabel("\u00D7");
@@ -203,13 +211,6 @@ public class MainFrame extends JFrame{
                 .addComponent(currentAlgorithm)
                 .addContainerGap(53, Short.MAX_VALUE))
         );
-
-        //bottomRightTabbedPane.addTab("Info", infoPanel);
-        
-        
-        // Creates and sets the historyScrollPane
-        //historyScrollPane.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
-        //bottomRightTabbedPane.addTab("History", historyScrollPane);
 
         RightSplitPane.setRightComponent(infoPanel);
 
@@ -599,144 +600,147 @@ public class MainFrame extends JFrame{
             
         MainMenuBar.add(epidemics);
             linearThresholdMenuItem.addActionListener((ActionEvent e) -> {
-                selectedNodes = 0;
-                Object[] choices = {"Load File..", "Step by Step..", "Cancel"};
-                Object defaultChoice = choices[0];
-                int result = JOptionPane.showOptionDialog(this, "Would you rather load the inputs by loading a file, or step by step?", "Linear Threshold Inputs", 
-                        JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, choices, defaultChoice);
-                
-                if(result == JOptionPane.YES_OPTION) {
-                    final JFileChooser fc = new JFileChooser();
-                    fc.setAcceptAllFileFilterUsed(false);
-                    fc.setFileFilter(new FileNameExtensionFilter("Epidemic Files", "ept"));
-                    int returnVal = fc.showOpenDialog(MainFrame.this);
+                if(previewPanel.graphInUse){
+                    selectedNodes = 0;
+                    Object[] choices = {"Load File..", "Step by Step..", "Cancel"};
+                    Object defaultChoice = choices[0];
+                    int result = JOptionPane.showOptionDialog(this, "Would you rather load the inputs by loading a file, or step by step?", "Linear Threshold Inputs", 
+                            JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, choices, defaultChoice);
+
+                    if(result == JOptionPane.YES_OPTION) {
+                        final JFileChooser fc = new JFileChooser();
+                        fc.setAcceptAllFileFilterUsed(false);
+                        fc.setFileFilter(new FileNameExtensionFilter("Epidemic Files", "ept"));
+                        int returnVal = fc.showOpenDialog(MainFrame.this);
 
 
-                    if (returnVal == JFileChooser.APPROVE_OPTION){
-                        String epidemicFile = fc.getSelectedFile().toString();
-                        LoadEpidemic(epidemicFile, "lt");
+                        if (returnVal == JFileChooser.APPROVE_OPTION){
+                            String epidemicFile = fc.getSelectedFile().toString();
+                            LoadEpidemic(epidemicFile, "lt");
+                        }
+                    }
+                    else if(result == JOptionPane.NO_OPTION){
+                        boolean nodesSelected = false;
+                        List<Node> startingNodes = new ArrayList<>();
+
+                        do{
+                            startingNodes = StartingNodesDialog();
+
+                            if(startingNodes == null) return;
+
+                            if(startingNodes.isEmpty()){
+                                int result2 = JOptionPane.showOptionDialog(this, "You have to select at least 1 node to start the Algorithm", "No Nodes Selected", 
+                                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE, null, null, null);
+
+                                if(result2 != JOptionPane.OK_OPTION) return;
+                            }
+                            else{
+                                nodesSelected = true;
+                            }
+                        }while(!nodesSelected);
+
+                        List<Double> nodeThresholds = NodeThresholdsDialog(startingNodes);
+
+                        if(nodeThresholds == null) return;
+
+                        List<Double> edgeThresholds = EdgeThresholdsDialog();
+
+                        if(edgeThresholds == null) return;
+
+                        String epidemicSave = ShowEpidemicSaveDialog();
+
+                        if(!epidemicSave.equals("discard")){
+                            SaveEpidemic(epidemicSave, "lt", nodeThresholds, edgeThresholds);
+                        }
+
+                        if(resultsPaneUse) previewPanel.resetNodesColor();
+
+                        LinearThresholdEpidemic lte = new LinearThresholdEpidemic(this);
+                        lte.CalculateLinearThreshold(nodeThresholds, edgeThresholds);
+                        lte.DisplayLinearThreshold();
+
+                        resultsPaneUse = true;
+                        exportResultsMenuItem.setEnabled(true);
+                    }
+                    else{
+                        return;
                     }
                 }
-                else if(result == JOptionPane.NO_OPTION){
-                    boolean nodesSelected = false;
-                    List<Node> startingNodes = new ArrayList<>();
-                    
-                    do{
-                        startingNodes = StartingNodesDialog();
-
-                        if(startingNodes == null) return;
-
-                        if(startingNodes.isEmpty()){
-                            int result2 = JOptionPane.showOptionDialog(this, "You have to select at least 1 node to start the Algorithm", "No Nodes Selected", 
-                                JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE, null, null, null);
-
-                            if(result2 != JOptionPane.OK_OPTION) return;
-                        }
-                        else{
-                            nodesSelected = true;
-                        }
-                    }while(!nodesSelected);
-                    
-                    List<Double> nodeThresholds = NodeThresholdsDialog(startingNodes);
-
-                    if(nodeThresholds == null) return;
-
-                    List<Double> edgeThresholds = EdgeThresholdsDialog();
-                    
-                    if(edgeThresholds == null) return;
-                    
-                    String epidemicSave = ShowEpidemicSaveDialog();
-                    
-                    if(!epidemicSave.equals("discard")){
-                        SaveEpidemic(epidemicSave, "lt", nodeThresholds, edgeThresholds);
-                    }
-                    
-                    if(resultsPaneUse) previewPanel.resetNodesColor();
-                    
-                    LinearThresholdEpidemic lte = new LinearThresholdEpidemic(this);
-                    lte.CalculateLinearThreshold(nodeThresholds, edgeThresholds);
-                    lte.DisplayLinearThreshold();
-                    
-                    resultsPaneUse = true;
-                    exportResultsMenuItem.setEnabled(true);
-                }
-                else{
-                    return;
-                }
-                
             });
             epidemics.add(linearThresholdMenuItem);
             
             independentCascadeMenuItem.addActionListener((ActionEvent e) -> {
-                selectedNodes = 0;
-                
-                Object[] choices = {"Load File..", "Step by Step..", "Cancel"};
-                Object defaultChoice = choices[0];
-                int result = JOptionPane.showOptionDialog(this, "Would you rather load the inputs by loading a file, or step by step?", "Independent Cascade Inputs", 
-                        JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, choices, defaultChoice);
-                
-                if(result == JOptionPane.YES_OPTION) {
-                    final JFileChooser fc = new JFileChooser();
-                    fc.setAcceptAllFileFilterUsed(false);
-                    fc.setFileFilter(new FileNameExtensionFilter("Epidemic Files", "ept"));
-                    int returnVal = fc.showOpenDialog(MainFrame.this);
+                if(previewPanel.graphInUse){
+                    selectedNodes = 0;
+
+                    Object[] choices = {"Load File..", "Step by Step..", "Cancel"};
+                    Object defaultChoice = choices[0];
+                    int result = JOptionPane.showOptionDialog(this, "Would you rather load the inputs by loading a file, or step by step?", "Independent Cascade Inputs", 
+                            JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, choices, defaultChoice);
+
+                    if(result == JOptionPane.YES_OPTION) {
+                        final JFileChooser fc = new JFileChooser();
+                        fc.setAcceptAllFileFilterUsed(false);
+                        fc.setFileFilter(new FileNameExtensionFilter("Epidemic Files", "ept"));
+                        int returnVal = fc.showOpenDialog(MainFrame.this);
 
 
-                    if (returnVal == JFileChooser.APPROVE_OPTION){
-                        String epidemicFile = fc.getSelectedFile().toString();
-                        LoadEpidemic(epidemicFile, "ic");
-                    }
-                }
-                else if(result == JOptionPane.NO_OPTION){
-                    boolean nodesSelected = false;
-                    List<Node> startingNodes = new ArrayList<>();
-                    
-                    do{
-                        startingNodes = StartingNodesDialog();
-
-                        if(startingNodes == null) return;
-
-                        if(startingNodes.isEmpty()){
-                            int result2 = JOptionPane.showOptionDialog(this, "You have to select at least 1 node to start the Algorithm", "No Nodes Selected", 
-                                JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE, null, null, null);
-
-                            if(result2 != JOptionPane.OK_OPTION) return;
-                        }
-                        else{
-                            nodesSelected = true;
-                        }
-                    }while(!nodesSelected);
-                    
-                    List<Double> fullStartingNodes = new ArrayList<>();
-
-                    List<Double> edgeThresholds = EdgeThresholdsDialog();
-                    
-                    for(int i=0; i<previewPanel.nodes.size(); i++) {
-                        if(startingNodes.contains(previewPanel.nodes.get(i))) {
-                            fullStartingNodes.add(-1.0);
-                        }
-                        else {
-                            fullStartingNodes.add(0.0);
+                        if (returnVal == JFileChooser.APPROVE_OPTION){
+                            String epidemicFile = fc.getSelectedFile().toString();
+                            LoadEpidemic(epidemicFile, "ic");
                         }
                     }
-                    
-                    String epidemicSave = ShowEpidemicSaveDialog();
-                    
-                    if(!epidemicSave.equals("discard")){
-                        SaveEpidemic(epidemicSave, "ic", fullStartingNodes, edgeThresholds);
+                    else if(result == JOptionPane.NO_OPTION){
+                        boolean nodesSelected = false;
+                        List<Node> startingNodes = new ArrayList<>();
+
+                        do{
+                            startingNodes = StartingNodesDialog();
+
+                            if(startingNodes == null) return;
+
+                            if(startingNodes.isEmpty()){
+                                int result2 = JOptionPane.showOptionDialog(this, "You have to select at least 1 node to start the Algorithm", "No Nodes Selected", 
+                                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE, null, null, null);
+
+                                if(result2 != JOptionPane.OK_OPTION) return;
+                            }
+                            else{
+                                nodesSelected = true;
+                            }
+                        }while(!nodesSelected);
+
+                        List<Double> fullStartingNodes = new ArrayList<>();
+
+                        List<Double> edgeThresholds = EdgeThresholdsDialog();
+
+                        for(int i=0; i<previewPanel.nodes.size(); i++) {
+                            if(startingNodes.contains(previewPanel.nodes.get(i))) {
+                                fullStartingNodes.add(-1.0);
+                            }
+                            else {
+                                fullStartingNodes.add(0.0);
+                            }
+                        }
+
+                        String epidemicSave = ShowEpidemicSaveDialog();
+
+                        if(!epidemicSave.equals("discard")){
+                            SaveEpidemic(epidemicSave, "ic", fullStartingNodes, edgeThresholds);
+                        }
+
+                        if(resultsPaneUse) previewPanel.resetNodesColor();
+
+                        IndependentCascadeEpidemic ic = new IndependentCascadeEpidemic(this);
+                        ic.CalculateIndependentCascde(fullStartingNodes, edgeThresholds);
+                        ic.DisplayIndependentCascade();
+
+                        resultsPaneUse = true;
+                        exportResultsMenuItem.setEnabled(true);
                     }
-                    
-                    if(resultsPaneUse) previewPanel.resetNodesColor();
-                    
-                    IndependentCascadeEpidemic ic = new IndependentCascadeEpidemic(this);
-                    ic.CalculateIndependentCascde(fullStartingNodes, edgeThresholds);
-                    ic.DisplayIndependentCascade();
-                    
-                    resultsPaneUse = true;
-                    exportResultsMenuItem.setEnabled(true);
-                }
-                else{
-                    return;
+                    else{
+                        return;
+                    }
                 }
             });
             epidemics.add(independentCascadeMenuItem);
@@ -744,7 +748,7 @@ public class MainFrame extends JFrame{
         MainMenuBar.add(about);
             aboutItem.addActionListener((ActionEvent e) -> {
                 JOptionPane.showMessageDialog(this, "----------------------------------------\n\n" + 
-                        "Created by: Segditsas Konstantinos\n" + "ksegditsas@yahoo.gr\n\n" +
+                        "Created by: Segditsas Konstantinos\n" + "kosegdit@gmail.com\n\n" +
                         "Advisor Professor: Katsaros Dimitrios\n" + "dkatsar@inf.uth.gr\n\n" + "ver 1.0\n\n" + 
                         "----------------------------------------\n"
                         , "About AviNet", JOptionPane.INFORMATION_MESSAGE);
@@ -787,14 +791,6 @@ public class MainFrame extends JFrame{
                     
                     nextToken = current_line.nextToken();
                     nodeThresholdArray[i] = Double.valueOf(nextToken);
-//                    for(i=0; i<numOfNodes; i++){
-//                        if(previewPanel.nodes.get(i).label == currentNodeLabel){
-//                            nextToken = current_line.nextToken();
-//                            nodeThresholdArray[i] = Double.valueOf(nextToken);
-//
-//                            break;
-//                        }
-//                    }
                     
                     while(current_line.hasMoreTokens()){
                         nextToken = current_line.nextToken();

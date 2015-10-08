@@ -1,3 +1,15 @@
+/*
+ * /*
+ * *
+ * * This is a class file for the program AviNet
+ * *
+ * * Copyright (c) Segditsas Konstantinos, 2015
+ * * Email: kosegdit@gmail.com
+ * *
+ * * All rights reserved
+ * *
+ */
+
 package ptyxiakh;
 
 import java.awt.Color;
@@ -30,16 +42,6 @@ public class LinearThresholdEpidemic {
         int numOfNodes = parent.previewPanel.nodes.size();
         int numOfEdges = parent.previewPanel.edges.size();
         
-        for(int i=0; i<numOfNodes; i++){
-            System.out.println("Node: " + parent.previewPanel.nodes.get(i).label + " with threshold: " + nodesThresholds.get(i));
-        }
-        System.out.println();
-        
-        for(int i=0; i<numOfEdges; i++){
-            System.out.println("Edge: " + parent.previewPanel.edges.get(i).label + " with threshold: " + edgesThresholds.get(i));
-        }
-        System.out.println();
-        
         // Initializing Lists
         for(int i=0; i<numOfNodes; i++){
             if(nodesThresholds.get(i) == -1.0){
@@ -65,13 +67,6 @@ public class LinearThresholdEpidemic {
                 epidemicMatrix[parent.previewPanel.edges.get(i).node2.myListPosition()][parent.previewPanel.edges.get(i).node1.myListPosition()] = edgesThresholds.get(i);
             }
 
-        }
-        
-        for(int i=0; i<epidemicMatrix.length; i++){
-            for(int j=0; j<epidemicMatrix.length; j++){
-                System.out.println(epidemicMatrix[i][j]);
-            }
-            System.out.println();
         }
         
         boolean infectionTerminated;
@@ -114,17 +109,6 @@ public class LinearThresholdEpidemic {
             if(epidemicMatrix[i][i] == -1.0 && !initNodes.contains(parent.previewPanel.nodes.get(i))){
                 infectedNodes.add(parent.previewPanel.nodes.get(i));
             }
-        }
-        
-        System.out.println("--------------");
-        System.out.println();
-        System.out.println(iterations);
-        
-        for(int i=0; i<epidemicMatrix.length; i++){
-            for(int j=0; j<epidemicMatrix.length; j++){
-                System.out.println(epidemicMatrix[i][j]);
-            }
-            System.out.println();
         }
     }
     
