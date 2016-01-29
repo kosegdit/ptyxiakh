@@ -1,0 +1,14 @@
+#Graph Properties
+
+directed	true
+weighted	true
+
+
+#List of Nodes, with their Locations and their Edges
+
+0	@778,839	1,1.5	2,3.2	3,0.15	
+1	@907,730	4,4.68	
+2	@879,962	0,1.61	
+3	@1126,786	1,2.0	5,3.1	
+4	@1163,893	5,1.32	
+5	@1001,961	2,0.65	
